@@ -130,6 +130,10 @@ class LLMClient:
     
     def generate_response(self, prompt: str, conversation_history: List[Dict] = None) -> str:
         """Génère une réponse simple sans streaming."""
+        if not self.current_model:
+            logger.error("Aucun modèle sélectionné")
+            return "Erreur: Aucun modèle LLM sélectionné"
+        
         if conversation_history is None:
             conversation_history = []
             

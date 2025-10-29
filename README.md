@@ -1,3 +1,5 @@
+![Tests](https://github.com/jeanmarcrenaud-prog/Mario/actions/workflows/tests.yml/badge.svg)
+
 # 🎙️ Assistant Vocal Intelligent
 
 Un assistant vocal local en **Python**, capable d’écouter, transcrire, répondre et parler grâce à des modèles **OpenAI Whisper**, **Piper TTS** et **Gradio**.  
@@ -29,16 +31,18 @@ Conçu pour fonctionner hors ligne et offrir une expérience fluide sur PC ou mi
 ```
 .
 ├── run.py                     # Point d'entrée principal
+├── run_tests.py               # Script de lancement des tests
 ├── requirement.txt            # Dépendances Python
 ├── .gitignore                 # Fichiers/dossiers ignorés par Git
 ├── README.md                  # Ce fichier
 ├── CONTRIBUTING.md            # Guide de contribution
-└── src/
+├── src/
     ├── main.py                # Classe principale AssistantVocal
     ├── core/                  # Logique interne (STT, TTS, hotword, etc.)
     ├── ui/                    # Interface Gradio / console
     ├── utils/                 # Outils : logger, config, monitoring
     └── config/                # Fichiers de configuration
+└── tests/                     # Tests unitaires
 ```
 
 ---

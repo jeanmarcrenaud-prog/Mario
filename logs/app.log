@@ -147,3 +147,377 @@ Versions des modules :
 2025-10-29 15:06:19,636 - AssistantVocal - INFO - [OK] Porcupine initialisé avec succès
 2025-10-29 15:06:19,935 - AssistantVocal - INFO - Interface créée, démarrage du serveur...
 2025-10-29 15:06:19,936 - AssistantVocal - INFO - [WEB] Accès local : http://192.168.1.13:7860
+2025-10-29 15:06:26,331 - AssistantVocal - INFO - [OK] Voix 'fr_FR-siwis-medium' chargée en 1.06s (CUDA: True)
+2025-10-29 15:06:28,384 - AssistantVocal - INFO - Modèle défini: qwen3-coder:latest
+2025-10-29 15:06:28,385 - AssistantVocal - INFO - [ECOUTE] Écoute démarrée sur microphone 0
+2025-10-29 15:06:28,487 - AssistantVocal - INFO - [AUDIO] Boucle d'écoute active...
+2025-10-29 15:34:12,990 - AssistantVocal - INFO - Arrêt par l'utilisateur
+2025-10-29 15:34:12,990 - AssistantVocal - INFO - Nettoyage des ressources...
+2025-10-29 15:34:13,251 - AssistantVocal - INFO - Mémoire Whisper nettoyée
+2025-10-29 15:34:13,251 - AssistantVocal - INFO - [NETTOYAGE] Cache TTS nettoyé
+2025-10-29 15:34:13,251 - AssistantVocal - INFO - Arrêt de l'application.
+2025-10-29 15:34:13,251 - AssistantVocal - INFO - Nettoyage des ressources...
+2025-10-29 15:34:13,251 - AssistantVocal - INFO - Mémoire Whisper nettoyée
+2025-10-29 15:34:13,252 - AssistantVocal - INFO - [NETTOYAGE] Cache TTS nettoyé
+2025-10-29 15:34:20,323 - AssistantVocal - INFO - Démarrage de l'assistant vocal
+2025-10-29 15:34:20,324 - AssistantVocal - INFO - Démarrage de l'assistant vocal
+2025-10-29 15:34:20,362 - AssistantVocal - INFO - ======================================================================
+                      DÉMARRAGE DE L'APPLICATION                      
+======================================================================
+Date et heure      : 2025-10-29 15:34:20.339770
+OS                : Windows 11 (10.0.26200)
+Python            : 3.13.5 (64bit)
+CPU               : AMD64 Family 25 Model 33 Stepping 0, AuthenticAMD
+ - Cœurs physiques: 6 | Logiques: 12
+ - Fréquence CPU  : 3701.0 MHz
+Mémoire totale    : 31.90 GB
+Mémoire dispo     : 20.85 GB
+[GPU] Détecté       : NVIDIA GeForce RTX 3060 Ti (8191 MB VRAM)
+CUDA disponible   : Oui
+
+Versions des modules :
+ - gradio         : 5.49.1
+ - numpy          : 2.2.6
+ - pyaudio        : 0.2.14
+ - torch          : 2.10.0.dev20251011+cu130
+ - whisper        : 20250625
+ - webrtcvad      : 2.0.10
+ - psutil         : 7.1.0
+ - librosa        : 0.11.0
+ - piper          : 1.3.0
+======================================================================
+2025-10-29 15:34:20,363 - AssistantVocal - INFO - Préchargement des modèles...
+2025-10-29 15:34:20,363 - AssistantVocal - INFO - Chargement du modèle Whisper...
+2025-10-29 15:34:20,363 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 15:34:20,363 - AssistantVocal - INFO - Chargement du modèle Whisper 'large' sur cuda
+2025-10-29 15:34:32,907 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 12.54s
+2025-10-29 15:34:32,908 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-29 15:34:35,069 - AssistantVocal - INFO - Modèle Whisper chargé avec succès
+2025-10-29 15:34:35,069 - AssistantVocal - INFO - Chargement de la voix Piper...
+2025-10-29 15:34:35,126 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 15:34:36,232 - AssistantVocal - INFO - [OK] Voix 'fr_FR-siwis-medium' chargée en 1.11s (CUDA: True)
+2025-10-29 15:34:36,232 - AssistantVocal - INFO - Voix Piper 'fr_FR-siwis-medium' prête
+2025-10-29 15:34:36,233 - AssistantVocal - INFO - Création de l'interface...
+2025-10-29 15:34:36,233 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 15:34:37,256 - AssistantVocal - INFO - [OK] Porcupine initialisé avec succès
+2025-10-29 15:34:37,541 - AssistantVocal - INFO - Interface créée, démarrage du serveur...
+2025-10-29 15:34:37,542 - AssistantVocal - INFO - [WEB] Accès local : http://192.168.1.13:7860
+2025-10-29 15:34:43,954 - AssistantVocal - INFO - [OK] Voix 'fr_FR-siwis-medium' chargée en 1.04s (CUDA: True)
+2025-10-29 15:34:46,035 - AssistantVocal - INFO - Modèle défini: qwen3-coder:latest
+2025-10-29 15:34:46,036 - AssistantVocal - INFO - [ECOUTE] Écoute démarrée sur microphone 0
+2025-10-29 15:34:46,105 - AssistantVocal - INFO - [AUDIO] Boucle d'écoute active...
+2025-10-29 15:35:19,790 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): {"error":"model requires more system memory (41.3 GiB) than is available (25.5 GiB)"}
+2025-10-29 15:35:19,790 - AssistantVocal - INFO - Réponse LLM générée en 0.80s - 0 caractères
+2025-10-29 15:35:19,792 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 37 caractères
+2025-10-29 15:35:49,233 - AssistantVocal - INFO - Modèle défini: deepseek-v3.1:671b-cloud
+2025-10-29 15:36:19,004 - AssistantVocal - INFO - Réponse LLM générée en 29.77s - 3490 caractères
+2025-10-29 15:36:19,006 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 3490 caractères
+2025-10-29 15:37:57,667 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-29 15:37:58,006 - AssistantVocal - INFO - Mot-clé détecté!
+2025-10-29 15:37:58,008 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-29 15:38:00,828 - AssistantVocal - INFO - [SILENCE] Fin de phrase détectée
+2025-10-29 15:38:00,833 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-29 15:38:06,597 - AssistantVocal - INFO - Modèle défini: qwen3-coder:latest
+2025-10-29 15:38:07,318 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): {"error":"model requires more system memory (40.4 GiB) than is available (25.9 GiB)"}
+2025-10-29 15:38:07,318 - AssistantVocal - INFO - Réponse LLM générée en 0.72s - 0 caractères
+2025-10-29 15:38:07,320 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 37 caractères
+2025-10-29 15:39:48,523 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 15:39:49,223 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): {"error":"model requires more system memory (37.6 GiB) than is available (26.0 GiB)"}
+2025-10-29 15:39:49,223 - AssistantVocal - INFO - Réponse LLM générée en 0.70s - 0 caractères
+2025-10-29 15:39:49,225 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 37 caractères
+2025-10-29 15:53:32,644 - AssistantVocal - INFO - Réponse LLM générée en 561.16s - 1481 caractères
+2025-10-29 15:53:32,649 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 1481 caractères
+2025-10-29 16:22:11,600 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-29 16:22:11,954 - AssistantVocal - INFO - Mot-clé détecté!
+2025-10-29 16:22:11,956 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-29 16:22:13,699 - AssistantVocal - INFO - [SILENCE] Fin de phrase détectée
+2025-10-29 16:22:13,704 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-29 16:22:18,971 - AssistantVocal - INFO - Modèle défini: qwen3-coder:latest
+2025-10-29 16:22:37,316 - AssistantVocal - INFO - Réponse LLM générée en 18.34s - 163 caractères
+2025-10-29 16:22:37,328 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.01s - 163 caractères
+2025-10-29 16:27:07,012 - AssistantVocal - INFO - Arrêt par l'utilisateur
+2025-10-29 16:27:07,013 - AssistantVocal - INFO - Nettoyage des ressources...
+2025-10-29 16:27:07,177 - AssistantVocal - INFO - Mémoire Whisper nettoyée
+2025-10-29 16:27:07,178 - AssistantVocal - INFO - [NETTOYAGE] Cache TTS nettoyé
+2025-10-29 16:27:07,178 - AssistantVocal - INFO - Arrêt de l'application.
+2025-10-29 16:27:07,186 - AssistantVocal - INFO - Nettoyage des ressources...
+2025-10-29 16:27:07,186 - AssistantVocal - INFO - Mémoire Whisper nettoyée
+2025-10-29 16:27:07,186 - AssistantVocal - INFO - [NETTOYAGE] Cache TTS nettoyé
+2025-10-29 17:16:17,050 - AssistantVocal - ERROR - Aucun modèle sélectionné
+2025-10-29 17:27:02,226 - AssistantVocal - ERROR - Aucun modèle sélectionné
+2025-10-29 17:56:34,281 - AssistantVocal - INFO - Réponse LLM générée en 142.75s - 27 caractères
+2025-10-29 19:14:15,149 - AssistantVocal - INFO - Réponse LLM générée en 44.40s - 39 caractères
+2025-10-29 19:16:03,633 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:16:03,692 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:16:03,692 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:16:03,696 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:17:51,512 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:17:51,571 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:17:51,571 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:17:51,574 - AssistantVocal - ERROR - Erreur communication Ollama: Impossible de se connecter
+2025-10-29 19:17:51,574 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:17:51,582 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:17:51,586 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:17:51,591 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:17:51,593 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:17:51,595 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b', 'mistral:7b']
+2025-10-29 19:18:28,847 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:18:28,908 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:18:28,908 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:18:28,910 - AssistantVocal - ERROR - Erreur communication Ollama: Impossible de se connecter
+2025-10-29 19:18:28,911 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:18:28,919 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:18:28,924 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:18:28,929 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:18:28,931 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:18:28,933 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b', 'mistral:7b']
+2025-10-29 19:19:59,109 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:19:59,170 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:19:59,171 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:19:59,173 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:19:59,173 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:19:59,176 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:19:59,180 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:19:59,185 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:19:59,187 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:19:59,189 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b', 'mistral:7b']
+2025-10-29 19:21:13,488 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:21:13,492 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:21:13,549 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:21:13,549 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:21:13,552 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:21:13,552 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:21:13,554 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:21:13,558 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:21:13,563 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:21:13,567 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:21:13,569 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:24:45,176 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:24:45,178 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:24:45,181 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:24:45,183 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:24:45,183 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:24:45,186 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:24:45,186 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:24:45,188 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:24:45,194 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:24:45,198 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:24:45,200 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:24:45,202 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:27:01,076 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:27:01,079 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:27:01,082 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:27:01,084 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:27:01,084 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:27:01,087 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:27:01,087 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:27:01,089 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:27:01,094 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:27:01,098 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:27:01,100 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:27:01,103 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:29:09,871 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:29:09,874 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:29:09,876 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:29:09,879 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:29:09,879 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:09,881 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:29:09,881 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:09,883 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:09,887 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:29:09,892 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:29:09,896 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:29:09,899 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:29:09,917 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:29:10,015 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:29:59,574 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:29:59,577 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:29:59,580 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:29:59,582 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:29:59,582 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:59,584 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:29:59,584 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:59,586 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:29:59,591 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:29:59,595 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:29:59,599 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:29:59,602 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:29:59,617 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:29:59,681 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:30:05,001 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:30:05,004 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:30:05,007 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:30:05,010 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:30:05,010 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:05,012 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:30:05,012 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:05,014 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:05,019 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:30:05,023 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:30:05,027 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:30:05,030 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:30:05,047 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:30:05,111 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:30:09,429 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:30:09,431 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:30:09,432 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:30:09,434 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:30:09,434 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:09,436 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:30:09,436 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:09,437 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:30:09,440 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:30:09,443 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:30:09,444 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:30:09,445 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:30:09,460 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:30:09,520 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:33:29,112 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:33:29,114 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:33:29,116 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:33:29,117 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:33:29,118 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:33:29,119 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:33:29,119 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:33:29,121 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:33:29,123 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:33:29,126 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:33:29,127 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:33:29,129 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:33:29,142 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:33:29,145 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:33:29,145 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:33:29,147 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:33:29,147 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:33:29,148 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-29 19:33:29,148 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-29 19:33:29,149 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:33:29,149 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:33:29,149 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-29 19:33:29,150 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:33:29,151 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:33:29,151 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-29 19:33:29,288 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:33:29,288 - AssistantVocal - ERROR - [ERREUR] Modèle voix non trouvé: C:\Users\johns\Documents\python\Mario\voices\nonexistent_voice\nonexistent_voice.onnx
+2025-10-29 19:33:29,290 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:33:29,649 - AssistantVocal - ERROR - [ERREUR] Erreur CLI Piper: Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\johns\miniconda3\Scripts\piper.exe\__main__.py", line 7, in <module>
+    sys.exit(main())
+             ~~~~^^
+  File "C:\Users\johns\miniconda3\Lib\site-packages\piper\__main__.py", line 136, in main
+    raise ValueError(
+        f"Unable to find voice: {model_path} (use piper.download_voices)"
+    )
+ValueError: Unable to find voice: \path\to\model.onnx (use piper.download_voices)
+
+2025-10-29 19:33:29,705 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:33:29,706 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:33:29,707 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:53,947 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:34:53,949 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:34:53,950 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:34:53,951 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:34:53,951 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:34:53,953 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:34:53,953 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:34:53,955 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:34:53,958 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:34:53,961 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:34:53,962 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:34:53,963 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:34:53,979 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:34:53,981 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:34:53,981 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:34:53,985 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:34:53,985 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:34:53,985 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-29 19:34:53,985 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-29 19:34:53,987 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:34:53,987 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:34:53,987 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-29 19:34:53,988 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:34:53,989 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:34:53,989 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-29 19:34:54,136 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,136 - AssistantVocal - ERROR - [ERREUR] Modèle voix non trouvé: C:\Users\johns\Documents\python\Mario\voices\nonexistent_voice\nonexistent_voice.onnx
+2025-10-29 19:34:54,139 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,140 - AssistantVocal - INFO - [AUDIO] Synthèse audio en 0.00s - 11 caractères
+2025-10-29 19:34:54,141 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,142 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,143 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,145 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,145 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:34:54,145 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-29 19:34:54,146 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:34:54,146 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:34:54,147 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-29 19:35:37,046 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:35:37,049 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:35:37,050 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:35:37,052 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:35:37,052 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:35:37,053 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:35:37,053 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:35:37,055 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:35:37,057 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:35:37,060 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:35:37,061 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:35:37,063 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:35:37,078 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:35:37,080 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:35:37,081 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:35:37,084 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:35:37,084 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:35:37,084 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-29 19:35:37,085 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-29 19:35:37,086 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:35:37,086 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:35:37,086 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-29 19:35:37,087 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:35:37,088 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:35:37,088 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-29 19:35:37,142 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:35:37,144 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:35:37,145 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:35:37,146 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:35:37,147 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:35:37,147 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:35:37,148 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-29 19:35:37,148 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:35:37,148 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-29 19:36:25,364 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-29 19:36:25,367 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-29 19:36:25,370 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-29 19:36:25,372 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-29 19:36:25,372 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:36:25,375 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-29 19:36:25,375 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:36:25,377 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-29 19:36:25,382 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-29 19:36:25,388 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-29 19:36:25,390 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-29 19:36:25,392 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-29 19:36:25,408 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:36:25,411 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:36:25,411 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:36:25,413 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:36:25,414 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:36:25,414 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-29 19:36:25,414 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-29 19:36:25,417 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:36:25,417 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-29 19:36:25,417 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-29 19:36:25,419 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-29 19:36:25,419 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-29 19:36:25,419 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-29 19:36:25,475 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:36:25,478 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:36:25,480 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:36:25,482 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:36:25,484 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-29 19:36:25,485 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:36:25,485 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-29 19:36:25,485 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-29 19:36:25,485 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
