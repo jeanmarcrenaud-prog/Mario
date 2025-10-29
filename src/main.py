@@ -116,7 +116,7 @@ class AssistantVocal:
             
             import socket
             local_ip = socket.gethostbyname(socket.gethostname())
-            logger.info(f"🌐 Accès local : http://{local_ip}:{config.INTERFACE_PORT}")
+            logger.info(f"[WEB] Accès local : http://{local_ip}:{config.INERFACE_PORT}")
             
             # Démarrage du serveur dans un thread séparé pour éviter les blocages
             def start_server():
