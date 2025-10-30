@@ -15,8 +15,8 @@ class AudioPlayer:
     def __init__(self):
         self._pyaudio_instance = None
         self._lock = threading.Lock()
-        self._initialize_audio()
         self._is_playing = threading.Event()  # Initialisé à False
+        self._initialize_audio()
 
     # ---------------------------------------------------------------------
     # Initialisation & nettoyage
@@ -74,7 +74,6 @@ class AudioPlayer:
     # Lecture audio
     # ---------------------------------------------------------------------
     def play_audio(self, audio_data: np.ndarray, samplerate: Optional[int] = None):
-        """Lit un buffer audio numpy en arrière-plan."""
         def _play_thread():
             try:
                 with self._lock:
@@ -96,39 +95,35 @@ class AudioPlayer:
                 logger.error(f"Erreur lecture audio : {e}")
         threading.Thread(target=_play_thread, daemon=True).start()
 
+
     # ---------------------------------------------------------------------
     # Bip simple
     # ---------------------------------------------------------------------
 
     def play_beep(self, frequency: int = 1200, duration: float = 0.25, volume: float = 0.3):
-        """Joue un bip sonore simple en arrière-plan."""
-        def _beep_thread():
-            try:
-                samplerate = 44100
-                t = np.linspace(0, duration, int(samplerate * duration), False)
-                beep = volume * np.sin(2 * math.pi * frequency * t)
-                audio_data = (beep * 32767).astype(np.int16)
-                
-                with self._lock:
-                    rate = samplerate
-                    with self._safe_stream(
-                        format=pyaudio.paInt16,
-                        channels=1,
-                        rate=rate,
-                        output=True,
-                    ) as stream:
-                        if not stream:
-                            logger.warning("Impossible de jouer le bip : flux non disponible.")
-                            return
-                        self._is_playing.set()
-                        stream.write(audio_data.tobytes())
-                self._is_playing.clear()
-            except Exception as e:
-                self._is_playing.clear()
-                logger.warning(f"Impossible de jouer le bip: {e}")
-        
-        threading.Thread(target=_beep_thread, daemon=True).start()
-            
+        try:
+            samplerate = 44100
+            t = np.linspace(0, duration, int(samplerate * duration), False)
+            beep = volume * np.sin(2 * np.pi * frequency * t)
+            audio_data = (beep * 32767).astype(np.int16)
+            with self._lock:
+                with self._safe_stream(
+                    format=pyaudio.paInt16,
+                    channels=1,
+                    rate=samplerate,
+                    output=True,
+                ) as stream:
+                    if not stream:
+                        logger.warning("Impossible de jouer le bip : flux non disponible.")
+                        return
+                    self._is_playing.set()
+                    stream.write(audio_data.tobytes())
+                    time.sleep(duration)
+                    self._is_playing.clear()
+        except Exception as e:
+            self._is_playing.clear()
+            logger.warning(f"Impossible de jouer le bip: {e}")
+           
     def play_confirmation_beep(self):
         self.play_beep(frequency=880, duration=0.15, volume=0.4)
 
