@@ -1406,3 +1406,301 @@ Versions des modules :
 2025-10-30 09:50:59,741 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
 2025-10-30 09:50:59,741 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
 2025-10-30 09:50:59,742 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-30 09:57:00,385 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-30 09:57:00,387 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-30 09:57:00,389 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-30 09:57:00,390 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-30 09:57:00,390 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:00,392 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-30 09:57:00,392 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:00,393 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:00,396 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-30 09:57:00,399 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-30 09:57:00,401 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-30 09:57:00,402 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-30 09:57:00,415 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:00,417 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:00,417 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 09:57:00,419 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:00,419 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 09:57:00,419 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-30 09:57:00,419 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-30 09:57:00,421 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:00,421 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 09:57:00,421 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-30 09:57:00,422 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:00,422 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 09:57:00,422 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-30 09:57:00,476 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:00,477 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:00,478 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:00,479 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:00,481 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:00,481 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 09:57:00,481 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-30 09:57:00,481 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 09:57:00,481 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-30 09:57:05,256 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-30 09:57:05,259 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-30 09:57:05,262 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-30 09:57:05,264 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-30 09:57:05,264 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:05,267 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-30 09:57:05,267 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:05,269 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 09:57:05,277 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-30 09:57:05,282 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-30 09:57:05,284 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-30 09:57:05,286 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-30 09:57:05,303 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:05,306 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:05,306 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 09:57:05,309 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:05,309 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 09:57:05,309 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-30 09:57:05,309 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-30 09:57:05,312 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:05,312 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 09:57:05,312 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-30 09:57:05,314 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 09:57:05,315 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 09:57:05,315 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-30 09:57:05,370 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:05,372 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:05,374 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:05,376 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:05,378 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 09:57:05,378 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 09:57:05,379 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-30 09:57:05,379 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 09:57:05,379 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-30 10:00:00,963 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-30 10:00:00,965 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-30 10:00:00,966 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-30 10:00:00,968 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-30 10:00:00,968 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:00:00,969 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-30 10:00:00,969 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:00:00,971 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:00:00,973 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-30 10:00:00,976 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-30 10:00:00,977 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-30 10:00:00,978 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-30 10:00:00,992 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:00:00,994 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:00:00,994 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 10:00:00,996 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:00:00,996 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 10:00:00,996 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-30 10:00:00,997 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-30 10:00:00,998 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:00:00,998 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 10:00:00,998 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-30 10:00:00,999 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:00:01,000 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 10:00:01,000 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-30 10:00:01,051 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:00:01,052 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:00:01,053 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:00:01,055 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:00:01,056 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:00:01,056 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 10:00:01,056 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-30 10:00:01,056 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 10:00:01,056 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-30 10:00:01,149 - AssistantVocal - ERROR - [ERREUR] Fichier Porcupine manquant: C:\Users\johns\Documents\python\Mario\porcupine_libs\porcupine_params_fr.pv
+2025-10-30 10:00:01,235 - AssistantVocal - INFO - [AUDIO] Boucle d'écoute active...
+2025-10-30 10:00:01,235 - AssistantVocal - INFO - [ECOUTE] Écoute démarrée sur microphone 0
+2025-10-30 10:00:01,235 - AssistantVocal - ERROR - [ERREUR] Erreur dans la boucle d'écoute: '>=' not supported between instances of 'MagicMock' and 'int'
+2025-10-30 10:00:01,236 - AssistantVocal - INFO - [ARRET] Boucle d'écoute arrêtée
+2025-10-30 10:00:01,238 - AssistantVocal - ERROR - [ERREUR] Impossible d'initialiser Porcupine
+2025-10-30 10:00:01,521 - AssistantVocal - INFO - [OK] Porcupine initialisé avec succès
+2025-10-30 10:00:01,521 - AssistantVocal - WARNING - [ATTENTION] Écoute déjà en cours
+2025-10-30 10:00:01,524 - AssistantVocal - INFO - [AUDIO] Boucle d'écoute active...
+2025-10-30 10:00:01,524 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:01,940 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:01,967 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:01,968 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:02,333 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:02,363 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:02,363 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:02,730 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:02,757 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:02,758 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:03,124 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:03,152 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:03,153 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:03,519 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:03,548 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:03,548 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:03,915 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:03,942 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:03,943 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:04,310 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:04,338 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:04,339 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:04,705 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:04,733 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:04,733 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:05,100 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:05,128 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:05,129 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:05,495 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:05,523 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:05,524 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:05,889 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:05,917 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:05,917 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:06,285 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:06,313 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:06,313 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:06,679 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:06,707 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:06,708 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:07,074 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:07,103 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:07,103 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:07,471 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:07,499 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:07,500 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:07,866 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:07,955 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:07,955 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:08,322 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:08,350 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:08,351 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:08,717 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:08,744 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:08,745 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:09,111 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:09,139 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:09,140 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:09,507 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:09,535 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:09,535 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:09,901 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:09,930 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:09,930 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:10,298 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:10,326 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:10,326 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:10,693 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:10,722 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:10,722 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:11,089 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:11,117 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:11,118 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:11,483 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:11,512 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:11,512 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:11,879 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:11,907 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:11,907 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:12,274 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:12,303 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:12,303 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:12,670 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:12,698 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:12,699 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:13,066 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:13,094 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:13,095 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:13,463 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:13,492 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:13,493 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:13,860 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:13,888 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:13,888 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:14,255 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:14,286 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:14,286 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:14,652 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:14,680 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:14,681 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:15,047 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:15,075 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:15,076 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:15,443 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:15,471 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:15,472 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:15,838 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:15,865 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:15,866 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:16,232 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:16,260 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:16,261 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:16,627 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:16,657 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:16,658 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:17,026 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:17,055 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:17,056 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:17,423 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:17,452 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:17,452 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:17,818 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:17,926 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:17,927 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:18,294 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:18,322 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:18,323 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:18,690 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:18,717 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:18,718 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:19,084 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:19,113 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:19,114 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:19,480 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:19,508 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:19,508 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:19,875 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:19,903 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:19,904 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:20,270 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:20,298 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:20,299 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:20,665 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:20,694 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:20,695 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:21,061 - AssistantVocal - INFO - [MICRO] Capture de la parole en cours...
+2025-10-30 10:00:21,089 - AssistantVocal - INFO - [FICHIER] Audio capturé: 80000 échantillons
+2025-10-30 10:00:21,090 - AssistantVocal - INFO - [ALERTE] Mot-clé détecté!
+2025-10-30 10:00:21,350 - AssistantVocal - INFO - [ARRET] Boucle d'écoute arrêtée
+2025-10-30 10:07:22,743 - AssistantVocal - INFO - [OK] Porcupine initialisé avec succès
+2025-10-30 10:08:00,444 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 22 caractères
+2025-10-30 10:08:00,446 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 38 caractères
+2025-10-30 10:08:00,447 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 33 caractères
+2025-10-30 10:08:00,449 - AssistantVocal - ERROR - Erreur Ollama (HTTP 500): Erreur interne du serveur
+2025-10-30 10:08:00,449 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:08:00,451 - AssistantVocal - ERROR - Impossible de se connecter à Ollama
+2025-10-30 10:08:00,451 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:08:00,452 - AssistantVocal - INFO - Réponse LLM générée en 0.00s - 0 caractères
+2025-10-30 10:08:00,455 - AssistantVocal - ERROR - Ollama non accessible: Connection error
+2025-10-30 10:08:00,458 - AssistantVocal - ERROR - Erreur récupération modèles: API error
+2025-10-30 10:08:00,459 - AssistantVocal - INFO - Modèle défini: qwen3:4b
+2025-10-30 10:08:00,460 - AssistantVocal - ERROR - Modèle 'qwen3:4b' non disponible. Modèles: ['llama2:7b']
+2025-10-30 10:08:00,475 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:08:00,477 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:08:00,477 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 10:08:00,479 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:08:00,479 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 10:08:00,479 - AssistantVocal - INFO - Modèle Whisper chargé avec succès en 0.00s
+2025-10-30 10:08:00,479 - AssistantVocal - INFO - [CHARGEMENT] Préchargement du modèle small pour fallback...
+2025-10-30 10:08:00,481 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:08:00,481 - AssistantVocal - INFO - Chargement du modèle Whisper 'base' sur cuda
+2025-10-30 10:08:00,481 - AssistantVocal - ERROR - Erreur de chargement du modèle Whisper: Load error
+2025-10-30 10:08:00,482 - AssistantVocal - INFO - Utilisation de cuda pour Whisper (FP16: True)
+2025-10-30 10:08:00,482 - AssistantVocal - WARNING - SpeechRecognizer non prêt
+2025-10-30 10:08:00,482 - AssistantVocal - ERROR - Modèle Whisper non chargé
+2025-10-30 10:08:00,530 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:08:00,532 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:08:00,533 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:08:00,534 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:08:00,536 - AssistantVocal - INFO - [OK] Bibliothèque Piper Python disponible
+2025-10-30 10:08:00,536 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 10:08:00,536 - AssistantVocal - INFO - [TEST] ✅ Synthèse vocale fonctionnelle (3 échantillons)
+2025-10-30 10:08:00,536 - AssistantVocal - INFO - [TEST] Test de synthèse vocale...
+2025-10-30 10:08:00,536 - AssistantVocal - ERROR - [TEST] ❌ Synthèse vocale échouée
+2025-10-30 10:08:00,538 - AssistantVocal - INFO - [OK] Porcupine initialisé avec succès
+2025-10-30 10:08:00,543 - AssistantVocal - ERROR - [ERREUR] Fichier Porcupine manquant: C:\Users\johns\Documents\python\Mario\porcupine_libs\porcupine_params_fr.pv
+2025-10-30 10:08:00,544 - AssistantVocal - ERROR - [ERREUR] Bibliothèque Porcupine non installée
