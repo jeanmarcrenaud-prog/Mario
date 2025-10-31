@@ -31,19 +31,23 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # 🔍 Vérification de l'existence et du contenu du fichier requirements.txt
+      # 🧱 Installer les dépendances système requises pour PyAudio
+      - name: 🧱 Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y portaudio19-dev
+
       - name: 🔎 Check for requirements.txt
         run: |
-          echo "Vérification du fichier requirements.txt..."
           if [ ! -f "requirements.txt" ]; then
-            echo "❌ Erreur : le fichier requirements.txt est manquant."
+            echo "❌ requirements.txt manquant"
             exit 1
           fi
           if [ ! -s "requirements.txt" ]; then
-            echo "❌ Erreur : le fichier requirements.txt est vide."
+            echo "❌ requirements.txt vide"
             exit 1
           fi
-          echo "✅ requirements.txt trouvé et non vide."
+          echo "✅ requirements.txt trouvé"
 
       - name: 📦 Install dependencies
         run: |
@@ -52,13 +56,10 @@ jobs:
           pip install pip-check
 
       - name: 🧩 Check dependency integrity
-        run: |
-          echo "🔍 Vérification des dépendances installées..."
-          pip check
+        run: pip check
 
       - name: 🧪 Run tests with coverage
-        run: |
-          pytest --cov=src --cov-report=term-missing --color=yes -v
+        run: pytest --cov=src --cov-report=term-missing --color=yes -v
 
       - name: 📊 Upload coverage report
         uses: actions/upload-artifact@v4
