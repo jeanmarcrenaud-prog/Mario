@@ -14,7 +14,28 @@ import re
 
 class InterfaceHelpers:
     """Classe helper pour les opérations communes de l'interface."""
-    
+    def __init__(self):
+        pass
+
+    def format_file_size(self, size: int) -> str:
+        """Formate la taille d'un fichier en une chaîne lisible."""
+        for unit in ['B', 'KB', 'MB', 'GB']:
+            if size < 1024.0:
+                return f"{size:.1f} {unit}"
+            size /= 1024.0
+        return f"{size:.1f} TB"
+
+    def truncate_text(self, text: str, max_length: int) -> str:
+        """Tronque un texte à une longueur donnée."""
+        if len(text) <= max_length:
+            return text
+        return text[:max_length] + "..."
+
+    def sanitize_filename(self, filename: str) -> str:
+        """Nettoie un nom de fichier pour enlever les caractères non autorisés."""
+        sanitized = re.sub(r'[\\/*?:"<>|]', "_", filename)
+        return sanitized
+        
     def get_theme(self):
         """Retourne le thème Gradio."""
         return gr.themes.Soft(

@@ -117,6 +117,18 @@ class TextToSpeech:
             logger.error("[ERREUR] Erreur de synthèse: %s", e)
             return None
 
+    def _play_end_beep(self, p):
+        """Joue un bip de fin."""
+        try:
+            stream = p.open(format=pyaudio.paInt16, channels=1, rate=44100, output=True)
+            # Générer un bip simple
+            beep = np.sin(2 * np.pi * 440 * np.arange(44100 * 0.1) / 44100).astype(np.float32)
+            stream.write((beep * 32767).astype(np.int16).tobytes())
+            stream.stop_stream()
+            stream.close()
+        except Exception as e:
+            logger.error(f"Erreur lors de la lecture du bip de fin: {e}")
+
     def _synthesize_python_simple(self, text: str) -> Optional[np.ndarray]:
         """
         Méthode simple et fiable utilisant un fichier temporaire.

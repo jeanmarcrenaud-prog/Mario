@@ -32,7 +32,7 @@ Conçu pour fonctionner hors ligne et offrir une expérience fluide sur PC ou mi
 .
 ├── run.py                     # Point d'entrée principal
 ├── run_tests.py               # Script de lancement des tests
-├── requirement.txt            # Dépendances Python
+├── requirements.txt            # Dépendances Python
 ├── .gitignore                 # Fichiers/dossiers ignorés par Git
 ├── README.md                  # Ce fichier
 ├── CONTRIBUTING.md            # Guide de contribution
@@ -67,7 +67,7 @@ venv\Scripts\activate         # Windows
 ### 3️⃣ Installer les dépendances
 
 ```bash
-pip install -r requirement.txt
+pip install -r requirements.txt
 ```
 
 > 💡 Pour de meilleures performances, installe PyTorch avec CUDA si ton GPU le supporte :

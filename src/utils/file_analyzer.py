@@ -13,6 +13,9 @@ class FileAnalyzer:
     def analyze_file(self, file_path):
         """Analyse un fichier texte"""
         try:
+            # Convert to Path object to use .suffix
+            file_path = Path(file_path)
+            
             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 content = f.read()
             
@@ -35,18 +38,29 @@ class FileAnalyzer:
                 stats['classes'] = len(re.findall(r'^class\s+\w+', content, re.MULTILINE))
                 stats['comments'] = len(re.findall(r'#.*$', content, re.MULTILINE))
             
-            return stats
+            # Return success structure
+            return {
+                'error': False,
+                'content': content,  # Include the actual file content
+                'metadata': stats    # Include the statistics as metadata
+            }
             
         except Exception as e:
             logger.error(f"Erreur analyse fichier {file_path}: {e}")
-            return {'path': str(file_path), 'error': str(e)}
+            # Return error structure with boolean error flag
+            return {
+                'error': True,
+                'message': str(e),
+                'path': str(file_path)
+            }
     
     def analyze_directory(self, root_path):
         """Analyse tous les fichiers texte d'une arborescence"""
         root_path = Path(root_path)
         
         if not root_path.exists():
-            return None, "Le chemin spécifié n'existe pas"
+            # Return consistent tuple with 4 elements
+            return [], defaultdict(int), Counter(), "Le chemin spécifié n'existe pas"
         
         file_stats = []
         total_stats = defaultdict(int)
@@ -57,10 +71,10 @@ class FileAnalyzer:
                 stats = self.analyze_file(file_path)
                 file_stats.append(stats)
                 
-                if 'error' not in stats:
+                if not stats.get('error', False):
                     file_types[file_path.suffix] += 1
                     for key in ['size_bytes', 'lines', 'words', 'characters', 'non_empty_lines', 'empty_lines']:
-                        total_stats[key] += stats.get(key, 0)
+                        total_stats[key] += stats.get('metadata', {}).get(key, 0)
                     total_stats['files'] += 1
         
         return file_stats, total_stats, file_types, None
@@ -94,14 +108,14 @@ class FileAnalyzer:
             },
             'file_types': dict(file_types),
             'largest_files': [],
-            'error_files': [f for f in file_stats if 'error' in f]
+            'error_files': [f for f in file_stats if f.get('error', False)]
         }
         
         # Top 5 des plus gros fichiers
-        valid_files = [f for f in file_stats if 'error' not in f]
+        valid_files = [f for f in file_stats if not f.get('error', False)]
         if valid_files:
             report['largest_files'] = sorted(valid_files, 
-                                           key=lambda x: x['size_bytes'], 
+                                           key=lambda x: x.get('metadata', {}).get('size_bytes', 0), 
                                            reverse=True)[:5]
         
         return report
