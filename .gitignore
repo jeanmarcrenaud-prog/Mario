@@ -1,7 +1,63 @@
+# ========================================
+# 🧠 Projet Mario - Git Ignore
+# ========================================
+
+# --- Python général ---
 __pycache__/
-*.pyc
-.DS_Store
-.env
-# Logs
+*.py[cod]
+*$py.class
+
+# --- Logs et fichiers temporaires ---
 logs/
 *.log
+*.tmp
+*.bak
+
+# --- Tests et couverture ---
+.coverage
+htmlcov/
+.pytest_cache/
+.cache/
+junit.xml
+
+# --- Environnements virtuels ---
+env/
+venv/
+.venv/
+ENV/
+env.bak/
+
+# --- Build / distribution ---
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# --- IDE / éditeurs ---
+.vscode/
+.idea/
+.spyproject/
+*.swp
+*.swo
+
+# --- OS spécifiques ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Données / ressources locales ---
+data/
+tmp/
+output/
+*.wav
+*.mp3
+
+# --- GitHub Actions artefacts ---
+*.zip
+*.tar.gz
+
+# --- Autres fichiers à ne pas suivre ---
+config/local_*.json
+config/*.env
+.env
