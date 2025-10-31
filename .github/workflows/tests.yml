@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        python-version: ["3.13"]  # ✅ uniquement Python 3.13
+        python-version: ["3.13"]
 
     steps:
       - name: 🧰 Checkout repository
@@ -23,7 +23,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      # 🧠 Mise en cache des dépendances pour accélérer les builds
       - name: ♻️ Cache pip packages
         uses: actions/cache@v4
         with:
@@ -32,25 +31,35 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # ⚙️ Installation des dépendances
+      # 🔍 Vérification de l'existence et du contenu du fichier requirements.txt
+      - name: 🔎 Check for requirements.txt
+        run: |
+          echo "Vérification du fichier requirements.txt..."
+          if [ ! -f "requirements.txt" ]; then
+            echo "❌ Erreur : le fichier requirements.txt est manquant."
+            exit 1
+          fi
+          if [ ! -s "requirements.txt" ]; then
+            echo "❌ Erreur : le fichier requirements.txt est vide."
+            exit 1
+          fi
+          echo "✅ requirements.txt trouvé et non vide."
+
       - name: 📦 Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pip-check
 
-      # 🔍 Vérification automatique des dépendances manquantes ou brisées
       - name: 🧩 Check dependency integrity
         run: |
           echo "🔍 Vérification des dépendances installées..."
           pip check
 
-      # 🧪 Exécution des tests avec couverture
       - name: 🧪 Run tests with coverage
         run: |
           pytest --cov=src --cov-report=term-missing --color=yes -v
 
-      # 📊 Sauvegarde du rapport de couverture HTML
       - name: 📊 Upload coverage report
         uses: actions/upload-artifact@v4
         with:
