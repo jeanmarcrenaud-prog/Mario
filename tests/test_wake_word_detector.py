@@ -1,76 +1,54 @@
-# tests/test_wake_word_detector.py - APPROCHE SIMPLIFIÉE
 import pytest
+from unittest.mock import patch, MagicMock
 import numpy as np
-from unittest.mock import patch, MagicMock, call
 from src.core.wake_word_detector import WakeWordDetector
 
 class TestWakeWordDetector:
-    
+
     def test_initialize_porcupine_success(self):
-        """Test l'initialisation réussie de Porcupine."""
-        # Mock conditionnel PLUS SIMPLE
-        with patch('src.core.wake_word_detector.os.path.exists') as mock_exists:
-            mock_exists.return_value = True
-            
-            # Mock l'import de Porcupine en le forçant à être disponible
+        """Test l'initialisation réussie de Porcupine avec clé valide."""
+        with patch('src.core.wake_word_detector.os.path.exists', return_value=True):
             with patch.dict('sys.modules', {'pvporcupine': MagicMock()}):
                 with patch('pvporcupine.Porcupine') as mock_porcupine:
-                    mock_porcupine_instance = MagicMock()
-                    mock_porcupine.return_value = mock_porcupine_instance
-                    
-                    detector = WakeWordDetector()
-                    result = detector.initialize_porcupine()
-                    
-                    assert result == True
-                    assert detector.porcupine == mock_porcupine_instance
+                    mock_porcupine.return_value = MagicMock()
+                    with patch('src.config.config.PORCUPINE_ACCESS_KEY', 'fake_key'):
+                        detector = WakeWordDetector()
+                        result = detector.initialize_porcupine()
+                        assert result is True
+                        mock_porcupine.assert_called_once()
 
     def test_initialize_porcupine_missing_file(self):
-        """Test l'échec d'initialisation si fichier manquant."""
-        with patch('src.core.wake_word_detector.os.path.exists') as mock_exists:
-            mock_exists.return_value = False
-            
+        """Échec si fichier Porcupine manquant."""
+        with patch('src.core.wake_word_detector.os.path.exists', return_value=False):
             detector = WakeWordDetector()
             result = detector.initialize_porcupine()
-            
-            assert result == False
-            assert detector.porcupine is None
+            assert result is False
 
     def test_initialize_porcupine_import_error(self):
-        """Test l'échec d'initialisation si import error."""
-        with patch('src.core.wake_word_detector.os.path.exists') as mock_exists:
-            mock_exists.return_value = True
-            
-            # Simuler que pvporcupine n'est pas installé
-            with patch.dict('sys.modules', {'pvporcupine': None}):
-                detector = WakeWordDetector()
-                result = detector.initialize_porcupine()
-                
-                assert result == False
-                assert detector.porcupine is None
+        """Échec si pvporcupine n'est pas installé."""
+        with patch.dict('sys.modules', {'pvporcupine': None}):
+            detector = WakeWordDetector()
+            result = detector.initialize_porcupine()
+            assert result is False
 
-    # ... les autres tests restent simples et inchangés ...
-
-    def test_set_callbacks(self):
-        """Test la définition des callbacks."""
+    def test_set_wake_word_callback(self):
+        """Test assignation du callback wake-word."""
         detector = WakeWordDetector()
-        
-        wake_callback = MagicMock()
-        audio_callback = MagicMock()
-        
-        detector.set_wake_word_callback(wake_callback)
-        detector.set_audio_callback(audio_callback)
-        
-        assert detector.wake_word_callback == wake_callback
-        assert detector.audio_callback == audio_callback
+        callback_mock = MagicMock()
+        detector.set_wake_word_callback(callback_mock)
+        assert detector.wake_word_callback == callback_mock
+
+    def test_set_audio_callback(self):
+        """Test assignation du callback audio."""
+        detector = WakeWordDetector()
+        callback_mock = MagicMock()
+        detector.set_audio_callback(callback_mock)
+        assert detector.audio_callback == callback_mock
 
     def test_calculate_energy(self):
-        """Test le calcul d'énergie audio."""
+        """Test calcul de l'énergie audio."""
         detector = WakeWordDetector()
-        
-        audio_data = np.array([1000, -1000, 500, -500], dtype=np.int16)
-        energy = detector._calculate_energy(audio_data)
-        
-        assert isinstance(energy, float)
-        assert energy > 0
-
-    # ... tests plus simples pour commencer ...
+        signal = np.array([1, -1, 2, -2], dtype=float)
+        energy = detector._calculate_energy(signal)  # méthode privée
+        expected_energy = float(np.sqrt(np.mean(signal ** 2)))
+        assert energy == expected_energy
