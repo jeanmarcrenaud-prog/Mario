@@ -1,7 +1,9 @@
 import os
+import re
+import logging
 from pathlib import Path
 from ..utils.file_analyzer import FileAnalyzer
-
+logger = logging.getLogger("AssistantVocal")
 class VoiceCommandProcessor:
     def __init__(self):
         self.file_analyzer = FileAnalyzer()
