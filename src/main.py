@@ -4,6 +4,8 @@ import threading
 import time
 import socket
 import pyaudio
+import yaml
+from factory import RecognizerFactory
 
 from .config import config
 from .utils.file_analyzer import FileAnalyzer
@@ -22,6 +24,14 @@ class AssistantVocal:
         self._is_running = False
         self._setup_cleanup()
         logger.info("🔧 Initialisation de l'assistant vocal terminée")
+
+    def main():
+        with open("config.yaml") as f:
+            config = yaml.safe_load(f)
+
+        recognizer = RecognizerFactory.create(config["recognizer"])
+        text = recognizer.transcribe("exemple.wav")
+        print(text)
 
     # ===============================================================
     # 🔹 Nettoyage des ressources

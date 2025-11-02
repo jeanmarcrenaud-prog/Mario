@@ -1,0 +1,3 @@
+recognizer:
+  type: whisper
+  model: small
