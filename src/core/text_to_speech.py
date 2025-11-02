@@ -129,6 +129,7 @@ class TextToSpeech:
         try:
             if self.current_voice["type"] == "py" and self.use_python_lib:
                 audio_data = self._synthesize_python_simple(text)
+                logger.info("[AUDIO] Méthode _synthesize_python_simple")
             else:
                 audio_data = self._synthesize_cli(text, speed)
             

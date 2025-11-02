@@ -42,8 +42,14 @@ def test_create_interface_gradio_safe(mock_dependencies):
          patch("src.ui.interface.gr.Textbox", MagicMock()), \
          patch("src.ui.interface.gr.File", MagicMock()), \
          patch("src.ui.interface.gr.Chatbot", MagicMock()), \
-         patch("src.ui.interface.gr.Slider", MagicMock()):
+         patch("src.ui.interface.gr.Slider", MagicMock()), \
+         patch("src.ui.interface.gr.State", MagicMock()), \
+         patch("src.ui.interface.TextToSpeech") as mock_tts:  # ✅ Mock TTS
 
+        # Mock l'instance TTS
+        mock_tts_instance = MagicMock()
+        mock_tts.return_value = mock_tts_instance
+        
         assistant = AssistantInterface()
         result = assistant.create_interface()
         assert result is not None

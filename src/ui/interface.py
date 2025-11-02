@@ -20,7 +20,7 @@ class AssistantInterface:
     def __init__(self, speech_recognizer= None, tts=None):
         self.wake_detector = WakeWordDetector()
         self.speech_recognizer = speech_recognizer or SpeechRecognizer()
-        self.tts = tts
+        self.tts = tts or TextToSpeech()  # ✅ Correction ici
         logger.info("TextToSpeech initialisé")
         self.audio_player = AudioPlayer()  # Externalisé
         self.llm_client = LLMClient()
@@ -207,6 +207,9 @@ class AssistantInterface:
     def _create_chat_interface(self):
         """Crée l'interface de chat."""
         self.chatbot = gr.Chatbot(label="Conversation", type="messages")
+
+        # Ajouter un state pour le suivi
+        self.chat_state = gr.State([])  # Pour suivre l'historique
 
         self.user_input = gr.Textbox(
             label="Votre message", placeholder="Tapez votre message ici..."
@@ -487,10 +490,14 @@ class AssistantInterface:
     def chat_history_gradio(self):
         """Retourne l'historique du chat formaté pour Gradio."""
         with self.chat_update_lock:
-            return [
-                {"role": msg["role"], "content": msg["content"]}
-                for msg in self.chat_history
-            ]
+            # Créer une copie pour éviter les problèmes de référence
+            formatted_history = []
+            for msg in self.chat_history:
+                formatted_history.append({
+                    "role": msg["role"], 
+                    "content": msg["content"]
+                })
+            return formatted_history
 
     def _get_chat_updates(self):
         """Retourne les mises à jour du chat."""

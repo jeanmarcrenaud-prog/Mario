@@ -77,11 +77,13 @@ class TestTextToSpeechComprehensive:
             assert result is True
     
     def test_synthesize_no_voice_loaded(self):
-        """Test synthesize when no voice is loaded"""
-        result = self.tts.synthesize("Test text")
+        """Test synthesize when no voice is loaded - doit retourner None quand tout échoue"""
+        # Simuler le cas où load_voice échoue (retourne False)
+        with patch.object(self.tts, 'load_voice', return_value=False):
+            result = self.tts.synthesize("Test text")
+            # Doit retourner None quand aucune voix ne peut être chargée
+            assert result is None
         
-        assert result is None
-    
     def test_synthesize_empty_text(self):
         """Test synthesize with empty text"""
         self.tts.current_voice = {"type": "cli", "voice_name": "test"}
@@ -316,10 +318,11 @@ class TestTextToSpeechComprehensive:
     
     def test_test_synthesis_success(self):
         """Test test_synthesis success"""
+        # On mock le current_voice pour éviter l'erreur
+        self.tts.current_voice = {"type": "py", "voice_name": "test"}
         audio_data = np.array([1000, 2000, 3000], dtype=np.int16)
         with patch.object(self.tts, 'synthesize', return_value=audio_data):
             result = self.tts.test_synthesis()
-            
             assert result is True
     
     def test_test_synthesis_failure(self):
@@ -331,10 +334,11 @@ class TestTextToSpeechComprehensive:
     
     def test_test_synthesis_custom_text(self):
         """Test test_synthesis with custom text"""
+        # On mock le current_voice pour éviter l'erreur
+        self.tts.current_voice = {"type": "py", "voice_name": "test"}
         audio_data = np.array([1000, 2000, 3000], dtype=np.int16)
         with patch.object(self.tts, 'synthesize', return_value=audio_data):
             result = self.tts.test_synthesis("Custom test text")
-            
             assert result is True
     
     def test_cleanup(self):

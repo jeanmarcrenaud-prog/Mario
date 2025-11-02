@@ -31,7 +31,7 @@ class Config:
     PORCUPINE_SENSITIVITY: float = 0.9
     
     # Audio
-    SAMPLERATE: int = 16000
+    SAMPLERATE: int = 22050
     VAD_AGGRESSIVENESS: int = 3
     FRAME_DURATION_MS: int = 30
     VAD_CALIBRATION_TIME: int = 5
