@@ -1,5 +1,5 @@
 # src/factory.py
-from core.whisper_recognizer import WhisperRecognizer
+from src.core.whisper_recognizer import WhisperRecognizer
 # Possible d'importer d'autres implémentations futures
 
 class RecognizerFactory:

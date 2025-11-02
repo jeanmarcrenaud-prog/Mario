@@ -1,5 +1,5 @@
 # src/core/whisper_recognizer.py
-from .recognizer_base import SpeechRecognizerBase
+from src.core.recognizer_base import SpeechRecognizerBase
 
 class WhisperRecognizer(SpeechRecognizerBase):
     def __init__(self, model="small"):

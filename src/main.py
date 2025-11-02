@@ -5,15 +5,15 @@ import time
 import socket
 import pyaudio
 import yaml
-from factory import RecognizerFactory
+from src.factory import RecognizerFactory
 
-from .config import config
-from .utils.file_analyzer import FileAnalyzer
-from .utils.logger import logger, safe_run
-from .ui.interface import AssistantInterface
-from .utils.system_monitor import SystemMonitor
-from .core.speech_recognition import SpeechRecognizer
-from .core.text_to_speech import TextToSpeech
+from src.config import config
+from src.utils.file_analyzer import FileAnalyzer
+from src.utils.logger import logger, safe_run
+from src.ui.interface import AssistantInterface
+from src.utils.system_monitor import SystemMonitor
+from src.core.speech_recognition import SpeechRecognizer
+from src.core.text_to_speech import TextToSpeech
 
 
 class AssistantVocal:
