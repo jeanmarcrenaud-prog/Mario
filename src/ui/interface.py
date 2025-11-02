@@ -1,6 +1,7 @@
 import gradio as gr
 import threading
 import numpy as np
+import time
 from typing import List, Dict, Optional
 from pathlib import Path
 from ..config import config
@@ -16,10 +17,11 @@ from .analysis_manager import AnalysisManager
 import pyaudio
 
 class AssistantInterface:
-    def __init__(self, speech_recognizer: Optional[SpeechRecognizer] = None):
+    def __init__(self, speech_recognizer= None, tts=None):
         self.wake_detector = WakeWordDetector()
         self.speech_recognizer = speech_recognizer or SpeechRecognizer()
-        self.tts = TextToSpeech()
+        self.tts = tts
+        logger.info("TextToSpeech initialisé")
         self.audio_player = AudioPlayer()  # Externalisé
         self.llm_client = LLMClient()
         self.file_analyzer = FileAnalyzer()
@@ -61,7 +63,13 @@ class AssistantInterface:
                 inputs=self._get_load_inputs(),
                 outputs=[self.status_text],
             )
+        logger.info("Interface chargée et prête")
+        self._announce_ready()
         return demo
+
+    def _announce_ready(self):
+        """Annonce que l'interface est prête."""
+        self.tts.say("On démarre le chat, Mario")
 
     def _create_file_analysis_section(self):
         """Crée la section d'analyse de fichiers."""
@@ -93,43 +101,108 @@ class AssistantInterface:
             )
 
     def _create_control_panel(self):
-        """Crée le panneau de contrôle."""
+        """Crée le panneau de contrôle avec gestion robuste des périphériques audio."""
+        import sounddevice as sd
+
         gr.Markdown("# [MICRO] Assistant Vocal")
-        
+
+        # --- Détection des périphériques d'entrée audio ---
+        try:
+            devices = sd.query_devices()
+            mic_choices = [
+                f"{i}: {d['name']}" for i, d in enumerate(devices)
+                if d.get("max_input_channels", 0) > 0
+            ]
+        except Exception as e:
+            logger.warning(f"[AUDIO] Impossible de récupérer la liste des microphones : {e}")
+            mic_choices = []
+
+        # --- Valeur par défaut sécurisée ---
+        default_mic = mic_choices[0] if mic_choices else None
+        if not mic_choices:
+            logger.warning("[AUDIO] Aucun microphone détecté — l'enregistrement audio sera désactivé.")
+            gr.Markdown("⚠️ **Aucun microphone détecté.** Veuillez en connecter un et redémarrer l'application.")
+
+        # --- Composants principaux ---
         self.mic_dropdown = gr.Dropdown(
             label="Microphone",
-            choices=self.helpers.get_microphones(),
-            value=self.helpers.get_default_microphone()
+            choices=mic_choices,
+            value=default_mic,
+            interactive=True,
         )
-        
+
         self.whisper_model_dropdown = gr.Dropdown(
             label="Modèle Whisper",
             choices=["tiny", "base", "small", "medium", "large"],
             value="large",
         )
-        
+
         self.piper_dropdown = gr.Dropdown(
             label="Voix Piper",
             choices=self.helpers.get_piper_voices(),
             value=config.DEFAULT_PIPER_VOICE,
         )
-        
+
         self.ollama_dropdown = gr.Dropdown(
             label="Modèle Ollama",
             choices=self.helpers.get_ollama_models(),
             value=self.helpers.get_default_ollama_model(),
         )
-        
+
         self.speed_slider = gr.Slider(
             label="Vitesse de parole", minimum=0.5, maximum=1.5, value=1.0, step=0.05
         )
-        
+
         self.stop_btn = gr.Button("Arrêter l'écoute", variant="stop")
         self.restart_btn = gr.Button("Redémarrer l'écoute", variant="primary")
-        
+
         self.status_text = gr.Textbox(
             label="Statut", lines=5, value="Initialisation...", interactive=False
         )
+
+        # Composant visuel pour l’état du micro
+        self.mic_status = gr.HTML(
+            f"""
+            <div style="padding:8px;border-radius:8px;background:#f4f4f4;margin-top:8px;">
+              {'<span style="color:green;font-weight:bold;">🎙️ Microphone détecté</span>'
+                if mic_choices else
+               '<span style="color:red;font-weight:bold;">❌ Aucun microphone détecté</span>'}
+            </div>
+            """
+        )
+
+        def monitor_microphones():
+            """Surveille la disponibilité des périphériques audio et met à jour dynamiquement l’interface."""
+            previous_state = bool(mic_choices)
+
+            while True:
+                try:
+                    devices = sd.query_devices()
+                    has_input = any(d.get("max_input_channels", 0) > 0 for d in devices)
+
+                    if has_input != previous_state:
+                        previous_state = has_input
+                        status_html = (
+                            "<div style='color: green; font-weight: bold;'>🎙️ Microphone détecté</div>"
+                            if has_input else
+                            "<div style='color: red; font-weight: bold;'>❌ Aucun microphone détecté</div>"
+                        )
+
+                        logger.info(
+                            "[AUDIO] État du microphone changé : %s",
+                            "disponible" if has_input else "déconnecté"
+                        )
+
+                        # Rafraîchit le HTML via une file de mise à jour Gradio
+                        self.mic_status.update(value=status_html)
+
+                except Exception as e:
+                    logger.warning(f"[AUDIO] Erreur de surveillance micro : {e}")
+
+                time.sleep(5)  # vérifie toutes les 5 secondes
+
+        # Thread en arrière-plan pour la surveillance
+        threading.Thread(target=monitor_microphones, daemon=True).start()
 
     def _create_chat_interface(self):
         """Crée l'interface de chat."""

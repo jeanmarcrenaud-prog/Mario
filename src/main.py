@@ -2,13 +2,17 @@ import sys
 import atexit
 import threading
 import time
+import socket
+import pyaudio
+
 from .config import config
 from .utils.file_analyzer import FileAnalyzer
-from .utils.logger import logger
+from .utils.logger import logger, safe_run
 from .ui.interface import AssistantInterface
-from .utils.system_monitor import get_system_info
+from .utils.system_monitor import SystemMonitor
 from .core.speech_recognition import SpeechRecognizer
 from .core.text_to_speech import TextToSpeech
+
 
 class AssistantVocal:
     def __init__(self):
@@ -17,131 +21,167 @@ class AssistantVocal:
         self.tts = None
         self._is_running = False
         self._setup_cleanup()
+        logger.info("🔧 Initialisation de l'assistant vocal terminée")
 
+    # ===============================================================
+    # 🔹 Nettoyage des ressources
+    # ===============================================================
     def _setup_cleanup(self):
         """Configure le nettoyage à la fermeture."""
         atexit.register(self._cleanup)
 
     def _cleanup(self):
-        """Nettoie les ressources."""
-        logger.info("Nettoyage des ressources...")
+        """Nettoie les ressources à la fermeture."""
+        logger.info("🧹 Nettoyage des ressources...")
         self._is_running = False
-        
+
         # Nettoyage spécifique des composants
         if self.speech_recognizer:
             try:
                 self.speech_recognizer.cleanup()
             except Exception as e:
-                logger.error(f"Erreur lors du nettoyage du recognizer: {e}")
-        
+                logger.error(f"[CLEANUP] Erreur recognizer: {e}")
+
         if self.tts:
             try:
                 self.tts.cleanup()
             except Exception as e:
-                logger.error(f"Erreur lors du nettoyage du TTS: {e}")
+                logger.error(f"[CLEANUP] Erreur TTS: {e}")
 
-    def _preload_models(self):
-        """Précharge les modèles nécessaires."""
-        logger.info("Préchargement des modèles...")
+    # ===============================================================
+    # 🔹 Préchargement des modèles
+    # ===============================================================
+    @safe_run("AssistantVocal")
+    def _preload_models(self) -> bool:
+        """Précharge Whisper et Piper avec gestion des erreurs."""
+        logger.info("🔄 Préchargement des modèles...")
 
         try:
-            # Préchargement de Whisper
-            logger.info("Chargement du modèle Whisper...")
+            # Whisper
             self.speech_recognizer = SpeechRecognizer()
             if not self.speech_recognizer.load_model(config.WHISPER_MODEL_NAME):
-                logger.error("Échec du chargement du modèle Whisper")
+                logger.error("❌ Échec du chargement du modèle Whisper")
                 return False
-            logger.info("Modèle Whisper chargé avec succès")
+            logger.info("✅ Modèle Whisper chargé avec succès")
 
-            # Chargement de Piper
-            logger.info("Chargement de la voix Piper...")
+            # Piper - avec vérification simple
             self.tts = TextToSpeech(default_voice=config.DEFAULT_PIPER_VOICE)
-            logger.info(f"Voix Piper '{config.DEFAULT_PIPER_VOICE}' prête")
             
+            # Vérification simple que la voix est chargée (sans get_voice_info)
+            if not self.tts.current_voice:
+                logger.error("❌ Échec du chargement de la voix Piper")
+                return False
+                
+            logger.info(f"🔊 Voix Piper prête : {config.DEFAULT_PIPER_VOICE}")
+            
+            # Test de synthèse pour confirmer le fonctionnement
+            test_text = "Test de synthèse vocale"
+            logger.info(f"[TEST] Test de synthèse: '{test_text}'")
+            audio_data = self.tts.synthesize(test_text)
+            
+            if audio_data is not None:
+                logger.info(f"✅ Test de synthèse réussi ({len(audio_data)} échantillons)")
+            else:
+                logger.warning("⚠️ Test de synthèse a retourné None")
+
             return True
-            
+
         except Exception as e:
             logger.error(f"Erreur lors du préchargement des modèles: {e}")
             return False
 
+    # ===============================================================
+    # 🔹 Synthèse et lecture audio
+    # ===============================================================
+    @safe_run("AssistantVocal")
     def say(self, text: str):
-        """Synthétise et joue un texte."""
-        try:
-            if self.tts is None:
-                logger.error("TTS non initialisé")
-                return
-                
-            audio_data = self.tts.synthesize(text)
-            if audio_data is not None:
-                # Ici, ajoutez le code pour jouer l'audio (par exemple, avec pyaudio)
-                logger.info("Lecture de l'audio synthétisé")
-                # Exemple de code pour jouer l'audio :
-                self._play_audio(audio_data)
-            else:
-                logger.error("Échec de la synthèse vocale")
-                
-        except Exception as e:
-            logger.error(f"Erreur lors de la synthèse vocale: {e}")
+        """Synthétise et lit un texte."""
+        if not text or not self.tts:
+            logger.warning("TTS non prêt ou texte vide")
+            return
 
+        logger.info(f"🎤 Synthèse vocale : '{text[:50]}...'")
+        audio_data = self.tts.synthesize(text)
+
+        if audio_data is None:
+            logger.error("❌ Échec de la synthèse vocale")
+            return
+
+        self._play_audio(audio_data)
+
+    @safe_run("AssistantVocal")
     def _play_audio(self, audio_data):
-        """Méthode pour jouer l'audio (à implémenter selon votre solution)"""
-        # Exemple avec pyaudio :
-        import pyaudio
-        p = pyaudio.PyAudio()
-        stream = p.open(format=pyaudio.paInt16, channels=1, rate=config.SAMPLERATE, output=True)
-        stream.write(audio_data)
-        stream.stop_stream()
-        stream.close()
-        p.terminate()
-        pass
-
-    def run(self):
-        """Démarre l'assistant."""
+        """Lecture audio sécurisée via PyAudio."""
         try:
-            logger.info("Démarrage de l'assistant vocal")
-            logger.info(get_system_info())
+            p = pyaudio.PyAudio()
+            stream = p.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=config.SAMPLERATE,
+                output=True
+            )
+            stream.write(audio_data)
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+            logger.info("🔊 Lecture de l'audio terminée")
+        except Exception as e:
+            logger.error(f"[AUDIO] Erreur de lecture : {e}")
 
-            # Préchargement des modèles
-            if not self._preload_models():
-                logger.error("Échec du préchargement des modèles")
-                sys.exit(1)
+    # ===============================================================
+    # 🔹 Lancement principal
+    # ===============================================================
+    @safe_run("AssistantVocal")
+    def run(self):
+        """Démarre l'assistant vocal et l'interface utilisateur."""
+        logger.info("🚀 Démarrage de l'assistant vocal")
 
-            # Création de l'interface avec le recognizer préchargé
-            logger.info("Création de l'interface...")
-            self.interface = AssistantInterface(speech_recognizer=self.speech_recognizer)
+        monitor = SystemMonitor()
+        logger.info(monitor.get_system_info_text())
 
-            # Création et lancement de l'interface
+        if not self._preload_models():
+            logger.error("❌ Impossible de précharger les modèles, arrêt.")
+            sys.exit(1)
+
+        try:
+            logger.info("🖥️ Création de l'interface Gradio...")
+            self.interface = AssistantInterface(
+                speech_recognizer=self.speech_recognizer, 
+                tts=self.tts  # Passer l'instance TTS partagée
+            )
             app = self.interface.create_interface()
-            logger.info("Interface créée, démarrage du serveur...")
-            
-            import socket
+
             local_ip = socket.gethostbyname(socket.gethostname())
-            logger.info(f"[WEB] Accès local : http://{local_ip}:{config.INTERFACE_PORT}")
-            
-            # Démarrage du serveur dans un thread séparé pour éviter les blocages
+            logger.info(f"🌐 Accès local : http://{local_ip}:{config.INTERFACE_PORT}")
+
             def start_server():
-                app.launch(
-                    server_name="0.0.0.0",      # 🌍 Permet l’accès depuis le réseau local
-                    server_port=config.INTERFACE_PORT,
-                    share=False,
-                    inbrowser=True
-                )
-            
+                try:
+                    app.launch(
+                        server_name="0.0.0.0",
+                        server_port=config.INTERFACE_PORT,
+                        share=False,
+                        inbrowser=True
+                    )
+                except Exception as e:
+                    logger.error(f"[SERVER] Échec du démarrage de Gradio : {e}")
+
             server_thread = threading.Thread(target=start_server, daemon=True)
             server_thread.start()
-            
-            # Maintien en vie de l'assistant
+            logger.info("✅ Interface lancée avec succès")
+
+            # Boucle principale
             self._is_running = True
             while self._is_running:
                 time.sleep(1)
-                
+
         except KeyboardInterrupt:
-            logger.info("Arrêt par l'utilisateur")
+            logger.info("🛑 Arrêt manuel par l'utilisateur")
         except Exception as e:
-            logger.error(f"Erreur fatale: {e}")
-            sys.exit(1)
+            logger.critical(f"💥 Erreur fatale dans run(): {e}")
         finally:
             self._cleanup()
+            logger.info("⏹️ Assistant arrêté proprement")
+
 
 if __name__ == "__main__":
     assistant = AssistantVocal()

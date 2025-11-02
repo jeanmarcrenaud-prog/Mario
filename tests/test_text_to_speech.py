@@ -134,6 +134,7 @@ class TestTextToSpeechComprehensive:
     @patch('wave.open')
     @patch('tempfile.gettempdir')
     @patch('uuid.uuid4')
+    
     def test_synthesize_python_simple_success(self, mock_uuid, mock_tempdir, mock_wave_open):
         """Test _synthesize_python_simple success"""
         mock_uuid.return_value = "test_uuid"
@@ -161,6 +162,7 @@ class TestTextToSpeechComprehensive:
     @patch('os.path.exists')
     @patch('tempfile.gettempdir')
     @patch('uuid.uuid4')
+    
     def test_synthesize_cli_success(self, mock_uuid, mock_tempdir, mock_exists, mock_popen):
         """Test _synthesize_cli success - CORRIGÉ"""
         mock_uuid.return_value = "test_uuid"
@@ -195,6 +197,7 @@ class TestTextToSpeechComprehensive:
         assert result is None or isinstance(result, np.ndarray)
     
     @patch('subprocess.Popen')
+    
     def test_synthesize_cli_timeout(self, mock_popen):
         """Test _synthesize_cli timeout"""
         mock_process = Mock()

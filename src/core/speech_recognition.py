@@ -4,7 +4,7 @@ import whisper
 import time
 from typing import Optional, Dict, Any
 from ..config import config
-from ..utils.logger import logger
+from ..utils.logger import logger, safe_run
 
 class SpeechRecognizer:
     def __init__(self):
@@ -15,6 +15,7 @@ class SpeechRecognizer:
         self.use_fp16 = torch.cuda.is_available()
         logger.info("Utilisation de %s pour Whisper (FP16: %s)", self.device, self.use_fp16)
 
+    @safe_run("SpeechRecognizer")
     def load_model(self, model_name: str = config.WHISPER_MODEL_NAME) -> bool:
         """Charge le modèle Whisper avec optimisation GPU."""
         if self.is_loaded and self.model is not None:
@@ -59,6 +60,7 @@ class SpeechRecognizer:
             logger.warning("SpeechRecognizer non prêt")
         return ready
 
+    @safe_run("SpeechRecognizer")
     def transcribe(self, audio_data: np.ndarray, language: str = "fr") -> Dict[str, Any]:
         """Transcrit un bloc audio en texte avec métadonnées."""
         if not self.is_ready():

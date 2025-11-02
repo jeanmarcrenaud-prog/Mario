@@ -1,45 +1,49 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 import sys
-import os
-import socket
-# Assurez-vous que le chemin racine du projet est dans le PYTHONPATH
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
-
+import traceback
+from src.utils.logger import logger, safe_run
 from src.main import AssistantVocal
-from src.utils.logger import logger
 
-def is_port_in_use(port: int) -> bool:
-    """Vérifie si un port est déjà utilisé."""
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-        return s.connect_ex(('localhost', port)) == 0
+# ===============================================================
+# Gestion globale des exceptions au niveau du programme principal
+# ===============================================================
+def global_exception_handler(exc_type, exc_value, exc_traceback):
+    """Capture toute exception non gérée au niveau du processus principal."""
+    if issubclass(exc_type, KeyboardInterrupt):
+        logger.info("Arrêt manuel du programme (Ctrl+C)")
+        print("\n🛑 Arrêt manuel du programme (Ctrl+C)")
+        return
 
-def check_if_already_running(port: int = 7860):
-    """Vérifie si le programme est déjà lancé sur le port spécifié."""
-    if is_port_in_use(port):
-        print(f"[ERREUR] Le programme est déjà lancé sur le port {port}.")
-        print("Veuillez arrêter l'instance existante ou utiliser un autre port.")
-        exit(1)
+    error_message = f"{exc_type.__name__}: {exc_value}"
+    detailed_trace = "".join(traceback.format_tb(exc_traceback))
+    logger.critical("💥 Exception fatale: %s\nTraceback:\n%s", error_message, detailed_trace)
 
+    print("\n❌ Une erreur critique est survenue.")
+    print("Consultez 'logs/app.log' pour les détails.")
+    print(f"Détail: {error_message}")
+
+sys.excepthook = global_exception_handler
+
+# ===============================================================
+# Fonction principale protégée
+# ===============================================================
+@safe_run("Main")
 def main():
+    """Point d’entrée principal de l’assistant vocal."""
+    logger.info("🚀 Démarrage de l'assistant vocal")
+
+    assistant = AssistantVocal()
+
     try:
-        # Démarrage de l'assistant vocal
-        logger.info("Démarrage de l'assistant vocal")
-        assistant = AssistantVocal()
         assistant.run()
-    except KeyboardInterrupt:
-        logger.info("Arrêt demandé par l'utilisateur.")
     except Exception as e:
-        logger.error(f"Erreur inattendue : {e}", exc_info=True)
+        logger.exception("Erreur lors du démarrage ou de l'exécution de l'assistant: %s", e)
+        print("❌ Erreur pendant l'exécution de l'assistant vocal. Consultez les logs.")
     finally:
-        logger.info("Arrêt de l'application.")
+        logger.info("⏹️ Arrêt du programme")
+        logger.info("🧹 Nettoyage des ressources...")
 
+# ===============================================================
+# Exécution
+# ===============================================================
 if __name__ == "__main__":
-    check_if_already_running(port=7860) 
-    # Force l'encodage UTF-8 pour éviter les erreurs d'encodage dans le terminal Windows
-    if sys.platform == "win32":
-        import io
-        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
-
     main()

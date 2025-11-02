@@ -16,6 +16,9 @@ class Config:
     VAD_THRESHOLD_FILE: str = os.path.join(BASE_DIR, "vad_threshold.json")
     
     # Modèles
+    # Chemins pour les fichiers Piper
+    PIPER_VOICE_ONNX: str = os.path.join(VOICES_FOLDER, "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx")
+    PIPER_VOICE_JSON: str = os.path.join(VOICES_FOLDER, "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx.json")
     WHISPER_MODEL_NAME: str = "large"
     WAKE_WORD_MODEL: str = "small"
     DEFAULT_PIPER_VOICE: str = "fr_FR-siwis-medium"
@@ -65,7 +68,9 @@ class Config:
         required_files = [
             self.PORCUPINE_MODEL_PATH,
             self.PORCUPINE_LIBRARY_PATH,
-            self.PORCUPINE_KEYWORD_PATH
+            self.PORCUPINE_KEYWORD_PATH,
+            self.PIPER_VOICE_ONNX,
+            self.PIPER_VOICE_JSON
         ]
         
         for file_path in required_files:
