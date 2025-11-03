@@ -6,11 +6,23 @@ import tempfile
 import uuid
 import torch
 import time
+import re
 from typing import Optional, Dict, Any
 from ..config import config
 from ..utils.logger import logger
 
+def nettoyer_markdown(text):
+    # Supprime le gras markdown : **mot** et __mot__
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)   # bold **
+    text = re.sub(r'__(.*?)__', r'\1', text)       # bold __
+    # Optionnel : italique
+    text = re.sub(r'\*(.*?)\*', r'\1', text)       # italic *
+    text = re.sub(r'_(.*?)_', r'\1', text)         # italic _
+    return text
+
+
 class TextToSpeech:
+
     def __init__(self, default_voice: Optional[str] = None):
         self.use_python_lib = True
         self.current_voice: Optional[Dict[str, Any]] = None
@@ -105,7 +117,7 @@ class TextToSpeech:
     def synthesize(self, text: str, speed: float = 1.0, cache_key: Optional[str] = None) -> Optional[np.ndarray]:
         """Synthétise un texte en audio avec cache."""
         logger.info(f"Synthétisation du texte: {text}")
-        
+        text = nettoyer_markdown(text)
         if not self.current_voice:
             logger.error("❌ Aucune voix chargée - appel à load_voice() manquant?")
             if hasattr(config, 'DEFAULT_PIPER_VOICE'):
