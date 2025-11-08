@@ -19,7 +19,7 @@ class Config:
     # Chemins pour les fichiers Piper
     PIPER_VOICE_ONNX: str = os.path.join(VOICES_FOLDER, "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx")
     PIPER_VOICE_JSON: str = os.path.join(VOICES_FOLDER, "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx.json")
-    WHISPER_MODEL_NAME: str = "large"
+    WHISPER_MODEL_NAME: str = "large-v3-turbo"
     WAKE_WORD_MODEL: str = "small"
     DEFAULT_PIPER_VOICE: str = "fr_FR-siwis-medium"
     

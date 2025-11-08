@@ -133,7 +133,7 @@ class AssistantInterface:
 
         self.whisper_model_dropdown = gr.Dropdown(
             label="Modèle Whisper",
-            choices=["tiny", "base", "small", "medium", "large"],
+            choices=["tiny", "base", "small", "medium", "large", "large-v3-turbo"],
             value="large",
         )
 
@@ -292,6 +292,12 @@ class AssistantInterface:
             self.piper_dropdown,
             self.speed_slider,
         ]
+        
+    def remove_wake_word(self, text, wake_word="ton_wake_word"):
+        """Supprime le wake word du texte s'il est présent au début."""
+        if text.startswith(wake_word):
+            return text[len(wake_word):].strip()
+        return text
 
     def _analyze_with_ollama(self, path, ollama_model):
         """Analyse avec Ollama via le AnalysisManager."""
@@ -394,6 +400,7 @@ class AssistantInterface:
         try:
             # Transcription
             text = self.helpers.transcribe_audio(self.speech_recognizer, audio_data)
+            text = self.remove_wake_word(text)
             if not text:
                 return
 
@@ -404,7 +411,8 @@ class AssistantInterface:
 
             # Traitement chat normal
             with self.chat_update_lock:
-                self.chat_history.append({"role": "user", "content": text})
+                clean_text = self.remove_wake_word(text)
+                self.chat_history.append({"role": "user", "content": clean_text})
             
             if self.chatbot:
                 self.chatbot.value = self.chat_history_gradio
