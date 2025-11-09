@@ -4,7 +4,7 @@ import torch
 import importlib
 import importlib.metadata
 from datetime import datetime
-from ..utils.logger import logger
+from .logger import logger  # Import relatif
 
 class SystemMonitor:
     def get_cpu_usage(self) -> float:

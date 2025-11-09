@@ -5,7 +5,7 @@ from typing import List, Dict, Optional, Generator
 from ..config import config
 from ..utils.logger import logger
 
-class LLMClient:
+class OllamaClient:
     def __init__(self, base_url: str = "http://localhost:11434"):
         self.base_url = base_url
         self.current_model: Optional[str] = None

@@ -7,11 +7,12 @@ import threading
 import time
 from typing import Optional, Callable
 from pvrecorder import PvRecorder
-from ..config import config
+#from ..config import config
+from src.model.config_manager import ConfigManager
 from ..utils.logger import logger
 
 
-class WakeWordDetector:
+class WakeWordController:
     def __init__(self):
         self.porcupine = None
         self.vad_model = None
@@ -51,9 +52,9 @@ class WakeWordDetector:
             from pvporcupine import Porcupine
 
             required_files = [
-                config.PORCUPINE_MODEL_PATH,
-                config.PORCUPINE_KEYWORD_PATH,
-                config.PORCUPINE_LIBRARY_PATH,
+                ConfigManager.PORCUPINE_MODEL_PATH,
+                ConfigManager.PORCUPINE_KEYWORD_PATH,
+                ConfigManager.PORCUPINE_LIBRARY_PATH,
             ]
 
             for file_path in required_files:
@@ -61,16 +62,16 @@ class WakeWordDetector:
                     logger.error("[ERREUR] Fichier Porcupine manquant: %s", file_path)
                     return False
 
-            if not config.PORCUPINE_ACCESS_KEY:
+            if not ConfigManager.PORCUPINE_ACCESS_KEY:
                 logger.error("[ERREUR] Clé d'accès Porcupine manquante")
                 return False
 
             self.porcupine = Porcupine(
-                access_key=config.PORCUPINE_ACCESS_KEY,
-                library_path=config.PORCUPINE_LIBRARY_PATH,
-                model_path=config.PORCUPINE_MODEL_PATH,
-                keyword_paths=[config.PORCUPINE_KEYWORD_PATH],
-                sensitivities=[config.PORCUPINE_SENSITIVITY],
+                access_key=ConfigManager.PORCUPINE_ACCESS_KEY,
+                library_path=ConfigManager.PORCUPINE_LIBRARY_PATH,
+                model_path=ConfigManager.PORCUPINE_MODEL_PATH,
+                keyword_paths=[ConfigManager.PORCUPINE_KEYWORD_PATH],
+                sensitivities=[ConfigManager.PORCUPINE_SENSITIVITY],
             )
 
             logger.info("[OK] Porcupine initialisé avec succès")

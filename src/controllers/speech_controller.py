@@ -3,8 +3,8 @@ import torch
 import whisper
 import time
 from typing import Optional, Dict, Any
-from ..config import config
-from ..utils.logger import logger, safe_run
+from src.model.config_manager import ConfigManager
+from src.utils.logger import logger, safe_run
 
 class SpeechRecognizer:
     def __init__(self):
@@ -16,7 +16,7 @@ class SpeechRecognizer:
         logger.info("Utilisation de %s pour Whisper (FP16: %s)", self.device, self.use_fp16)
 
     @safe_run("SpeechRecognizer")
-    def load_model(self, model_name: str = config.WHISPER_MODEL_NAME) -> bool:
+    def load_model(self, model_name: str = ConfigManager.WHISPER_MODEL_NAME) -> bool:
         """Charge le modèle Whisper avec optimisation GPU."""
         if self.is_loaded and self.model is not None:
             logger.info("Modèle Whisper déjà chargé: %s", model_name)

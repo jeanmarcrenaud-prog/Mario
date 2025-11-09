@@ -4,111 +4,49 @@ import sys
 import traceback
 from logging.handlers import RotatingFileHandler
 from functools import wraps
-from ..config import config
 
 # ===============================================================
-# Préparation du dossier log
+# Configuration de base du logger (sans dépendance sur config)
 # ===============================================================
-os.makedirs(config.LOG_FOLDER, exist_ok=True)
-LOG_FILE = os.path.join(config.LOG_FOLDER, "app.log")
+def setup_logger():
+    """Configure le logger avec des valeurs par défaut."""
+    # Créer le dossier logs dans le répertoire du projet
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    log_folder = os.path.join(project_root, "logs")
+    os.makedirs(log_folder, exist_ok=True)
+    log_file = os.path.join(log_folder, "app.log")
+    
+    # Configuration par défaut
+    log_level = logging.INFO
+    
+    # Logger principal
+    logger = logging.getLogger("AssistantVocal")
+    logger.setLevel(log_level)
+    logger.handlers.clear()
+    
+    # Handler fichier avec rotation
+    file_handler = RotatingFileHandler(
+        log_file,
+        maxBytes=5 * 1024 * 1024,  # 5 Mo
+        backupCount=3,
+        encoding="utf-8"
+    )
+    file_formatter = logging.Formatter(
+        "%(asctime)s [%(levelname)s] (%(threadName)s) %(name)s: %(message)s"
+    )
+    file_handler.setFormatter(file_formatter)
+    logger.addHandler(file_handler)
+    
+    # Handler console
+    console_handler = logging.StreamHandler()
+    console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    return logger
 
-# ===============================================================
-# Définition du niveau de log depuis la config (str ou int)
-# ===============================================================
-raw_level = getattr(config, "LOG_LEVEL", "INFO")
-
-# Accepte soit un int (ex: logging.INFO) soit une chaîne ("INFO")
-if isinstance(raw_level, int):
-    LOG_LEVEL = raw_level
-else:
-    try:
-        LOG_LEVEL = getattr(logging, str(raw_level).upper(), logging.INFO)
-    except Exception:
-        print(f"[logger] Niveau de log invalide: {raw_level}, fallback INFO")
-        LOG_LEVEL = logging.INFO
-
-# Validation de la valeur finale
-if LOG_LEVEL not in (
-    logging.DEBUG,
-    logging.INFO,
-    logging.WARNING,
-    logging.ERROR,
-    logging.CRITICAL,
-):
-    print(f"[logger] Niveau de log inconnu: {LOG_LEVEL}, fallback INFO")
-    LOG_LEVEL = logging.INFO
-
-# ===============================================================
-# Configuration du logger principal
-# ===============================================================
-logger = logging.getLogger("AssistantVocal")
-logger.setLevel(LOG_LEVEL)
-logger.handlers.clear()
-
-# ---------------------------------------------------------------
-# Handler fichier avec rotation
-# ---------------------------------------------------------------
-file_handler = RotatingFileHandler(
-    LOG_FILE,
-    maxBytes=5 * 1024 * 1024,  # 5 Mo
-    backupCount=3,
-    encoding="utf-8"
-)
-file_formatter = logging.Formatter(
-    "%(asctime)s [%(levelname)s] (%(threadName)s) %(name)s: %(message)s"
-)
-file_handler.setFormatter(file_formatter)
-logger.addHandler(file_handler)
-
-# ---------------------------------------------------------------
-# Handler console compatible Windows (UTF-8)
-# ---------------------------------------------------------------
-class WindowsSafeStreamHandler(logging.StreamHandler):
-    def emit(self, record):
-        try:
-            msg = self.format(record)
-            if sys.platform == "win32":
-                msg = self._replace_emojis(msg)
-            stream = self.stream
-            if hasattr(stream, "buffer"):
-                stream.buffer.write(msg.encode("utf-8", errors="replace") + self.terminator.encode("utf-8"))
-            else:
-                stream.write(msg + self.terminator)
-            self.flush()
-        except Exception:
-            self.handleError(record)
-
-    def _replace_emojis(self, text):
-        """Remplace les emojis par du texte pour compatibilité Windows."""
-        replacements = {
-            "✅": "[OK]",
-            "❌": "[ERREUR]",
-            "⚠️": "[ATTENTION]",
-            "🔄": "[CHARGEMENT]",
-            "🎤": "[MICRO]",
-            "🔊": "[AUDIO]",
-            "🔔": "[ALERTE]",
-            "🧹": "[NETTOYAGE]",
-            "🎧": "[ECOUTE]",
-            "⏹️": "[ARRET]",
-            "🔇": "[SILENCE]",
-            "📊": "[STATS]",
-            "📁": "[FICHIER]",
-            "🔧": "[OUTIL]",
-            "⏰": "[TIMEOUT]",
-            "🎯": "[CACHE]",
-            "🌐": "[RESEAU]",
-            "🔍": "[RECHERCHE]",
-        }
-        for emoji, rep in replacements.items():
-            text = text.replace(emoji, rep)
-        return text
-
-
-console_handler = WindowsSafeStreamHandler()
-console_formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
-console_handler.setFormatter(console_formatter)
-logger.addHandler(console_handler)
+# Créer une instance de logger
+logger = setup_logger()
 
 # ===============================================================
 # Gestionnaire global des exceptions non interceptées
@@ -148,4 +86,4 @@ def safe_run(module_name=""):
 # ===============================================================
 # Export
 # ===============================================================
-__all__ = ["logger", "safe_run"]
+__all__ = ["logger", "safe_run", "setup_logger"]
