@@ -18,12 +18,14 @@ from src.core.speech_recognition_service import SpeechRecognitionService
 from src.core.llm_service import LLMService
 from src.core.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
+from src.core.prompt_manager import PromptManager
 
 class AssistantVocal:
     def __init__(self):
         self._is_running = False
         self.settings = Settings.from_config(config)
         self.conversation_service = ConversationService()
+        self.prompt_manager = PromptManager()
         self.tts_service = TTSService(self.settings.voice_name)
         self.wake_word_service = WakeWordService()
         self.speech_recognition_service = SpeechRecognitionService("base")
@@ -125,6 +127,46 @@ class AssistantVocal:
         """Retourne le statut de performance."""
         return self.performance_optimizer.get_resource_usage()
 
+    def use_custom_prompt(self, prompt_id: str, input_text: str, custom_vars: Dict = None) -> str:
+        """
+        Utilise un prompt personnalisé.
+        
+        Args:
+            prompt_id (str): ID du prompt
+            input_text (str): Texte d'entrée
+            custom_vars (Dict): Variables personnalisées
+            
+        Returns:
+            str: Réponse générée
+        """
+        try:
+            # Récupérer le prompt
+            prompt = self.prompt_manager.get_prompt(prompt_id)
+            if not prompt:
+                return "[ERREUR] Prompt non trouvé"
+            
+            # Générer le texte du prompt
+            prompt_text = self.prompt_manager.generate_prompt_text(
+                prompt["template"], 
+                input_text, 
+                custom_vars
+            )
+            
+            # Générer la réponse avec l'IA
+            messages = [{"role": "user", "content": prompt_text}]
+            if prompt.get("system_message"):
+                messages.insert(0, {"role": "system", "content": prompt["system_message"]})
+            
+            response = self.llm_service.generate_response(
+                messages, 
+                temperature=prompt.get("temperature", 0.7)
+            )
+            
+            return response
+            
+        except Exception as e:
+            logger.error(f"Erreur utilisation prompt: {e}")
+            return f"[ERREUR] {str(e)}"
     
     # ===============================================================
     # 🔹 Gestion de la conversation
@@ -198,6 +240,9 @@ class AssistantVocal:
             logger.info("🌐 Démarrage interface web...")
             self.web_interface = GradioWebInterface(self)
             
+            # Créer l'interface
+            demo = self.web_interface.create_interface()
+        
             # Lancer dans un thread séparé
             def launch_interface():
                 try:

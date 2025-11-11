@@ -1,0 +1,22 @@
+{
+  "analyse_code_python": {
+    "name": "Analyse code Python",
+    "description": "Analyse complète de code Python",
+    "category": "Analyse de code",
+    "template": "Analysez ce code Python et fournissez une analyse détaillée:\n\n{input}\n\nVeuillez fournir:\n1. Résumé de la fonctionnalité principale\n2. Structure et architecture du code\n3. Bonnes pratiques observées\n4. Points d'amélioration potentiels\n5. Complexité algorithmique si applicable",
+    "variables": [],
+    "temperature": 0.7,
+    "max_tokens": 2000,
+    "system_message": "Vous êtes un expert Python expérimenté."
+  },
+  "resume_technique": {
+    "name": "Résumé technique",
+    "description": "Résumé concis de contenu technique",
+    "category": "Résumé de texte",
+    "template": "Fournissez un résumé technique concis du contenu suivant:\n\n{input}\n\nStructurez le résumé en:\n- Points clés (3-5 items)\n- Concepts principaux\n- Applications potentielles",
+    "variables": [],
+    "temperature": 0.3,
+    "max_tokens": 500,
+    "system_message": "Soyez concis et précis dans votre résumé."
+  }
+}
