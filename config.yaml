@@ -22,3 +22,12 @@ web_port: 7860
 
 # Logging
 log_level: "INFO"
+
+performance:
+  auto_optimize: true
+  monitoring_interval: 5  # secondes
+  alert_thresholds:
+    cpu_max: 80.0
+    memory_max: 85.0
+    gpu_memory_max: 85.0
+  model_unload_delay: 300  # secondes avant déchargement

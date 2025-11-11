@@ -43,6 +43,37 @@ class TTSService:
         except Exception as e:
             logger.error(f"Erreur TTS: {e}")
             return False
+
+    def unload_voice(self):
+        """Décharge la voix de la mémoire."""
+        try:
+            if hasattr(self, 'tts_engine') and hasattr(self.tts_engine, 'cleanup'):
+                self.tts_engine.cleanup()
+                logger.info("🗑️ Voix déchargée")
+                return True
+            elif self.current_voice:
+                self.current_voice = None
+                logger.info("🗑️ Voix déchargée")
+                return True
+        except Exception as e:
+            logger.error(f"Erreur déchargement voix: {e}")
+        return False
+
+    def optimize_voice_cache(self):
+        """Optimise le cache voix."""
+        try:
+            if hasattr(self, 'audio_cache'):
+                # Nettoyer le cache si trop grand
+                if len(self.audio_cache) > 50:  # Limite de 50 entrées
+                    # Supprimer les entrées les plus anciennes
+                    keys_to_remove = list(self.audio_cache.keys())[:25]
+                    for key in keys_to_remove:
+                        del self.audio_cache[key]
+                    logger.info(f"🧹 Cache TTS réduit: {len(self.audio_cache)} entrées")
+                return True
+        except Exception as e:
+            logger.debug(f"Erreur optimisation cache TTS: {e}")
+            return False
     
     def test_synthesis(self, text: str = "Bonjour, ceci est un test.") -> bool:
         """Teste la synthèse vocale."""

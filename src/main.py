@@ -17,6 +17,7 @@ from src.ui.web_interface_gradio import GradioWebInterface
 from src.core.speech_recognition_service import SpeechRecognitionService
 from src.core.llm_service import LLMService
 from src.core.project_analyzer_service import ProjectAnalyzerService
+from src.core.performance_optimizer import PerformanceOptimizer
 
 class AssistantVocal:
     def __init__(self):
@@ -30,6 +31,8 @@ class AssistantVocal:
         self.project_analyzer_service = ProjectAnalyzerService(self.llm_service)
         self.system_monitor = SystemMonitor()
         self.web_interface = None
+        self.performance_optimizer = PerformanceOptimizer()  # Ajout
+        self.performance_optimizer.start_monitoring()  # Démarrage auto
         self._setup_cleanup()
         logger.info("🔧 Initialisation de l'assistant vocal terminée")
 
@@ -45,6 +48,7 @@ class AssistantVocal:
         logger.info("🧹 Nettoyage des ressources...")
         self._is_running = False
         self.wake_word_service.stop_detection()
+        self.performance_optimizer.stop_monitoring()
 
     # ===============================================================
     # 🔹 Callbacks pour les services
@@ -74,6 +78,53 @@ class AssistantVocal:
         except Exception as e:
             logger.error(f"❌ Erreur traitement audio: {e}")
             self.speak_response("Désolé, je n'ai pas compris votre message.")
+
+    def optimize_performance(self, aggressive: bool = False) -> bool:
+        """Optimise les performances de l'assistant."""
+        try:
+            logger.info(f"⚡ Optimisation des performances {'agressive' if aggressive else 'normale'}")
+            
+            # Optimiser la mémoire
+            memory_success = self.performance_optimizer.optimize_memory(aggressive=aggressive)
+            
+            # Optimiser les modèles
+            models_success = self.performance_optimizer.optimize_models()
+            
+            # Optimiser les caches spécifiques
+            if hasattr(self.speech_recognition_service, 'optimize_model_cache'):
+                self.speech_recognition_service.optimize_model_cache()
+            
+            if hasattr(self.tts_service, 'optimize_voice_cache'):
+                self.tts_service.optimize_voice_cache()
+            
+            success = memory_success or models_success
+            if success:
+                logger.info("✅ Optimisation terminée")
+            else:
+                logger.info("✅ Pas d'optimisations nécessaires")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"❌ Erreur optimisation: {e}")
+            return False
+
+    def get_optimization_profile(self) -> Dict:
+        """Retourne le profil d'optimisation."""
+        return self.performance_optimizer.get_optimization_profile()
+
+    def set_optimization_profile(self, profile: Dict):
+        """Définit le profil d'optimisation."""
+        self.performance_optimizer.set_optimization_profile(profile)
+
+    def set_performance_thresholds(self, **thresholds):
+        """Définit les seuils de performance."""
+        self.performance_optimizer.set_thresholds(**thresholds)
+    
+    def get_performance_status(self) -> Dict:
+        """Retourne le statut de performance."""
+        return self.performance_optimizer.get_resource_usage()
+
     
     # ===============================================================
     # 🔹 Gestion de la conversation

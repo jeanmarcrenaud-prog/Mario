@@ -24,6 +24,42 @@ class SpeechRecognitionService:
         except Exception as e:
             logger.error(f"❌ Erreur chargement modèle Whisper: {e}")
             return False
+
+    def unload_model(self):
+        """Décharge le modèle Whisper de la mémoire GPU."""
+        try:
+            if self.model and torch.cuda.is_available():
+                del self.model
+                self.model = None
+                torch.cuda.empty_cache()
+                logger.info("🗑️ Modèle Whisper déchargé")
+                return True
+            elif self.model:
+                del self.model
+                self.model = None
+                logger.info("🗑️ Modèle Whisper déchargé (CPU)")
+                return True
+        except Exception as e:
+            logger.error(f"Erreur déchargement modèle Whisper: {e}")
+        return False
+
+    def optimize_model_cache(self):
+        """Optimise le cache du modèle."""
+        try:
+            if hasattr(self.model, 'cache_clear'):
+                self.model.cache_clear()
+                logger.info("🧹 Cache modèle Whisper nettoyé")
+            return True
+        except Exception as e:
+            logger.debug(f"Erreur optimisation cache Whisper: {e}")
+            return False
+
+    def load_model_on_demand(self):
+        """Charge le modèle uniquement quand nécessaire."""
+        if not self.model:
+            logger.info("⚡ Chargement modèle Whisper à la demande")
+            return self._load_model()
+        return True
     
     def transcribe(self, audio_data: np.ndarray, language: str = "fr") -> str:
         """

@@ -177,6 +177,7 @@ class GradioWebInterface:
             with gr.Column(scale=1):
                 self.send_btn = gr.Button("📤 Envoyer", variant="primary")
                 self.clear_btn = gr.Button("🧹 Effacer", size="sm")
+                self.refresh_chat_btn = gr.Button("🔄 Actualiser", size="sm")  # Ajout
         
         # Contrôles vocaux
         with gr.Group():
@@ -287,34 +288,6 @@ class GradioWebInterface:
             interactive=False
         )
 
-    def _setup_advanced_events(self):
-        # ... code existant ...
-        
-        # === Projets ===
-        self.analyze_project_btn.click(
-            self._analyze_project,
-            inputs=[self.project_path, self.project_depth],
-            outputs=[self.project_result, self.project_summary, self.key_points, self.status_text]
-        )
-        
-        self.export_json_btn.click(
-            self._export_project_analysis,
-            inputs=[self.project_path, gr.State("json")],
-            outputs=[self.file_result, self.status_text]
-        )
-        
-        self.export_md_btn.click(
-            self._export_project_analysis,
-            inputs=[self.project_path, gr.State("markdown")],
-            outputs=[self.file_result, self.status_text]
-        )
-        
-        self.current_dir_btn.click(
-            self._get_current_directory,
-            outputs=[self.project_path, self.status_text]
-        )
-
-    # Ajoutez ces méthodes :
     def _analyze_project(self, project_path, depth):
         """Analyse un projet complet."""
         try:
@@ -322,10 +295,10 @@ class GradioWebInterface:
                 import os
                 project_path = os.getcwd()
             
+            # Mettre à jour le statut
             status = "🔍 Analyse du projet en cours..."
-            yield "", "Analyse en cours...", [], status
             
-            # Analyser le projet
+            # Analyser le projet (sans yield car ce n'est pas un générateur)
             report = self.assistant.analyze_project(project_path)
             
             # Extraire les informations
@@ -346,6 +319,24 @@ class GradioWebInterface:
             logger.error(f"Erreur analyse projet: {e}")
             error_msg = f"❌ Erreur: {str(e)}"
             return error_msg, "Erreur", [], error_msg
+
+    def _optimize_performance(self):
+        """Optimise les performances."""
+        try:
+            # Placeholder - à implémenter avec votre optimiseur
+            return "✅ Performance optimale", "ℹ️ Fonctionnalité à implémenter"
+        except Exception as e:
+            logger.error(f"Erreur optimisation: {e}")
+            return f"❌ Erreur: {str(e)}", f"❌ Erreur: {str(e)}"
+
+    def _refresh_performance(self):
+        """Actualise les statistiques de performance."""
+        try:
+            # Placeholder - à implémenter avec votre optimiseur
+            return "📊 Stats: N/A", "ℹ️ Fonctionnalité à implémenter"
+        except Exception as e:
+            logger.error(f"Erreur refresh performance: {e}")
+            return f"❌ Erreur: {str(e)}", f"❌ Erreur: {str(e)}"
 
     def _export_project_analysis(self, project_path, export_format):
         """Exporte l'analyse du projet."""
@@ -373,40 +364,170 @@ class GradioWebInterface:
         """Crée l'onglet des paramètres."""
         gr.Markdown("## 🔧 Paramètres avancés")
         
-        with gr.Row():
-            with gr.Column():
-                gr.Markdown("### 🎛️ Paramètres système")
-                self.auto_start_checkbox = gr.Checkbox(
-                    label="Démarrage automatique",
-                    value=True
-                )
-                
-                self.web_port_number = gr.Number(
-                    label="Port Web",
-                    value=self.assistant.settings.web_port,
-                    precision=0
-                )
-                
-                self.save_settings_btn = gr.Button("💾 Sauvegarder")
+        with gr.Tabs():
+            # Tab Système
+            with gr.Tab("🖥️ Système"):
+                with gr.Row():
+                    with gr.Column():
+                        gr.Markdown("### 🎛️ Paramètres système")
+                        self.auto_start_checkbox = gr.Checkbox(
+                            label="Démarrage automatique",
+                            value=True
+                        )
+                        
+                        self.web_port_number = gr.Number(
+                            label="Port Web",
+                            value=self.assistant.settings.web_port,
+                            precision=0
+                        )
+                        
+                        self.save_settings_btn = gr.Button("💾 Sauvegarder")
+                    
+                    with gr.Column():
+                        gr.Markdown("### 📈 Performance")
+                        self.performance_info = gr.Textbox(
+                            label="Informations de performance",
+                            lines=8,
+                            interactive=False
+                        )
+                        
+                        with gr.Row():
+                            self.test_all_btn = gr.Button("🧪 Tester tous les services")
+                            self.optimize_btn = gr.Button("⚡ Optimiser", variant="primary")
             
-            with gr.Column():
-                gr.Markdown("### 📈 Performance")
-                self.performance_info = gr.Textbox(
-                    label="Informations de performance",
-                    lines=8,
-                    interactive=False
+            # Tab Monitoring
+            with gr.Tab("📊 Monitoring"):
+                gr.Markdown("### 📊 Statistiques en temps réel")
+                
+                with gr.Row():
+                    self.resource_usage = gr.Textbox(
+                        label="Utilisation des ressources",
+                        lines=8,
+                        interactive=False
+                    )
+                
+                with gr.Row():
+                    with gr.Column():
+                        self.system_health = gr.Textbox(
+                            label="Santé du système",
+                            lines=4,
+                            interactive=False
+                        )
+                    with gr.Column():
+                        self.trend_analysis = gr.Textbox(
+                            label="Analyse des tendances",
+                            lines=4,
+                            interactive=False
+                        )
+                
+                with gr.Row():
+                    self.refresh_performance_btn = gr.Button("🔄 Actualiser")
+                    self.detailed_report_btn = gr.Button("📋 Rapport détaillé")
+                    self.aggressive_optimize_btn = gr.Button("🧨 Optimisation agressive", variant="secondary")
+                
+                gr.Markdown("### ⚙️ Configuration des seuils")
+                with gr.Row():
+                    self.cpu_threshold = gr.Number(label="Seuil CPU (%)", value=80, precision=0)
+                    self.memory_threshold = gr.Number(label="Seuil Mémoire (%)", value=85, precision=0)
+                    self.gpu_threshold = gr.Number(label="Seuil GPU (%)", value=85, precision=0)
+                
+                self.update_thresholds_btn = gr.Button("💾 Mettre à jour seuils")
+            
+            # Tab Logs
+            with gr.Tab("📜 Logs"):
+                self.logs_display = gr.Textbox(
+                    label="Logs en temps réel",
+                    lines=12,
+                    interactive=False,
+                    max_lines=20
                 )
                 
-                self.test_all_btn = gr.Button("🧪 Tester tous les services")
-        
-        # Logs en temps réel
-        gr.Markdown("### 📜 Logs")
-        self.logs_display = gr.Textbox(
-            label="Logs en temps réel",
-            lines=6,
-            interactive=False,
-            max_lines=10
-        )
+                with gr.Row():
+                    self.log_level = gr.Dropdown(
+                        label="Niveau de log",
+                        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+                        value="INFO"
+                    )
+                    self.clear_logs_btn = gr.Button("🗑️ Effacer logs")
+
+def _get_detailed_performance_report(self):
+    """Obtient un rapport détaillé de performance."""
+    try:
+        if hasattr(self.assistant, 'performance_optimizer'):
+            report = self.assistant.performance_optimizer.get_performance_report()
+            
+            # Ressources
+            resource_lines = []
+            if "current_stats" in report:
+                stats = report["current_stats"]
+                resource_lines.append("📊 Utilisation actuelle:")
+                resource_lines.append(f"  CPU: {stats.get('cpu_percent', 0):.1f}%")
+                resource_lines.append(f"  Mémoire: {stats.get('memory_percent', 0):.1f}%")
+                if "gpu_memory_used_mb" in stats:
+                    gpu_percent = (stats["gpu_memory_used_mb"] / stats["gpu_memory_total_mb"]) * 100
+                    resource_lines.append(f"  GPU: {gpu_percent:.1f}%")
+            
+            # Santé
+            health_lines = []
+            if "system_health" in report:
+                health = report["system_health"]
+                health_lines.append(f"❤️  Santé: {health.get('score', 0)}/100")
+                health_lines.append(f"  Statut: {health.get('status', 'unknown')}")
+                issues = health.get('issues', [])
+                if issues:
+                    health_lines.append(f"  Problèmes: {', '.join(issues)}")
+            
+            # Tendances
+            trend_lines = []
+            if "recent_stats" in report:
+                for metric, data in report["recent_stats"].items():
+                    trend_lines.append(f"📈 {metric}: {data.get('trend', 'stable')}")
+            
+            status = "📋 Rapport détaillé généré"
+            return "\n".join(resource_lines), "\n".join(health_lines), "\n".join(trend_lines), status
+        else:
+            return "❌ Non disponible", "❌ Non disponible", "❌ Non disponible", "❌ Optimiseur non trouvé"
+            
+    except Exception as e:
+        logger.error(f"Erreur rapport détaillé: {e}")
+        return f"❌ Erreur: {str(e)}", "", "", f"❌ Erreur: {str(e)}"
+
+    def _aggressive_optimize(self):
+        """Optimisation agressive."""
+        try:
+            status = "🧨 Optimisation agressive en cours..."
+            yield "Optimisation agressive en cours...", status
+            
+            if hasattr(self.assistant, 'optimize_performance'):
+                success = self.assistant.optimize_performance(aggressive=True)
+                
+                if success:
+                    return "✅ Optimisation agressive terminée", "🧨 Optimisation agressive réussie"
+                else:
+                    return "ℹ️ Pas d'optimisations nécessaires", "ℹ️ Système déjà optimal"
+            else:
+                return "❌ Fonction non disponible", "❌ Fonction non implémentée"
+                
+        except Exception as e:
+            logger.error(f"Erreur optimisation agressive: {e}")
+            return f"❌ Erreur: {str(e)}", f"❌ Erreur: {str(e)}"
+
+    def _update_thresholds(self, cpu_threshold, memory_threshold, gpu_threshold):
+        """Met à jour les seuils de performance."""
+        try:
+            if hasattr(self.assistant, 'set_performance_thresholds'):
+                self.assistant.set_performance_thresholds(
+                    cpu_max=cpu_threshold,
+                    memory_max=memory_threshold,
+                    gpu_memory_max=gpu_threshold
+                )
+                return "✅ Seuils mis à jour"
+            else:
+                return "❌ Fonction non disponible"
+        except Exception as e:
+            logger.error(f"Erreur mise à jour seuils: {e}")
+            return f"❌ Erreur: {str(e)}"
+
     
     def _setup_advanced_events(self):
         """Configure tous les événements avancés."""
@@ -427,13 +548,15 @@ class GradioWebInterface:
         self.user_input.submit(
             self._handle_user_message,
             inputs=[self.user_input, self.model_dropdown, self.temperature_slider],
-            outputs=[self.chatbot, self.user_input, self.status_text]
+            outputs=[self.chatbot, self.user_input, self.status_text],
+            show_progress=True
         )
         
         self.send_btn.click(
             self._handle_user_message,
             inputs=[self.user_input, self.model_dropdown, self.temperature_slider],
-            outputs=[self.chatbot, self.user_input, self.status_text]
+            outputs=[self.chatbot, self.user_input, self.status_text],
+            show_progress=True
         )
         
         self.clear_btn.click(
@@ -441,7 +564,12 @@ class GradioWebInterface:
             outputs=[self.chatbot, self.status_text]
         )
         
-        # === Fichiers ===
+        self.refresh_chat_btn.click(
+            self._refresh_chat,
+            outputs=[self.chatbot]
+        )
+        
+        # === Fichiers simples ===
         self.file_upload.change(
             self._handle_file_upload,
             inputs=[self.file_upload],
@@ -458,6 +586,30 @@ class GradioWebInterface:
             self._summarize_file,
             inputs=[self.file_upload, self.model_dropdown],
             outputs=[self.file_result, self.status_text]
+        )
+        
+        # === Projets complets ===
+        self.analyze_project_btn.click(
+            self._analyze_project,
+            inputs=[self.project_path, self.project_depth],
+            outputs=[self.project_result, self.project_summary, self.key_points, self.status_text]
+        )
+        
+        self.export_json_btn.click(
+            self._export_project_analysis,
+            inputs=[self.project_path, gr.State("json")],
+            outputs=[self.file_result, self.status_text]
+        )
+        
+        self.export_md_btn.click(
+            self._export_project_analysis,
+            inputs=[self.project_path, gr.State("markdown")],
+            outputs=[self.file_result, self.status_text]
+        )
+        
+        self.current_dir_btn.click(
+            self._get_current_directory,
+            outputs=[self.project_path, self.status_text]
         )
         
         # === Audio/Vocal ===
@@ -484,15 +636,37 @@ class GradioWebInterface:
             outputs=[self.performance_info, self.status_text]
         )
         
+        self.optimize_btn.click(
+            self._optimize_performance,
+            outputs=[self.performance_info, self.status_text]
+        )
+        
         self.refresh_stats_btn.click(
             self._update_system_stats,
             outputs=[self.system_stats, self.status_text]
         )
         
-        # === Mise à jour périodique ===
-        # Note: Gradio 5.49.1 a des limitations avec 'every'
-        # On gère les mises à jour via des callbacks manuels
-    
+        self.refresh_performance_btn.click(
+            self._refresh_performance,
+            outputs=[self.resource_usage, self.status_text]
+        )
+        
+        self.detailed_report_btn.click(
+            self._get_detailed_performance_report,
+            outputs=[self.resource_usage, self.system_health, self.trend_analysis, self.status_text]
+        )
+
+        self.aggressive_optimize_btn.click(
+            self._aggressive_optimize,
+            outputs=[self.performance_info, self.status_text]
+        )
+
+        self.update_thresholds_btn.click(
+            self._update_thresholds,
+            inputs=[self.cpu_threshold, self.memory_threshold, self.gpu_threshold],
+            outputs=[self.status_text]
+        )        
+
     def _on_interface_load(self):
         """Callback au chargement de l'interface."""
         status = "🟢 Interface chargée - Assistant prêt"
@@ -543,13 +717,78 @@ class GradioWebInterface:
             self.assistant.speak_response(response)
             
             status = f"✅ Réponse générée ({len(response)} caractères)"
+            # Retourner l'historique MAJ, le message vide, et le statut
             return self._get_chat_history(), "", status
             
         except Exception as e:
             logger.error(f"Erreur traitement message: {e}")
             error_msg = "[ERREUR] Impossible de traiter votre message"
             status = f"❌ Erreur: {str(e)}"
-            return self._get_chat_history() + [{"role": "assistant", "content": error_msg}], "", status
+            # Ajouter le message d'erreur à l'historique
+            error_history = self._get_chat_history() + [{"role": "assistant", "content": error_msg}]
+            return error_history, "", status
+
+    def _optimize_performance(self):
+        """Optimise les performances."""
+        try:
+            status = "⚡ Optimisation en cours..."
+            
+            # Vérifier si l'assistant a l'optimiseur
+            if hasattr(self.assistant, 'optimize_performance'):
+                # Optimiser
+                success = self.assistant.optimize_performance()
+                
+                # Mettre à jour les stats
+                if hasattr(self.assistant, 'performance_optimizer'):
+                    performance_report = self.assistant.performance_optimizer.get_performance_report()
+                    
+                    info_lines = []
+                    if "recent_stats" in performance_report:
+                        for metric, stats in performance_report["recent_stats"].items():
+                            info_lines.append(f"{metric}: {stats['current']:.1f}% (moy: {stats['average']:.1f}%)")
+                    
+                    recommendations = performance_report.get("recommendations", [])
+                    if recommendations:
+                        info_lines.append("\n💡 Recommandations:")
+                        info_lines.extend([f"  • {rec}" for rec in recommendations[:3]])
+                    
+                    info_text = "\n".join(info_lines) if info_lines else "✅ Performance optimale"
+                    status = "✅ Optimisation terminée" if success else "ℹ️ Pas d'optimisations nécessaires"
+                    
+                    return info_text, status
+                else:
+                    return "✅ Optimisation effectuée", "ℹ️ Stats non disponibles"
+            else:
+                return "✅ Performance optimale", "ℹ️ Fonctionnalité non implémentée"
+                
+        except Exception as e:
+            logger.error(f"Erreur optimisation: {e}")
+            return f"❌ Erreur: {str(e)}", f"❌ Erreur: {str(e)}"
+
+    def _refresh_performance(self):
+        """Actualise les statistiques de performance."""
+        try:
+            # Vérifier si l'assistant a la méthode
+            if hasattr(self.assistant, 'get_performance_status'):
+                usage = self.assistant.get_performance_status()
+                
+                if "error" in usage:
+                    return usage["error"], "❌ Erreur performance"
+                
+                lines = []
+                for key, value in usage.items():
+                    lines.append(f"{key.upper()}: {value}")
+                
+                usage_text = "\n".join(lines)
+                return usage_text, "📊 Stats mises à jour"
+            else:
+                # Utiliser les stats système de base
+                stats_text = self._get_system_stats_text()
+                return stats_text, "📊 Stats système"
+                
+        except Exception as e:
+            logger.error(f"Erreur refresh performance: {e}")
+            return f"❌ Erreur: {str(e)}", f"❌ Erreur: {str(e)}"
     
     def _clear_conversation(self):
         """Efface la conversation."""
@@ -727,10 +966,26 @@ class GradioWebInterface:
         """Retourne l'historique du chat formaté."""
         try:
             history = self.assistant.get_conversation_history()
-            return [{"role": msg["role"], "content": msg["content"]} for msg in history]
+            # S'assurer que le format est correct pour Gradio
+            formatted_history = []
+            for msg in history:
+                formatted_history.append({
+                    "role": msg.get("role", "user"),
+                    "content": msg.get("content", "")
+                })
+            return formatted_history
         except Exception as e:
             logger.error(f"Erreur historique: {e}")
             return []
+
+    def _refresh_chat(self):
+        """Rafraîchit l'affichage du chat."""
+        try:
+            return self._get_chat_history()
+        except Exception as e:
+            logger.error(f"Erreur refresh chat: {e}")
+            return []
+
     
     def _get_system_stats_text(self):
         """Retourne les stats système formatées."""
