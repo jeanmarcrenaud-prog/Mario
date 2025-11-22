@@ -1,4 +1,4 @@
-# src/ui/console_view.py
+# src/views/console_view.py
 class ConsoleView:
     def __init__(self, controller):
         self.controller = controller

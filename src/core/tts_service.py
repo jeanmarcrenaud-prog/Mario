@@ -1,5 +1,6 @@
 from typing import Optional, List
 from ..utils.logger import logger
+from ..config.config import config  # Add this import
 
 class TTSService:
     """Service de synthèse vocale de base."""

@@ -35,8 +35,39 @@ class AssistantVocal:
         self.web_interface = None
         self.performance_optimizer = PerformanceOptimizer()  # Ajout
         self.performance_optimizer.start_monitoring()  # Démarrage auto
+        
+        # Initialisation d'une console view basique
+        self.console_view = self._create_console_view()
+        
         self._setup_cleanup()
         logger.info("🔧 Initialisation de l'assistant vocal terminée")
+
+    def _create_console_view(self):
+        """Crée une console view basique ou utilise ConsoleView si disponible."""
+        try:
+            from src.views.console_view import ConsoleView
+            console = ConsoleView()
+            # Vérifier si les méthodes nécessaires existent
+            if hasattr(console, 'display_message') and hasattr(console, 'get_user_input'):
+                logger.info("✅ ConsoleView initialisé")
+                return console
+            else:
+                logger.warning("⚠️ ConsoleView incomplet, utilisation de la version basique")
+        except Exception as e:
+            logger.warning(f"⚠️ ConsoleView non disponible: {e}")
+        
+        # Console view basique
+        class BasicConsoleView:
+            def display_message(self, message):
+                logger.info(f"🤖 {message}")
+            
+            def get_user_input(self, prompt):
+                try:
+                    return input(prompt)
+                except:
+                    return None
+                    
+        return BasicConsoleView()
 
     # ===============================================================
     # 🔹 Nettoyage des ressources
@@ -205,6 +236,11 @@ class AssistantVocal:
         """Efface l'historique de conversation."""
         self.conversation_service.clear_history()
         logger.info("Conversation effacée")
+        if self.console_view:
+            try:
+                self.console_view.display_message("Conversation effacée")
+            except:
+                logger.info("Conversation effacée")
 
     def analyze_project(self, project_path: str) -> Dict:
         """Analyse un projet complet."""
@@ -229,7 +265,116 @@ class AssistantVocal:
     # ===============================================================
     def speak_response(self, text: str) -> bool:
         """Parle une réponse avec le TTS."""
+        # Afficher dans la console si disponible
+        if self.console_view:
+            try:
+                self.console_view.display_message(f"🤖 Assistant: {text}")
+            except Exception as e:
+                logger.info(f"🤖 Assistant: {text}")  # Fallback
+        else:
+            logger.info(f"🤖 Assistant: {text}")
         return self.tts_service.speak(text, self.settings.speech_speed)
+
+    # ===============================================================
+    # 🔹 Interface console
+    # ===============================================================
+    def start_console_interface(self):
+        """Démarre l'interface console."""
+        try:
+            logger.info("🖥️  Démarrage interface console...")
+            if self.console_view:
+                try:
+                    self.console_view.display_message("=== Assistant Vocal Mario ===")
+                    self.console_view.display_message("Tapez 'quit' pour quitter")
+                    self.console_view.display_message("Tapez 'help' pour la liste des commandes")
+                except:
+                    logger.info("=== Assistant Vocal Mario ===")
+                    logger.info("Tapez 'quit' pour quitter")
+                    logger.info("Tapez 'help' pour la liste des commandes")
+            
+            while self._is_running:
+                try:
+                    if self.console_view:
+                        try:
+                            user_input = self.console_view.get_user_input("Vous> ")
+                        except:
+                            user_input = input("Vous> ")
+                    else:
+                        user_input = input("Vous> ")
+                    
+                    if not user_input or user_input.lower() in ['quit', 'exit', 'q']:
+                        break
+                    elif user_input.lower() == 'help':
+                        self._show_help()
+                    elif user_input.lower() == 'clear':
+                        self.clear_conversation()
+                    elif user_input.lower() == 'status':
+                        self._show_status()
+                    else:
+                        # Traiter le message utilisateur
+                        response = self.process_user_message(user_input)
+                        self.speak_response(response)
+                        
+                except KeyboardInterrupt:
+                    break
+                except Exception as e:
+                    logger.error(f"Erreur interface console: {e}")
+                    if self.console_view:
+                        try:
+                            self.console_view.display_message(f"[ERREUR] {e}")
+                        except:
+                            logger.error(f"[ERREUR] {e}")
+                    
+        except Exception as e:
+            logger.error(f"Erreur démarrage interface console: {e}")
+
+    def _show_help(self):
+        """Affiche l'aide de la console."""
+        help_text = """
+Commandes disponibles:
+  help    - Affiche cette aide
+  clear   - Efface l'historique de conversation
+  status  - Affiche le statut de l'assistant
+  quit    - Quitte l'application
+        """
+        if self.console_view:
+            try:
+                self.console_view.display_message(help_text)
+            except:
+                for line in help_text.strip().split('\n'):
+                    logger.info(line)
+        else:
+            for line in help_text.strip().split('\n'):
+                logger.info(line)
+
+    def _show_status(self):
+        """Affiche le statut de l'assistant."""
+        try:
+            status = self.get_performance_status()
+            status_text = f"""
+Statut de l'assistant:
+  CPU: {status.get('cpu_percent', 'N/A')}%
+  Mémoire: {status.get('memory_percent', 'N/A')}%
+  Disque: {status.get('disk_percent', 'N/A')}%
+            """
+            if self.console_view:
+                try:
+                    self.console_view.display_message(status_text)
+                except:
+                    for line in status_text.strip().split('\n'):
+                        logger.info(line)
+            else:
+                for line in status_text.strip().split('\n'):
+                    logger.info(line)
+        except Exception as e:
+            error_msg = f"[ERREUR] Impossible d'obtenir le statut: {e}"
+            if self.console_view:
+                try:
+                    self.console_view.display_message(error_msg)
+                except:
+                    logger.error(error_msg)
+            else:
+                logger.error(error_msg)
 
     # ===============================================================
     # 🔹 Interface web
@@ -331,6 +476,11 @@ class AssistantVocal:
                 self.speak_response("Le service TTS est opérationnel")
             else:
                 logger.warning("⚠️ Service TTS non disponible")
+            
+            # Démarrer l'interface console dans un thread séparé
+            logger.info("🖥️  Démarrage interface console...")
+            console_thread = threading.Thread(target=self.start_console_interface, daemon=True)
+            console_thread.start()
             
             # Boucle principale
             self._is_running = True
