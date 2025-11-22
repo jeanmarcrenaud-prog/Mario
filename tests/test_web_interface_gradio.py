@@ -10,7 +10,7 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.ui.web_interface_gradio import GradioWebInterface
+from src.views.web_interface_gradio import GradioWebInterface
 
 class TestWebInterfaceGradio(unittest.TestCase):
     """Tests pour l'interface web Gradio"""
@@ -43,7 +43,7 @@ class TestWebInterfaceGradio(unittest.TestCase):
         self.assertIsNone(self.interface.demo)
         self.assertEqual(self.interface.chat_history, [])
 
-    @patch('src.ui.web_interface_gradio.gr')
+    @patch('src.views.web_interface_gradio.gr')
     def test_create_interface(self, mock_gr):
         """Test de création de l'interface"""
         # Configurer les mocks Gradio
@@ -222,7 +222,7 @@ class TestWebInterfaceGradio(unittest.TestCase):
         result = self.interface._refresh_chat()
         self.assertEqual(result, [])
 
-    @patch('src.ui.web_interface_gradio.gr')
+    @patch('src.views.web_interface_gradio.gr')
     def test_launch(self, mock_gr):
         """Test du lancement de l'interface"""
         # Configurer les mocks

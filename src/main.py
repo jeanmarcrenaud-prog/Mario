@@ -13,7 +13,7 @@ from src.core.conversation_service import ConversationService
 from src.core.tts_service import TTSService
 from src.core.wake_word_service import WakeWordService
 from src.models.settings import Settings
-from src.ui.web_interface_gradio import GradioWebInterface
+from src.views.web_interface_gradio import GradioWebInterface
 from src.core.speech_recognition_service import SpeechRecognitionService
 from src.core.llm_service import LLMService
 from src.core.project_analyzer_service import ProjectAnalyzerService
