@@ -2,6 +2,8 @@
 class ConsoleView:
     def __init__(self, controller):
         self.controller = controller
+        if controller is None:
+            print("⚠️ ConsoleView running without controller")
 
     def loop(self):
         print("Assistant Mario (console) — Entrer 'exit' pour arrêter.")

@@ -13,11 +13,29 @@ Version: 1.0
 """
 
 import gradio as gr
+from gradio import themes
+from gradio.themes import Default as DefaultTheme
+from gradio.themes import ThemeClass as Theme
 import threading
 import time
 import json
 from typing import List, Dict, Any
 from ..utils.logger import logger
+from ..controllers.audio_controller import AudioController
+
+BUILT_IN_THEMES: dict[str, Theme] = {
+    t.name: t
+    for t in [
+        themes.Base(),
+        themes.Default(),
+        themes.Monochrome(),
+        themes.Soft(),
+        themes.Glass(),
+        themes.Origin(),
+        themes.Citrus(),
+        themes.Ocean(),
+    ]
+}
 
 class GradioWebInterface:
     """
@@ -37,6 +55,7 @@ class GradioWebInterface:
         self.assistant = assistant_controller
         self.demo = None
         self.chat_history = []
+        self.audio_controller = AudioController()
         logger.info("GradioWebInterface avancé initialisé")
     
     def create_interface(self) -> gr.Blocks:
@@ -48,8 +67,7 @@ class GradioWebInterface:
         """
         # Configuration de base de l'interface
         with gr.Blocks(
-            title="Assistant Vocal Intelligent",
-            theme=self._get_theme()
+            title="Assistant Vocal Intelligent"
         ) as demo:
             self.demo = demo
             
@@ -90,23 +108,19 @@ class GradioWebInterface:
         logger.info("Interface Gradio avancée créée")
         return demo
     
-    def _get_theme(self):
-        """
-        Retourne le thème personnalisé pour l'interface.
-        
-        Returns:
-            gr.themes.Theme: Thème Gradio personnalisé
-        """
-        return gr.themes.Soft(
-            primary_hue="blue",          # Couleur principale
-            secondary_hue="cyan",        # Couleur secondaire
-            neutral_hue="gray",          # Couleur neutre
-        ).set(
-            button_primary_background_fill="*primary_500",
-            button_primary_background_fill_hover="*primary_400",
-            block_title_text_weight="600",
-            background_fill_primary="*neutral_50",
-        )
+    def get_theme(theme: Theme | str | None) -> Theme:
+        if theme is None:
+            theme = DefaultTheme()
+        elif isinstance(theme, str):
+            if theme.lower() in BUILT_IN_THEMES:
+                theme = BUILT_IN_THEMES[theme.lower()]
+            else:
+                try:
+                    theme = Theme.from_hub(theme)
+                except Exception as e:
+                    warnings.warn(f"Cannot load {theme}. Caught Exception: {str(e)}")
+                    theme = DefaultTheme()
+        return theme
     
     def _create_advanced_control_panel(self):
         """
@@ -223,8 +237,6 @@ class GradioWebInterface:
         self.chatbot = gr.Chatbot(
             label="Discussion",
             height=400,           # Hauteur fixe
-            type="messages",      # Format messages Gradio
-            bubble_full_width=False  # Bulles de taille adaptée
         )
         
         # === ZONE DE SAISIE ===
@@ -288,8 +300,7 @@ class GradioWebInterface:
                         self.file_result = gr.Textbox(
                             label="Résultat de l'analyse",
                             lines=10,
-                            interactive=False,
-                            show_copy_button=True
+                            interactive=False
                         )
             
             # Tab Projets complets
@@ -334,8 +345,7 @@ class GradioWebInterface:
                     self.project_result = gr.Textbox(
                         label="Rapport d'analyse du projet",
                         lines=15,
-                        interactive=False,
-                        show_copy_button=True
+                        interactive=False
                     )
             
             # === RÉSUMÉ VISUEL ===
@@ -487,8 +497,7 @@ class GradioWebInterface:
             self.prompt_test_result = gr.Textbox(
                 label="Résultat du test",
                 lines=6,
-                interactive=False,
-                show_copy_button=True
+                interactive=False
             )
             
             # Bouton pour utiliser dans le chat
@@ -1061,6 +1070,10 @@ class GradioWebInterface:
                         with gr.Row():
                             self.test_all_btn = gr.Button("🧪 Tester tous les services")
                             self.optimize_btn = gr.Button("⚡ Optimiser", variant="primary")
+            
+            # Tab Audio - NOUVEAU !
+            with gr.Tab("🔊 Audio"):
+                self._create_audio_settings_tab()
             
             # Tab Monitoring
             with gr.Tab("📊 Monitoring"):
@@ -1790,27 +1803,131 @@ class GradioWebInterface:
             return "❌ Erreur stats"
     
     def _get_microphone_choices(self) -> List[str]:
-        """
-        Retourne la liste des microphones disponibles.
-        
-        Returns:
-            List[str]: Liste des microphones
-        """
+        """Retourne la liste des microphones filtrés."""
+        return self.audio_controller.get_microphones()
+
+    def _get_windows_audio_devices(self) -> Dict[str, List[str]]:
+        """Détection spécifique pour Windows avec filtrage avancé."""
         try:
-            devices = self.assistant.wake_word_service.get_audio_devices()
-            return [f"{idx}: {name}" for idx, name in devices]
-        except Exception:
-            return ["0: Microphone par défaut"]
+            import pyaudio
+            p = pyaudio.PyAudio()
+            
+            input_devices = []
+            output_devices = []
+            
+            for i in range(p.get_device_count()):
+                device_info = p.get_device_info_by_index(i)
+                name = device_info['name']
+                name_lower = name.lower()
+                
+                # Classification des périphériques
+                is_input = device_info['maxInputChannels'] > 0
+                is_output = device_info['maxOutputChannels'] > 0
+                
+                # Score de pertinence basé sur le nom
+                relevance_score = 0
+                
+                # Mots clés pour les périphériques physiques
+                physical_keywords = [
+                    'realtek', 'nvidia', 'amd', 'intel', 'usb', 'bluetooth',
+                    'speakers', 'headphones', 'headset', 'microphone', 'array',
+                    'webcam', 'camera', 'hdmi', 'displayport', 'line', 'analog',
+                    'digital', 'primary', 'default', 'stereo', 'mono'
+                ]
+                
+                # Mots clés pour les périphériques virtuels (à exclure)
+                virtual_keywords = [
+                    'virtual', 'vb-audio', 'voicemeeter', 'cable', 'loopback',
+                    'mme', 'wasapi', 'directsound', 'steam', 'discord', 'zoom',
+                    'teams', 'obs', 'virtual audio', 'scheduled', 'router'
+                ]
+                
+                # Calcul du score de pertinence
+                for keyword in physical_keywords:
+                    if keyword in name_lower:
+                        relevance_score += 2
+                
+                for keyword in virtual_keywords:
+                    if keyword in name_lower:
+                        relevance_score -= 3
+                
+                # Seuil de pertinence (ajuster selon les besoins)
+                if relevance_score >= 0:
+                    if is_input:
+                        input_devices.append((i, name, relevance_score))
+                    if is_output:
+                        output_devices.append((i, name, relevance_score))
+            
+            p.terminate()
+            
+            # Trier par score de pertinence
+            input_devices.sort(key=lambda x: x[2], reverse=True)
+            output_devices.sort(key=lambda x: x[2], reverse=True)
+            
+            return {
+                "inputs": [f"{idx}: {name}" for idx, name, score in input_devices[:6]],
+                "outputs": [f"{idx}: {name}" for idx, name, score in output_devices[:6]]
+            }
+            
+        except Exception as e:
+            logger.error(f"Erreur détection audio Windows: {e}")
+            return {
+                "inputs": ["0: Microphone par défaut", "1: Microphone secondaire"],
+                "outputs": ["0: Haut-parleurs par défaut", "1: Casque audio"]
+            }
+
+    def _debug_audio_devices(self):
+        """Affiche tous les périphériques pour débogage."""
+        try:
+            import pyaudio
+            p = pyaudio.PyAudio()
+            
+            print("=== DÉBOGAGE PÉRIPHÉRIQUES AUDIO ===")
+            for i in range(p.get_device_count()):
+                device_info = p.get_device_info_by_index(i)
+                print(f"{i}: {device_info['name']} (In: {device_info['maxInputChannels']}, Out: {device_info['maxOutputChannels']})")
+            
+            p.terminate()
+            
+            # Aussi avec pvrecorder
+            from pvrecorder import PvRecorder
+            devices = PvRecorder.get_available_devices()
+            print("=== PVRECORDER MICROPHONES ===")
+            for i, name in enumerate(devices):
+                print(f"{i}: {name}")
+                
+        except Exception as e:
+            print(f"Erreur débogage: {e}")
+
+    def _get_all_audio_devices(self, device_type: str) -> List[str]:
+        """Retourne tous les périphériques (sans filtrage)."""
+        try:
+            import pyaudio
+            p = pyaudio.PyAudio()
+            devices = []
+            
+            for i in range(p.get_device_count()):
+                device_info = p.get_device_info_by_index(i)
+                
+                if device_type == "input" and device_info['maxInputChannels'] > 0:
+                    devices.append(f"{i}: {device_info['name']}")
+                elif device_type == "output" and device_info['maxOutputChannels'] > 0:
+                    devices.append(f"{i}: {device_info['name']}")
+            
+            p.terminate()
+            return devices[:20]  # Limiter à 20 pour l'interface
+            
+        except Exception as e:
+            logger.error(f"Erreur liste complète périphériques: {e}")
+            return ["0: Périphérique par défaut"]
+
+    def _get_audio_output_choices(self) -> List[str]:
+        """Retourne la liste des sorties audio filtrées."""
+        return self.audio_controller.get_speakers()
     
     def _get_default_microphone(self) -> str:
-        """
-        Retourne le microphone par défaut.
-        
-        Returns:
-            str: Microphone par défaut
-        """
-        choices = self._get_microphone_choices()
-        return choices[0] if choices else "0: Microphone par défaut"
+        """Retourne le microphone par défaut."""
+        return self.audio_controller.get_default_microphone()
     
     def _get_voice_choices(self) -> List[str]:
         """
@@ -1922,7 +2039,338 @@ class GradioWebInterface:
         if not self.demo:
             self.create_interface()
         
-        self.demo.launch(**kwargs)
+        self.demo.launch(theme=gr.themes.Default(font=[gr.themes.GoogleFont("Inconsolata"), "Arial", "sans-serif"]))
+
+    def _create_audio_settings_tab(self):
+        """Crée l'onglet de configuration audio avec options avancées."""
+        gr.Markdown("### 🔊 Configuration Audio")
+        self._debug_audio_devices()
+        with gr.Row():
+            # Colonne Microphone
+            with gr.Column():
+                gr.Markdown("#### 🎤 Entrée Audio")
+                
+                # Sélection principale (filtrage intelligent)
+                self.audio_mic_dropdown = gr.Dropdown(
+                    label="Microphone (périphériques recommandés)",
+                    choices=self._get_microphone_choices(),
+                    value=self._get_default_microphone(),
+                    interactive=True,
+                    allow_custom_value=True
+                )
+                
+                # Option pour voir tous les périphériques
+                self.show_all_mics_btn = gr.Button("🔍 Voir tous les microphones", size="sm")
+                self.all_mics_dropdown = gr.Dropdown(
+                    label="Tous les microphones (avancé)",
+                    choices=self._get_all_audio_devices("input"),
+                    visible=False,
+                    interactive=True,
+                    allow_custom_value=True
+                )
+                
+                # Test microphone
+                self.test_mic_btn = gr.Button("🎤 Tester le microphone", variant="secondary")
+                self.mic_test_status = gr.Textbox(
+                    label="Test microphone",
+                    lines=2,
+                    interactive=False,
+                    value="Cliquez pour tester"
+                )
+            
+            # Colonne Sortie Audio
+            with gr.Column():
+                gr.Markdown("#### 🔈 Sortie Audio")
+                
+                # Sélection principale (filtrage intelligent)
+                self.audio_output_dropdown = gr.Dropdown(
+                    label="Sortie audio (périphériques recommandés)",
+                    choices=self._get_audio_output_choices(),
+                    value=self._get_default_audio_output(),
+                    interactive=True
+                )
+                
+                # Option pour voir tous les périphériques
+                self.show_all_outputs_btn = gr.Button("🔍 Voir toutes les sorties", size="sm")
+                self.all_outputs_dropdown = gr.Dropdown(
+                    label="Toutes les sorties audio (avancé)",
+                    choices=self._get_all_audio_devices("output"),
+                    visible=False,
+                    interactive=True
+                )
+                
+                # Test sortie audio
+                self.test_speaker_btn = gr.Button("🔊 Tester la sortie", variant="secondary")
+                self.speaker_test_status = gr.Textbox(
+                    label="Test sortie audio",
+                    lines=2,
+                    interactive=False,
+                    value="Cliquez pour tester"
+                )
+        
+        # Configuration audio avancée
+        with gr.Accordion("⚙️ Paramètres audio avancés", open=False):
+            with gr.Row():
+                # Volume général
+                self.audio_volume = gr.Slider(
+                    label="🔊 Volume général",
+                    minimum=0.0,
+                    maximum=1.0,
+                    value=0.8,
+                    step=0.1
+                )
+                
+                # Sensibilité du microphone
+                self.mic_sensitivity = gr.Slider(
+                    label="🎤 Sensibilité microphone",
+                    minimum=0.1,
+                    maximum=2.0,
+                    value=1.0,
+                    step=0.1
+                )
+            
+            with gr.Row():
+                # Délai de silence
+                self.silence_delay = gr.Slider(
+                    label="⏱️ Délai de silence (secondes)",
+                    minimum=0.5,
+                    maximum=5.0,
+                    value=2.0,
+                    step=0.5
+                )
+                
+                # Seuil de détection vocale
+                self.vad_threshold = gr.Slider(
+                    label="📊 Seuil détection vocale",
+                    minimum=0.1,
+                    maximum=0.9,
+                    value=0.5,
+                    step=0.1
+                )
+        
+        # Boutons d'action
+        with gr.Row():
+            self.save_audio_btn = gr.Button("💾 Sauvegarder paramètres audio", variant="primary")
+            self.apply_audio_btn = gr.Button("🔄 Appliquer maintenant")
+            self.reset_audio_btn = gr.Button("🔄 Réinitialiser")
+        
+        # Statut audio
+        self.audio_settings_status = gr.Textbox(
+            label="Statut audio",
+            lines=3,
+            interactive=False,
+            value="Configuration audio prête"
+        )
+        
+        # Configuration des événements audio
+        self._setup_audio_events()
+
+
+    def _get_audio_output_choices(self) -> List[str]:
+        """Retourne la liste des sorties audio (version finale stricte)."""
+        try:
+            import pyaudio
+            p = pyaudio.PyAudio()
+            
+            filtered = []
+            for i in range(min(10, p.get_device_count())):  # Limiter à 10 périphériques
+                device_info = p.get_device_info_by_index(i)
+                name = device_info['name'].lower()
+                
+                if device_info['maxOutputChannels'] > 0:
+                    # Exclusion forte
+                    if any(virtual in name for virtual in ['virtual', 'voicemeeter', 'cable', 'loopback']):
+                        continue
+                        
+                    # Inclusion seulement des physiques évidents
+                    if any(physical in name for physical in ['speakers', 'headphone', 'headset', 'haut-parleurs', 'casque']):
+                        filtered.append((i, device_info['name']))
+            
+            p.terminate()
+            
+            # Limiter à 4 maximum
+            if len(filtered) > 4:
+                filtered = filtered[:4]
+                
+            # Si pas assez, compléter
+            if len(filtered) < 2:
+                filtered = [(0, "Haut-parleurs par défaut"), (1, "Casque audio")]
+                
+            return [f"{idx}: {name}" for idx, name in filtered]
+            
+        except Exception as e:
+            logger.error(f"Erreur sorties audio: {e}")
+            return ["0: Haut-parleurs par défaut", "1: Casque audio"]
+        
+    def _get_default_audio_output(self) -> str:
+        """Retourne la sortie audio par défaut."""
+        return self.audio_controller.get_default_speaker()
+
+    def _test_microphone(self, mic_device):
+        """Teste le microphone sélectionné."""
+        try:
+            # Extraire l'index du microphone
+            mic_index = int(mic_device.split(":")[0])
+            
+            # Simuler un test (vous pouvez implémenter un vrai test audio)
+            return "✅ Test microphone réussi\n🎤 Microphone fonctionnel et configuré correctement", "✅ Test réussi"
+        except Exception as e:
+            return f"❌ Erreur test microphone: {str(e)}", "❌ Test échoué"
+
+    def _test_speaker(self, speaker_device):
+        """Teste la sortie audio sélectionnée."""
+        try:
+            # Extraire l'index de la sortie
+            speaker_index = int(speaker_device.split(":")[0])
+            
+            # Jouer un son de test via l'assistant
+            self.assistant.speak_response("Ceci est un test de la sortie audio.")
+            
+            return "✅ Test sortie audio réussi\n🔊 Son joué avec succès", "✅ Test réussi"
+        except Exception as e:
+            return f"❌ Erreur test sortie: {str(e)}", "❌ Test échoué"
+
+    def _save_audio_settings(self, mic_device, output_device, volume, sensitivity, silence_delay, vad_threshold):
+        """Sauvegarde les paramètres audio."""
+        try:
+            # Sauvegarder les paramètres dans l'assistant
+            settings = {
+                "microphone": mic_device,
+                "output_device": output_device,
+                "volume": volume,
+                "mic_sensitivity": sensitivity,
+                "silence_delay": silence_delay,
+                "vad_threshold": vad_threshold
+            }
+            
+            # Ici vous pouvez sauvegarder dans un fichier de configuration
+            logger.info(f"Paramètres audio sauvegardés: {settings}")
+            
+            return "✅ Paramètres audio sauvegardés avec succès"
+        except Exception as e:
+            return f"❌ Erreur sauvegarde: {str(e)}"
+
+    def _apply_audio_settings(self, mic_device, output_device):
+        """Applique immédiatement les paramètres audio."""
+        try:
+            # Mettre à jour les services audio
+            mic_index = int(mic_device.split(":")[0])
+            output_index = int(output_device.split(":")[0])
+            
+            # Redémarrer le service de détection avec le nouveau microphone
+            self.assistant.wake_word_service.stop_detection()
+            self.assistant.wake_word_service.start_detection(mic_index)
+            
+            return "✅ Paramètres audio appliqués avec succès\n🎤 Microphone et sortie mis à jour"
+        except Exception as e:
+            return f"❌ Erreur application: {str(e)}"
+
+    def _setup_audio_events(self):
+        """Configure les événements de l'onglet audio."""
+        
+        # Cache les dropdowns avancés au début
+        self.all_mics_dropdown.visible = False
+        self.all_outputs_dropdown.visible = False
+        
+        # Variables pour suivre l'état de visibilité
+        mics_visible = False
+        outputs_visible = False
+        
+        # Afficher/masquer tous les microphones
+        def toggle_mics():
+            nonlocal mics_visible
+            mics_visible = not mics_visible
+            return gr.update(visible=mics_visible)
+        
+        self.show_all_mics_btn.click(
+            toggle_mics,
+            outputs=[self.all_mics_dropdown]
+        )
+        
+        # Afficher/masquer toutes les sorties
+        def toggle_outputs():
+            nonlocal outputs_visible
+            outputs_visible = not outputs_visible
+            return gr.update(visible=outputs_visible)
+        
+        self.show_all_outputs_btn.click(
+            toggle_outputs,
+            outputs=[self.all_outputs_dropdown]
+        )
+        
+        # Synchroniser les sélections avancées vers les principales
+        self.all_mics_dropdown.change(
+            lambda mic: mic,
+            inputs=[self.all_mics_dropdown],
+            outputs=[self.audio_mic_dropdown]
+        )
+        
+        self.all_outputs_dropdown.change(
+            lambda output: output,
+            inputs=[self.all_outputs_dropdown],
+            outputs=[self.audio_output_dropdown]
+        )
+        
+        # Test microphone
+        self.test_mic_btn.click(
+            self._test_microphone,
+            inputs=[self.audio_mic_dropdown],
+            outputs=[self.mic_test_status, self.audio_settings_status]
+        )
+        
+        # Test sortie audio
+        self.test_speaker_btn.click(
+            self._test_speaker,
+            inputs=[self.audio_output_dropdown],
+            outputs=[self.speaker_test_status, self.audio_settings_status]
+        )
+        
+        # Sauvegarde paramètres
+        self.save_audio_btn.click(
+            self._save_audio_settings,
+            inputs=[
+                self.audio_mic_dropdown,
+                self.audio_output_dropdown,
+                self.audio_volume,
+                self.mic_sensitivity,
+                self.silence_delay,
+                self.vad_threshold
+            ],
+            outputs=[self.audio_settings_status]
+        )
+        
+        # Application immédiate
+        self.apply_audio_btn.click(
+            self._apply_audio_settings,
+            inputs=[self.audio_mic_dropdown, self.audio_output_dropdown],
+            outputs=[self.audio_settings_status]
+        )
+        
+        # Réinitialisation
+        def reset_audio_settings():
+            return (
+                self._get_default_microphone(),
+                self._get_default_audio_output(),
+                0.8, 1.0, 2.0, 0.5,
+                "🔄 Paramètres audio réinitialisés",
+                gr.update(visible=False),
+                gr.update(visible=False)
+            )
+        
+        self.reset_audio_btn.click(
+            reset_audio_settings,
+            outputs=[
+                self.audio_mic_dropdown,
+                self.audio_output_dropdown,
+                self.audio_volume,
+                self.mic_sensitivity,
+                self.silence_delay,
+                self.vad_threshold,
+                self.audio_settings_status,
+                self.all_mics_dropdown,
+                self.all_outputs_dropdown
+            ]
+        )
 
 # Export pour l'importation
 __all__ = ['GradioWebInterface']

@@ -7,7 +7,9 @@ class TTSService:
     
     def __init__(self, voice_name: str = "fr_FR-siwis-medium"):
         self.voice_name = voice_name
+        from src.models.text_to_speech import TextToSpeech
         self.is_available = self._check_tts_availability()
+        self.tts = TextToSpeech(voice_name)
         logger.info(f"TTSService initialisé - Voix: {voice_name}")
     
     def _check_tts_availability(self) -> bool:
@@ -18,6 +20,10 @@ class TTSService:
         except Exception as e:
             logger.warning(f"TTS non disponible: {e}")
             return False
+
+    def say(self, text: str, speed: float = 1.0) -> bool:
+        """Alias pour la méthode speak - pour la compatibilité avec le code existant"""
+        return self.speak(text, speed)
     
     def speak(self, text: str, speed: float = 1.0) -> bool:
         """
@@ -35,7 +41,7 @@ class TTSService:
             
             # Pour le moment, juste un log
             logger.info(f"🗣️ TTS: {text}")
-            
+            self.tts.say(text, speed)
             # Ici viendra l'intégration avec votre TTS existant
             # self._actual_speak(text, speed)
             

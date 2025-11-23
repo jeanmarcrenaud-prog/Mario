@@ -221,7 +221,7 @@ class WakeWordService:
         """Retourne la liste des périphériques audio disponibles."""
         try:
             from pvrecorder import PvRecorder
-            devices = PvRecorder.get_audio_devices()
+            devices = PvRecorder.get_available_devices()  # ✅ Correct method
             return [(i, device) for i, device in enumerate(devices)]
         except Exception as e:
             logger.error(f"Erreur récupération périphériques: {e}")

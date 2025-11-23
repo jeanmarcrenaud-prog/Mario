@@ -118,6 +118,8 @@ class TextToSpeech:
         """Synthétise un texte en audio avec cache."""
         logger.info(f"Synthétisation du texte: {text}")
         text = nettoyer_markdown(text)
+        logger.info(f"Synthétisation: '{text}'")
+        
         if not self.current_voice:
             logger.error("❌ Aucune voix chargée - appel à load_voice() manquant?")
             if hasattr(config, 'DEFAULT_PIPER_VOICE'):
@@ -351,7 +353,8 @@ class TextToSpeech:
             # Chemins vers les fichiers de la voix
             model_path = os.path.join("voices", "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx")
             config_path = os.path.join("voices", "fr_FR-siwis-medium", "fr_FR-siwis-medium.onnx.json")
-
+            logger.info(f"model_path: {model_path} ")
+            logger.info(f"config_path: {config_path} ")
             # Initialise PiperVoice
             voice = PiperVoice.load(model_path, config_path=config_path, use_cuda=False)
 

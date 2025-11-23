@@ -52,7 +52,7 @@ class InterfaceHelpers:
         """Retourne la liste des microphones disponibles."""
         try:
             from pvrecorder import PvRecorder
-            devices = PvRecorder.get_available_devices()
+            devices = PvRecorder.get_available_devices()  # ✅ Already correct
             return [f"{i}: {name}" for i, name in enumerate(devices)]
         except Exception as e:
             logger.error(f"Erreur détection microphones: {e}")

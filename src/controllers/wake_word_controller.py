@@ -260,7 +260,7 @@ class WakeWordController:
     def get_audio_devices(self) -> list:
         """Retourne la liste des périphériques audio disponibles."""
         try:
-            devices = PvRecorder.get_audio_devices()
+            devices = PvRecorder.get_available_devices()  # ✅ Correct method
             return [(idx, device) for idx, device in enumerate(devices)]
         except Exception as e:
             logger.error("[ERREUR] Erreur liste périphériques: %s", e)

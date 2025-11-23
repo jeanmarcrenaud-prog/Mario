@@ -46,7 +46,7 @@ class AssistantVocal:
         """Crée une console view basique ou utilise ConsoleView si disponible."""
         try:
             from src.views.console_view import ConsoleView
-            console = ConsoleView()
+            console = ConsoleView(self)  # ✅ Pass self as controller
             # Vérifier si les méthodes nécessaires existent
             if hasattr(console, 'display_message') and hasattr(console, 'get_user_input'):
                 logger.info("✅ ConsoleView initialisé")
@@ -56,7 +56,7 @@ class AssistantVocal:
         except Exception as e:
             logger.warning(f"⚠️ ConsoleView non disponible: {e}")
         
-        # Console view basique
+        # Console view basique (fallback remains the same)
         class BasicConsoleView:
             def display_message(self, message):
                 logger.info(f"🤖 {message}")
@@ -198,6 +198,26 @@ class AssistantVocal:
         except Exception as e:
             logger.error(f"Erreur utilisation prompt: {e}")
             return f"[ERREUR] {str(e)}"
+
+    def add_user_message(self, user_input: str):
+        """Adapter method for ConsoleView - adds user message to conversation."""
+        self.conversation_service.add_message("user", user_input)
+
+    def generate_response(self) -> str:
+        """Adapter method for ConsoleView - generates response for current conversation."""
+        messages = self.conversation_service.get_history()
+        response = self.llm_service.generate_response(messages)
+        self.conversation_service.add_message("assistant", response)
+        return response
+
+    def play_tts_response(self, text: str):
+        """Adapter method for ConsoleView - plays TTS response."""
+        self.speak_response(text)
+
+    def get_history(self):
+        """Adapter method for ConsoleView - gets conversation history."""
+        return self.conversation_service.get_history()
+
     
     # ===============================================================
     # 🔹 Gestion de la conversation
@@ -263,8 +283,13 @@ class AssistantVocal:
     # ===============================================================
     # 🔹 Gestion TTS
     # ===============================================================
+
     def speak_response(self, text: str) -> bool:
-        """Parle une réponse avec le TTS."""
+        """Parle une réponse avec le TTS - VERSION CORRIGÉE"""
+        if not text or not text.strip():
+            logger.warning("Texte vide pour la synthèse vocale")
+            return False
+            
         # Afficher dans la console si disponible
         if self.console_view:
             try:
@@ -273,7 +298,18 @@ class AssistantVocal:
                 logger.info(f"🤖 Assistant: {text}")  # Fallback
         else:
             logger.info(f"🤖 Assistant: {text}")
-        return self.tts_service.speak(text, self.settings.speech_speed)
+        
+        # Appel direct au TTS - IMPORTANT : utiliser self.tts_service.say()
+        try:
+            success = self.tts_service.say(text, self.settings.speech_speed)
+            if success:
+                logger.info("✅ Synthèse vocale réussie")
+            else:
+                logger.error("❌ Échec de la synthèse vocale")
+            return success
+        except Exception as e:
+            logger.error(f"❌ Erreur dans speak_response: {e}")
+            return False
 
     # ===============================================================
     # 🔹 Interface console
