@@ -29,9 +29,9 @@ class ConfigManager:
 
     # Porcupine
     PORCUPINE_ACCESS_KEY: str = os.getenv("PORCUPINE_ACCESS_KEY", "")
-    PORCUPINE_MODEL_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "porcupine_params_fr.pv")
-    PORCUPINE_LIBRARY_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "pv_porcupine.dll")
-    PORCUPINE_KEYWORD_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "mario_fr_windows_v3_0_0.ppn")
+    PORCUPINE_MODEL_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "common", "porcupine_params_fr.pv")
+    PORCUPINE_LIBRARY_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "windows", "amd64", "pv_porcupine.dll")
+    PORCUPINE_KEYWORD_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "keywords", "windows", "mario_fr_windows_v3_0_0.ppn")
     PORCUPINE_SENSITIVITY: float = 0.9
     
     # Interface
@@ -44,7 +44,8 @@ class ConfigManager:
         """Charge la configuration depuis le fichier YAML."""
         self._load_from_file()
         self._create_directories()
-    
+        self._validate_porcupine_files()
+        
     def _load_from_file(self):
         """Charge la configuration depuis le fichier."""
         if not os.path.exists(self.CONFIG_FILE):
@@ -74,5 +75,19 @@ class ConfigManager:
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
 
+    def _validate_porcupine_files(self):
+        """Valide l'existence des fichiers Porcupine."""
+        required_files = [
+            ("PORCUPINE_MODEL_PATH", self.PORCUPINE_MODEL_PATH),
+            ("PORCUPINE_LIBRARY_PATH", self.PORCUPINE_LIBRARY_PATH),
+            ("PORCUPINE_KEYWORD_PATH", self.PORCUPINE_KEYWORD_PATH)
+        ]
+        
+        for name, path in required_files:
+            if not os.path.exists(path):
+                print(f"⚠️  Fichier {name} manquant: {path}")
+            else:
+                print(f"✅ Fichier {name} trouvé: {path}")
+                
 # Instance globale
 config = ConfigManager()
