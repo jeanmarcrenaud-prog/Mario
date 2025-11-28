@@ -27,6 +27,13 @@ class ISpeechRecognitionAdapter(ABC):
     def optimize_cache(self) -> bool:
         """Optimise le cache du modèle."""
         pass
+    
+    def get_available_models(self) -> list:
+        """
+        Optionnel: retourne la liste des modèles disponibles.
+        Retourne une liste vide si non supporté.
+        """
+        return []
 
 class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
     """Adaptateur concret pour Whisper."""
@@ -133,6 +140,10 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
         except Exception as e:
             logger.debug(f"Erreur optimisation cache Whisper: {e}")
             return False
+    
+    def get_available_models(self) -> list:
+        """Retourne la liste des modèles Whisper disponibles."""
+        return ["tiny", "base", "small", "medium", "large"]
 
 class SimulatedSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
     """Adaptateur simulé pour le développement et les tests."""
@@ -240,8 +251,11 @@ class SpeechRecognitionService:
     
     def get_available_models(self) -> list:
         """Retourne la liste des modèles disponibles."""
-        # Cette méthode pourrait être déplacée dans l'adaptateur si nécessaire
-        return ["tiny", "base", "small", "medium", "large"]
+        try:
+            return self.speech_recognition_adapter.get_available_models()
+        except Exception as e:
+            logger.debug(f"Erreur récupération modèles: {e}")
+            return []
     
     def test_transcription(self) -> bool:
         """Teste la transcription."""
