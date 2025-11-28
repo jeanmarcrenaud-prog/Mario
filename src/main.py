@@ -32,6 +32,7 @@ class AssistantVocal:
         self.speech_recognition_service = SpeechRecognitionService.create_with_whisper("base")
         self.speech_recognition_service = SpeechRecognitionService("base")
         self.llm_service = LLMService()
+        # Utilisation de l'adaptateur LLM existant
         self.project_analyzer_service = ProjectAnalyzerService(self.llm_service)
         self.system_monitor = SystemMonitor()
         self.web_interface: Optional[GradioWebInterface] = None

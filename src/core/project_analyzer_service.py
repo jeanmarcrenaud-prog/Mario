@@ -4,14 +4,73 @@ import ast
 import re
 from typing import List, Dict, Tuple, Optional
 from pathlib import Path
+from abc import ABC, abstractmethod
 from ..utils.logger import logger
+
+class ILLMAdapter(ABC):
+    """Interface pour les adaptateurs LLM."""
+    
+    @abstractmethod
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse à partir des messages."""
+        pass
+    
+    def generate_analysis(self, prompt: str) -> str:
+        """
+        Optionnel: génère une analyse à partir d'un prompt.
+        Par défaut, utilise generate_response.
+        """
+        messages = [{"role": "user", "content": prompt}]
+        return self.generate_response(messages)
+    
+    def generate_recommendations(self, analysis: str) -> List[str]:
+        """
+        Optionnel: génère des recommandations à partir d'une analyse.
+        Retourne une liste vide si non supporté.
+        """
+        return []
+
+class SimulatedLLMAdapter(ILLMAdapter):
+    """Adaptateur simulé pour le développement et les tests."""
+    
+    def __init__(self, fake_responses: Optional[Dict[str, str]] = None):
+        self.fake_responses = fake_responses or {}
+        logger.info("SimulatedLLMAdapter initialisé")
+    
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse simulée."""
+        # Créer une clé basée sur le contenu du message
+        content = messages[-1]["content"] if messages else ""
+        
+        # Chercher une réponse prédéfinie
+        for key, response in self.fake_responses.items():
+            if key in content:
+                return response
+        
+        # Réponse par défaut basée sur le contenu
+        if "Analyse ce projet" in content:
+            return """Analyse du projet simulée:
+            
+1. Architecture modulaire bien structurée
+2. Bonnes pratiques de codage respectées
+3. Gestion des dépendances claire
+4. Code bien documenté
+5. Tests unitaires présents"""
+        elif "recommandations" in content.lower():
+            return """1. [Optimisation des performances]
+2. [Amélioration de la documentation]
+3. [Refactorisation du code]
+4. [Ajout de tests]
+5. [Sécurité renforcée]"""
+        else:
+            return "Réponse simulée du LLM"
 
 class ProjectAnalyzerService:
     """Service d'analyse complète de projets avec IA."""
     
-    def __init__(self, llm_service):
-        self.llm_service = llm_service
-        logger.info("ProjectAnalyzerService initialisé")
+    def __init__(self, llm_adapter: ILLMAdapter):
+        self.llm_adapter = llm_adapter
+        logger.info("ProjectAnalyzerService initialisé avec adaptateur")
     
     def analyze_project(self, project_path: str, depth: int = 2) -> Dict[str, any]:
         """
@@ -34,8 +93,8 @@ class ProjectAnalyzerService:
             # 1. Structure du projet
             structure = self._analyze_structure(project_path, depth)
             
-            # 2. Fichiers de code principaux
-            code_files = self._get_code_files(project_path)
+            # 2. Fichiers de code principaux (limités pour réduire la taille)
+            code_files = self._get_code_files(project_path, max_files=3)
             
             # 3. Dépendances
             dependencies = self._analyze_dependencies(project_path)
@@ -101,37 +160,91 @@ class ProjectAnalyzerService:
             logger.error(f"Erreur analyse structure: {e}")
             return {"error": str(e)}
     
-    def _get_code_files(self, project_path: Path) -> List[Dict]:
-        """Récupère les fichiers de code importants."""
+    def _get_code_files(self, project_path: Path, max_files: int = 3) -> List[Dict]:
+        """Récupère les fichiers de code importants (limités pour réduire la taille)."""
         try:
             code_extensions = {'.py', '.js', '.ts', '.java', '.cpp', '.c', '.cs', '.go', '.rs', '.php'}
             code_files = []
             
             for root, _, files in os.walk(project_path):
                 for file in files:
+                    if len(code_files) >= max_files:
+                        break
                     if os.path.splitext(file)[1].lower() in code_extensions:
                         file_path = os.path.join(root, file)
                         rel_path = os.path.relpath(file_path, project_path)
                         
-                        # Lire le contenu (limité à 5KB pour l'analyse)
+                        # Lire le contenu (limité à 1KB pour l'analyse)
                         try:
                             with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
-                                content = f.read(5000)  # Limite de 5KB
+                                content = f.read(1000)  # Limite de 1KB
                         except Exception:
                             content = "[Impossible de lire le fichier]"
+                        
+                        # Extraire uniquement la structure/fonctions principales
+                        structured_content = self._extract_file_structure(content, os.path.splitext(file)[1])
                         
                         code_files.append({
                             "path": rel_path,
                             "extension": os.path.splitext(file)[1],
                             "size": os.path.getsize(file_path),
-                            "preview": content[:500] + "..." if len(content) > 500 else content
+                            "preview": structured_content
                         })
+                if len(code_files) >= max_files:
+                    break
             
             return code_files
             
         except Exception as e:
             logger.error(f"Erreur récupération fichiers code: {e}")
             return []
+    
+    def _extract_file_structure(self, content: str, extension: str) -> str:
+        """Extrait la structure du fichier au lieu du contenu complet."""
+        try:
+            if extension == '.py':
+                # Pour Python, extraire les imports et définitions de fonctions/classes
+                lines = content.split('\n')
+                important_lines = []
+                
+                for line in lines:
+                    line_stripped = line.strip()
+                    if (line_stripped.startswith('import ') or 
+                        line_stripped.startswith('from ') or
+                        line_stripped.startswith('class ') or
+                        line_stripped.startswith('def ') or
+                        line_stripped.startswith('#')):
+                        important_lines.append(line_stripped)
+                        if len(important_lines) >= 10:  # Limite de 10 lignes
+                            break
+                
+                return '\n'.join(important_lines) if important_lines else "[Structure Python]"
+            
+            elif extension in ['.js', '.ts']:
+                # Pour JavaScript/TypeScript, extraire les imports et définitions
+                lines = content.split('\n')
+                important_lines = []
+                
+                for line in lines:
+                    line_stripped = line.strip()
+                    if (line_stripped.startswith('import ') or 
+                        line_stripped.startswith('export ') or
+                        line_stripped.startswith('class ') or
+                        line_stripped.startswith('function ') or
+                        line_stripped.startswith('const ') or
+                        line_stripped.startswith('//')):
+                        important_lines.append(line_stripped)
+                        if len(important_lines) >= 10:
+                            break
+                
+                return '\n'.join(important_lines) if important_lines else "[Structure JS/TS]"
+            
+            else:
+                # Pour d'autres langages, limiter à 200 caractères
+                return content[:200] + "..." if len(content) > 200 else content
+                
+        except Exception:
+            return "[Structure extraite]"
     
     def _analyze_dependencies(self, project_path: Path) -> Dict:
         """Analyse les dépendances du projet."""
@@ -148,7 +261,8 @@ class ProjectAnalyzerService:
             if req_file.exists():
                 try:
                     with open(req_file, 'r') as f:
-                        dependencies["python"] = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+                        deps = [line.strip() for line in f if line.strip() and not line.startswith('#')]
+                        dependencies["python"] = deps[:10]  # Limiter à 10 dépendances
                 except Exception as e:
                     logger.warning(f"Erreur lecture requirements.txt: {e}")
             
@@ -161,10 +275,10 @@ class ProjectAnalyzerService:
                         dependencies["package_json"] = {
                             "name": package_data.get("name", ""),
                             "version": package_data.get("version", ""),
-                            "dependencies": list(package_data.get("dependencies", {}).keys()),
-                            "devDependencies": list(package_data.get("devDependencies", {}).keys())
+                            "dependencies": list(package_data.get("dependencies", {}).keys())[:10],
+                            "devDependencies": list(package_data.get("devDependencies", {}).keys())[:5]
                         }
-                        dependencies["npm"] = list(package_data.get("dependencies", {}).keys())
+                        dependencies["npm"] = list(package_data.get("dependencies", {}).keys())[:10]
                 except Exception as e:
                     logger.warning(f"Erreur lecture package.json: {e}")
             
@@ -177,36 +291,24 @@ class ProjectAnalyzerService:
     def _analyze_with_ai(self, project_path: Path, code_files: List[Dict], structure: Dict, dependencies: Dict) -> Dict:
         """Analyse détaillée avec l'IA."""
         try:
-            # Préparer le prompt pour l'analyse
+            # Préparer le prompt pour l'analyse (beaucoup plus concis)
             code_samples = []
-            for file_info in code_files[:5]:  # Limiter à 5 fichiers
-                code_samples.append(f"Fichier: {file_info['path']}\n```{file_info['extension'][1:]}\n{file_info['preview']}\n```")
+            for file_info in code_files[:3]:  # Limiter à 3 fichiers
+                code_samples.append(f"Fichier: {file_info['path']}\nStructure:\n{file_info['preview']}")
             
             prompt = f"""
-            Analyse ce projet de développement logiciel :
+            Analyse ce projet de développement logiciel de manière concise:
             
-            **Structure du projet:**
-            Dossiers: {len(structure.get('directories', []))}
-            Fichiers: {structure.get('total_files', 0)}
+            Structure: {structure.get('total_dirs', 0)} dossiers, {structure.get('total_files', 0)} fichiers
+            Dépendances: Python({len(dependencies.get('python', []))}), NPM({len(dependencies.get('npm', []))})
             
-            **Dépendances principales:**
-            Python: {', '.join(dependencies.get('python', [])[:10])}
-            NPM: {', '.join(dependencies.get('npm', [])[:10])}
+            Fichiers analysés:
+            {chr(10).join(code_samples)}
             
-            **Extraits de code:**
-            {chr(10).join(code_samples[:1000])}  # Limiter la longueur
-            
-            Fournis une analyse complète incluant:
-            1. Architecture et structure du projet
-            2. Technologies utilisées
-            3. Points forts et faiblesses
-            4. Complexité du code
-            5. Bonnes pratiques observées
-            6. Problèmes potentiels identifiés
+            Points clés seulement (3-5 items max):
             """
             
-            messages = [{"role": "user", "content": prompt}]
-            analysis = self.llm_service.generate_response(messages)
+            analysis = self.llm_adapter.generate_analysis(prompt)
             
             return {
                 "full_analysis": analysis,
@@ -225,13 +327,13 @@ class ProjectAnalyzerService:
             
             # Points numérotés
             numbered_points = re.findall(r'\d+\.\s*(.*?)(?=\n\d+\.|\n\n|$)', analysis, re.DOTALL)
-            points.extend(numbered_points[:10])  # Limiter à 10 points
+            points.extend(numbered_points[:5])  # Limiter à 5 points
             
             # Points en tirets
             bullet_points = re.findall(r'[-*]\s*(.*?)(?=\n[-*]|\n\n|$)', analysis, re.DOTALL)
-            points.extend(bullet_points[:5])  # Limiter à 5 points
+            points.extend(bullet_points[:3])  # Limiter à 3 points
             
-            return list(set(points))[:10]  # Supprimer les doublons, max 10 points
+            return list(set(points))[:5]  # Supprimer les doublons, max 5 points
             
         except Exception as e:
             logger.warning(f"Erreur extraction points: {e}")
@@ -240,30 +342,30 @@ class ProjectAnalyzerService:
     def _generate_recommendations(self, ai_analysis: Dict) -> List[str]:
         """Génère des recommandations basées sur l'analyse."""
         try:
+            # Essayer d'utiliser la méthode spécialisée de l'adaptateur
+            try:
+                recommendations = self.llm_adapter.generate_recommendations(ai_analysis.get("full_analysis", ""))
+                if recommendations:
+                    return recommendations
+            except:
+                pass  # Fallback vers l'approche manuelle
+            
             analysis_text = ai_analysis.get("full_analysis", "")
             
             prompt = f"""
-            Basé sur cette analyse de projet:
-            {analysis_text[:1000]}  # Limiter la longueur
-            
-            Fournis 5 recommandations concrètes pour améliorer ce projet:
-            1. [Recommandation technique]
-            2. [Amélioration de structure]
-            3. [Optimisation de performance]
-            4. [Bonnes pratiques]
-            5. [Sécurité ou maintenance]
+            Basé sur cette analyse: {analysis_text[:500]}
+            3 recommandations concrètes maximum:
             """
             
-            messages = [{"role": "user", "content": prompt}]
-            recommendations_text = self.llm_service.generate_response(messages)
+            recommendations_text = self.llm_adapter.generate_analysis(prompt)
             
             # Extraire les recommandations
-            recommendations = re.findall(r'\d+\.\s*\[([^\]]+)\]', recommendations_text)
-            return recommendations if recommendations else ["Aucune recommandation spécifique générée"]
+            recommendations = re.findall(r'\d+\.\s*([^\n]+)', recommendations_text)
+            return recommendations if recommendations else ["Analyse terminée"]
             
         except Exception as e:
             logger.warning(f"Erreur génération recommandations: {e}")
-            return ["Analyse du projet terminée - Consultez le rapport complet"]
+            return ["Analyse du projet terminée"]
     
     def _generate_summary(self, structure: Dict, code_files: List[Dict], dependencies: Dict, ai_analysis: Dict) -> str:
         """Génère un résumé de l'analyse."""
@@ -274,11 +376,8 @@ class ProjectAnalyzerService:
             npm_deps = len(dependencies.get('npm', []))
             
             summary = f"""
-            📊 **Résumé de l'analyse**:
-            - 📁 {total_dirs} dossiers, {total_files} fichiers
-            - 🐍 {python_deps} dépendances Python
-            - 📦 {npm_deps} dépendances NPM
-            - 🎯 {len(code_files)} fichiers de code analysés
+            📊 Résumé: {total_dirs} dossiers, {total_files} fichiers
+            📦 Dépendances: {python_deps} Python, {npm_deps} NPM
             """
             
             return summary.strip()
@@ -314,20 +413,12 @@ class ProjectAnalyzerService:
     def _report_to_markdown(self, report: Dict) -> str:
         """Convertit le rapport en Markdown."""
         try:
-            md = f"""# 📊 Analyse du projet: {report.get('project_name', 'Inconnu')}
+            md = f"""# 📊 Analyse: {report.get('project_name', 'Inconnu')}
 
-## {report.get('summary', '')}
+{report.get('summary', '')}
 
-## 🏗️ Structure
-- Dossiers: {report.get('structure', {}).get('total_dirs', 0)}
-- Fichiers: {report.get('structure', {}).get('total_files', 0)}
-
-## 📦 Dépendances
-- Python: {len(report.get('dependencies', {}).get('python', []))} packages
-- NPM: {len(report.get('dependencies', {}).get('npm', []))} packages
-
-## 🎯 Analyse détaillée
-{report.get('ai_analysis', {}).get('full_analysis', 'Aucune analyse disponible')[:2000]}...
+## 🎯 Analyse
+{report.get('ai_analysis', {}).get('full_analysis', 'Aucune analyse disponible')}
 
 ## 💡 Recommandations
 """
@@ -344,21 +435,13 @@ class ProjectAnalyzerService:
         """Convertit le rapport en texte brut."""
         try:
             text = f"""
-ANALYSE DU PROJET: {report.get('project_name', 'Inconnu')}
-{'='*50}
+ANALYSE: {report.get('project_name', 'Inconnu')}
+{'='*30}
 
 {report.get('summary', '')}
 
-STRUCTURE:
-  Dossiers: {report.get('structure', {}).get('total_dirs', 0)}
-  Fichiers: {report.get('structure', {}).get('total_files', 0)}
-
-DÉPENDANCES:
-  Python: {len(report.get('dependencies', {}).get('python', []))} packages
-  NPM: {len(report.get('dependencies', {}).get('npm', []))} packages
-
-ANALYSE DÉTAILLÉE:
-{report.get('ai_analysis', {}).get('full_analysis', 'Aucune analyse disponible')[:1000]}...
+ANALYSE:
+{report.get('ai_analysis', {}).get('full_analysis', 'Aucune analyse disponible')}
 
 RECOMMANDATIONS:
 """
