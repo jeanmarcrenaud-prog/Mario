@@ -26,7 +26,8 @@ class AssistantVocal:
         self.conversation_service = ConversationService()
         self.prompt_manager = PromptManager()
         self.tts_service = TTSService.create_with_piper(self.settings.voice_name)
-        self.wake_word_service = WakeWordService()
+        # Utilisation de la factory méthode pour Porcupine
+        self.wake_word_service = WakeWordService.create_with_porcupine()
         self.speech_recognition_service = SpeechRecognitionService("base")
         self.llm_service = LLMService()
         self.project_analyzer_service = ProjectAnalyzerService(self.llm_service)

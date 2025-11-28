@@ -3,32 +3,88 @@ import time
 from typing import Callable, Optional
 import os
 import numpy as np
+from abc import ABC, abstractmethod
 from ..utils.logger import logger
 from ..config.config import config
 
-class WakeWordService:
-    """Service de détection du mot-clé avec Porcupine."""
+class IWakeWordAdapter(ABC):
+    """Interface pour les adaptateurs de détection de mot-clé."""
+    
+    @abstractmethod
+    def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
+        """Démarre la détection avec les callbacks fournis."""
+        pass
+    
+    @abstractmethod
+    def stop(self) -> None:
+        """Arrête la détection."""
+        pass
+    
+    @abstractmethod
+    def get_audio_devices(self) -> list:
+        """Retourne la liste des périphériques audio disponibles."""
+        pass
+
+class PorcupineWakeWordAdapter(IWakeWordAdapter):
+    """Adaptateur concret pour Porcupine."""
     
     def __init__(self):
-        self.is_active = False
-        self.wake_word_callback: Optional[Callable] = None
-        self.audio_callback: Optional[Callable] = None
-        self.detection_thread: Optional[threading.Thread] = None
         self.porcupine = None
         self.recorder = None
-        logger.info("WakeWordService initialisé")
+        self.is_active = False
+        self.detection_thread: Optional[threading.Thread] = None
+        self._on_detect: Optional[Callable] = None
+        self._on_audio: Optional[Callable] = None
+        logger.info("PorcupineWakeWordAdapter initialisé")
     
-    def set_wake_word_callback(self, callback: Callable):
-        """Définit le callback pour la détection du mot-clé."""
-        self.wake_word_callback = callback
-        logger.debug("Callback wake word défini")
+    def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
+        """Démarre la détection avec Porcupine."""
+        try:
+            if not self._initialize_porcupine():
+                return False
+            
+            self._on_detect = on_detect
+            self._on_audio = on_audio
+            self.is_active = True
+            
+            self._start_detection_loop(device_index)
+            logger.info("✅ Détection Porcupine démarrée")
+            return True
+            
+        except Exception as e:
+            logger.error(f"Erreur démarrage Porcupine: {e}")
+            return False
     
-    def set_audio_callback(self, callback: Callable):
-        """Définit le callback pour l'audio capturé."""
-        self.audio_callback = callback
-        logger.debug("Callback audio défini")
+    def stop(self) -> None:
+        """Arrête la détection."""
+        self.is_active = False
+        logger.info("Détection Porcupine arrêtée")
+        
+        # Nettoyer les ressources
+        if self.recorder:
+            try:
+                self.recorder.stop()
+                self.recorder.delete()
+            except Exception as e:
+                logger.debug(f"Erreur nettoyage recorder: {e}")
+        
+        if self.porcupine:
+            try:
+                self.porcupine.delete()
+            except Exception as e:
+                logger.debug(f"Erreur nettoyage porcupine: {e}")
     
-    def initialize_porcupine(self) -> bool:
+    def get_audio_devices(self) -> list:
+        """Retourne la liste des périphériques audio disponibles."""
+        try:
+            from pvrecorder import PvRecorder
+            devices = PvRecorder.get_available_devices()
+            return [(i, device) for i, device in enumerate(devices)]
+        except Exception as e:
+            logger.error(f"Erreur récupération périphériques: {e}")
+            return [(0, "Microphone par défaut")]
+    
+    def _initialize_porcupine(self) -> bool:
         """Initialise le détecteur Porcupine."""
         try:
             from pvporcupine import Porcupine
@@ -80,127 +136,100 @@ class WakeWordService:
             logger.error(f"Erreur initialisation Porcupine: {e}")
             return False
     
-    def start_detection(self, device_index: int = 0):
-        """Démarre la détection du mot-clé."""
-        if self.is_active:
-            logger.warning("La détection est déjà active")
-            return
-        
-        self.is_active = True
-        logger.info(f"Démarrage détection wake word sur device {device_index}")
-        
-        # Essayer d'initialiser Porcupine
-        if self.initialize_porcupine():
-            self._start_porcupine_detection(device_index)
-        else:
-            logger.info("Utilisation détection simulée")
-            self._simulate_detection()
-    
-    def stop_detection(self):
-        """Arrête la détection du mot-clé."""
-        self.is_active = False
-        logger.info("Détection wake word arrêtée")
-        
-        # Nettoyer les ressources Porcupine
-        if self.recorder:
+    def _start_detection_loop(self, device_index: int):
+        """Démarre la boucle de détection."""
+        def detection_loop():
             try:
-                self.recorder.stop()
-                self.recorder.delete()
-            except Exception as e:
-                logger.debug(f"Erreur nettoyage recorder: {e}")
-        
-        if self.porcupine:
-            try:
-                self.porcupine.delete()
-            except Exception as e:
-                logger.debug(f"Erreur nettoyage porcupine: {e}")
-    
-    def _start_porcupine_detection(self, device_index: int):
-        """Démarre la détection avec Porcupine."""
-        try:
-            from pvrecorder import PvRecorder
-            
-            def detection_loop():
-                try:
-                    # Initialiser le recorder
-                    self.recorder = PvRecorder(
-                        device_index=device_index,
-                        frame_length=self.porcupine.frame_length
-                    )
-                    self.recorder.start()
-                    logger.info("🎙️ Détection Porcupine démarrée")
-                    logger.info(f"   Device: {device_index}")
-                    logger.info(f"   Frame length: {self.porcupine.frame_length}")
+                from pvrecorder import PvRecorder
+                
+                # Initialiser le recorder
+                self.recorder = PvRecorder(
+                    device_index=device_index,
+                    frame_length=self.porcupine.frame_length
+                )
+                self.recorder.start()
+                logger.info("🎙️ Détection Porcupine démarrée")
+                logger.info(f"   Device: {device_index}")
+                logger.info(f"   Frame length: {self.porcupine.frame_length}")
+                
+                # Buffer pour capturer l'audio après détection
+                audio_buffer = []
+                capture_audio = False
+                capture_frames = 0
+                max_capture_frames = 100  # ~3 secondes à 16kHz
+                
+                while self.is_active:
+                    pcm = self.recorder.read()
                     
-                    # Buffer pour capturer l'audio après détection
-                    audio_buffer = []
-                    capture_audio = False
-                    capture_frames = 0
-                    max_capture_frames = 100  # ~3 secondes à 16kHz
+                    # Détection du mot-clé
+                    keyword_index = self.porcupine.process(pcm)
                     
-                    while self.is_active:
-                        pcm = self.recorder.read()
+                    if keyword_index >= 0:
+                        logger.info("🎯 Mot-clé Porcupine détecté!")
+                        if self._on_detect:
+                            self._on_detect()
                         
-                        # Détection du mot-clé
-                        keyword_index = self.porcupine.process(pcm)
+                        # Commencer à capturer l'audio pour la transcription
+                        capture_audio = True
+                        audio_buffer = list(pcm)  # Commencer avec ce frame
+                        capture_frames = 0
                         
-                        if keyword_index >= 0:
-                            logger.info("🎯 Mot-clé Porcupine détecté!")
-                            if self.wake_word_callback:
-                                self.wake_word_callback()
+                    elif capture_audio:
+                        # Continuer à capturer l'audio
+                        audio_buffer.extend(pcm)
+                        capture_frames += 1
+                        
+                        # Arrêter la capture après le silence ou timeout
+                        if capture_frames >= max_capture_frames:
+                            logger.info("🎤 Audio capturé pour transcription (timeout)")
+                            if self._on_audio:
+                                # Convertir en numpy array
+                                audio_data = np.array(audio_buffer, dtype=np.int16)
+                                self._on_audio(audio_data)
                             
-                            # Commencer à capturer l'audio pour la transcription
-                            capture_audio = True
-                            audio_buffer = list(pcm)  # Commencer avec ce frame
+                            capture_audio = False
+                            audio_buffer = []
                             capture_frames = 0
                             
-                        elif capture_audio:
-                            # Continuer à capturer l'audio
-                            audio_buffer.extend(pcm)
-                            capture_frames += 1
-                            
-                            # Arrêter la capture après le silence ou timeout
-                            if capture_frames >= max_capture_frames:
-                                logger.info("🎤 Audio capturé pour transcription (timeout)")
-                                if self.audio_callback:
-                                    # Convertir en numpy array
+                        # Détecter le silence (simplifié)
+                        elif len(audio_buffer) > 16000 and capture_frames > 20:  # Après 0.5s
+                            # Vérifier si les derniers frames sont silencieux
+                            recent_audio = np.array(audio_buffer[-1600:], dtype=np.int16)
+                            energy = np.sqrt(np.mean(recent_audio.astype(np.float32) ** 2))
+                            if energy < 100:  # Seuil de silence
+                                logger.info("🎤 Audio capturé pour transcription (silence détecté)")
+                                if self._on_audio:
                                     audio_data = np.array(audio_buffer, dtype=np.int16)
-                                    self.audio_callback(audio_data)
+                                    self._on_audio(audio_data)
                                 
                                 capture_audio = False
                                 audio_buffer = []
                                 capture_frames = 0
                                 
-                            # Détecter le silence (simplifié)
-                            elif len(audio_buffer) > 16000 and capture_frames > 20:  # Après 0.5s
-                                # Vérifier si les derniers frames sont silencieux
-                                recent_audio = np.array(audio_buffer[-1600:], dtype=np.int16)
-                                energy = np.sqrt(np.mean(recent_audio.astype(np.float32) ** 2))
-                                if energy < 100:  # Seuil de silence
-                                    logger.info("🎤 Audio capturé pour transcription (silence détecté)")
-                                    if self.audio_callback:
-                                        audio_data = np.array(audio_buffer, dtype=np.int16)
-                                        self.audio_callback(audio_data)
-                                    
-                                    capture_audio = False
-                                    audio_buffer = []
-                                    capture_frames = 0
-                                    
-                except Exception as e:
-                    logger.error(f"Erreur boucle détection: {e}")
-                finally:
-                    logger.info("⏹️ Boucle détection Porcupine terminée")
-            
-            self.detection_thread = threading.Thread(target=detection_loop, daemon=True)
-            self.detection_thread.start()
-            
-        except Exception as e:
-            logger.error(f"Erreur démarrage détection Porcupine: {e}")
-            logger.info("Retour à la simulation")
-            self._simulate_detection()
+            except Exception as e:
+                logger.error(f"Erreur boucle détection: {e}")
+            finally:
+                logger.info("⏹️ Boucle détection Porcupine terminée")
+        
+        self.detection_thread = threading.Thread(target=detection_loop, daemon=True)
+        self.detection_thread.start()
+
+class SimulatedWakeWordAdapter(IWakeWordAdapter):
+    """Adaptateur simulé pour le développement."""
     
-    def _simulate_detection(self):
-        """Simule la détection (fallback)."""
+    def __init__(self):
+        self.is_active = False
+        self.detection_thread: Optional[threading.Thread] = None
+        self._on_detect: Optional[Callable] = None
+        self._on_audio: Optional[Callable] = None
+        logger.info("SimulatedWakeWordAdapter initialisé")
+    
+    def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
+        """Démarre la détection simulée."""
+        self._on_detect = on_detect
+        self._on_audio = on_audio
+        self.is_active = True
+        
         def detection_loop():
             logger.info("🔍 Détection simulée démarrée")
             counter = 0
@@ -209,20 +238,80 @@ class WakeWordService:
                 counter += 1
                 if counter % 3 == 0:  # Toutes les 6 secondes
                     logger.debug("🔍 Simulation détection mot-clé")
-                    if self.wake_word_callback:
-                        self.wake_word_callback()
+                    if self._on_detect:
+                        self._on_detect()
             
             logger.info("⏹️ Détection simulée terminée")
         
         self.detection_thread = threading.Thread(target=detection_loop, daemon=True)
         self.detection_thread.start()
+        return True
+    
+    def stop(self) -> None:
+        """Arrête la détection simulée."""
+        self.is_active = False
+        logger.info("Détection simulée arrêtée")
     
     def get_audio_devices(self) -> list:
         """Retourne la liste des périphériques audio disponibles."""
-        try:
-            from pvrecorder import PvRecorder
-            devices = PvRecorder.get_available_devices()  # ✅ Correct method
-            return [(i, device) for i, device in enumerate(devices)]
-        except Exception as e:
-            logger.error(f"Erreur récupération périphériques: {e}")
-            return [(0, "Microphone par défaut")]
+        return [(0, "Microphone par défaut"), (1, "Microphone USB")]
+
+class WakeWordService:
+    """Service de détection du mot-clé avec injection de dépendance."""
+    
+    def __init__(self, wake_word_adapter: IWakeWordAdapter):
+        self.wake_word_adapter = wake_word_adapter
+        self.wake_word_callback: Optional[Callable] = None
+        self.audio_callback: Optional[Callable] = None
+        logger.info("WakeWordService initialisé avec adaptateur")
+    
+    @classmethod
+    def create_with_porcupine(cls):
+        """Factory method pour créer un WakeWordService avec Porcupine."""
+        adapter = PorcupineWakeWordAdapter()
+        return cls(adapter)
+    
+    @classmethod
+    def create_with_simulation(cls):
+        """Factory method pour créer un WakeWordService avec simulation."""
+        adapter = SimulatedWakeWordAdapter()
+        return cls(adapter)
+    
+    def set_wake_word_callback(self, callback: Callable):
+        """Définit le callback pour la détection du mot-clé."""
+        self.wake_word_callback = callback
+        logger.debug("Callback wake word défini")
+    
+    def set_audio_callback(self, callback: Callable):
+        """Définit le callback pour l'audio capturé."""
+        self.audio_callback = callback
+        logger.debug("Callback audio défini")
+    
+    def start_detection(self, device_index: int = 0):
+        """Démarre la détection du mot-clé."""
+        logger.info(f"Démarrage détection wake word sur device {device_index}")
+        
+        # Wrapper les callbacks pour le passage à l'adaptateur
+        def on_detect_wrapper():
+            if self.wake_word_callback:
+                self.wake_word_callback()
+        
+        def on_audio_wrapper(audio_data):
+            if self.audio_callback:
+                self.audio_callback(audio_data)
+        
+        success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
+        if not success:
+            logger.warning("Échec du démarrage de la détection, tentative avec simulation")
+            # Fallback vers simulation si disponible
+            simulated_adapter = SimulatedWakeWordAdapter()
+            self.wake_word_adapter = simulated_adapter
+            self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
+    
+    def stop_detection(self):
+        """Arrête la détection du mot-clé."""
+        self.wake_word_adapter.stop()
+    
+    def get_audio_devices(self) -> list:
+        """Retourne la liste des périphériques audio disponibles."""
+        return self.wake_word_adapter.get_audio_devices()
