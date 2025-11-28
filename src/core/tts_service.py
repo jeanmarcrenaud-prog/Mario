@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 from ..utils.logger import logger
 from ..config.config import config
 
-class TTSAdapter(ABC):
+class ITTSAdapter(ABC):
     """Interface pour les adaptateurs TTS."""
     
     @abstractmethod
@@ -21,23 +21,19 @@ class TTSAdapter(ABC):
         """Retourne la liste des voix disponibles."""
         pass
 
-class PiperTTSAdapter(TTSAdapter):
+class PiperTTSAdapter(ITTSAdapter):
     """Adaptateur concret pour Piper TTS."""
     
     def __init__(self, voice_name: str = "fr_FR-siwis-medium"):
         self.voice_name = voice_name
         from src.models.text_to_speech import TextToSpeech
-        self.tts = TextToSpeech(voice_name)
-        # Attributs optionnels pour la compatibilité
-        self.tts_engine: Optional[object] = None
-        self.current_voice: Optional[str] = voice_name
-        self.audio_cache: Optional[dict] = {}
+        self._tts_engine = TextToSpeech(voice_name)
         logger.info(f"PiperTTSAdapter initialisé - Voix: {voice_name}")
     
     def say(self, text: str, speed: float = 1.0) -> bool:
         """Synthétise et lit le texte."""
         try:
-            self.tts.say(text, speed)
+            self._tts_engine.say(text, speed)
             return True
         except Exception as e:
             logger.error(f"Erreur PiperTTS: {e}")
@@ -46,17 +42,10 @@ class PiperTTSAdapter(TTSAdapter):
     def unload_voice(self) -> bool:
         """Décharge la voix de la mémoire."""
         try:
-            # Implémentation compatible avec l'ancien code
-            if hasattr(self, 'tts') and hasattr(self.tts, 'cleanup'):
-                self.tts.cleanup()
-                self.current_voice = None
-                logger.info("🗑️ Voix déchargée")
-                return True
-            elif self.current_voice:
-                self.current_voice = None
-                logger.info("🗑️ Voix déchargée")
-                return True
-            return False
+            if hasattr(self._tts_engine, 'cleanup'):
+                self._tts_engine.cleanup()
+            logger.info("🗑️ Voix déchargée")
+            return True
         except Exception as e:
             logger.error(f"Erreur déchargement voix PiperTTS: {e}")
             return False
@@ -79,7 +68,7 @@ class PiperTTSAdapter(TTSAdapter):
 class TTSService:
     """Service de synthèse vocale avec injection de dépendance."""
     
-    def __init__(self, tts_adapter: TTSAdapter):
+    def __init__(self, tts_adapter: ITTSAdapter):
         self.tts_adapter = tts_adapter
         self.is_available = True
         logger.info("TTSService initialisé avec adaptateur")
@@ -124,18 +113,11 @@ class TTSService:
             return False
 
     def optimize_voice_cache(self):
-        """Optimise le cache voix."""
+        """Optimise le cache voix - délégué à l'adaptateur si supporté."""
         try:
-            # Vérifier si l'adaptateur a un cache audio
-            if hasattr(self.tts_adapter, 'audio_cache') and self.tts_adapter.audio_cache:
-                # Nettoyer le cache si trop grand
-                if len(self.tts_adapter.audio_cache) > 50:  # Limite de 50 entrées
-                    # Supprimer les entrées les plus anciennes
-                    keys_to_remove = list(self.tts_adapter.audio_cache.keys())[:25]
-                    for key in keys_to_remove:
-                        del self.tts_adapter.audio_cache[key]
-                    logger.info(f"🧹 Cache TTS réduit: {len(self.tts_adapter.audio_cache)} entrées")
-                return True
+            # Si l'adaptateur supporte l'optimisation de cache, l'appeler
+            if hasattr(self.tts_adapter, 'optimize_cache'):
+                return self.tts_adapter.optimize_cache()
             return False
         except Exception as e:
             logger.debug(f"Erreur optimisation cache TTS: {e}")
