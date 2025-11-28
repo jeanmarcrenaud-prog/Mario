@@ -20,6 +20,13 @@ class ITTSAdapter(ABC):
     def get_available_voices(self) -> List[str]:
         """Retourne la liste des voix disponibles."""
         pass
+    
+    def optimize_cache(self) -> bool:
+        """
+        Optionnel: optimise le cache voix.
+        Retourne True si l'optimisation a été effectuée, False sinon.
+        """
+        return False
 
 class PiperTTSAdapter(ITTSAdapter):
     """Adaptateur concret pour Piper TTS."""
@@ -28,6 +35,7 @@ class PiperTTSAdapter(ITTSAdapter):
         self.voice_name = voice_name
         from src.models.text_to_speech import TextToSpeech
         self._tts_engine = TextToSpeech(voice_name)
+        self._audio_cache: dict = {}
         logger.info(f"PiperTTSAdapter initialisé - Voix: {voice_name}")
     
     def say(self, text: str, speed: float = 1.0) -> bool:
@@ -64,6 +72,21 @@ class PiperTTSAdapter(ITTSAdapter):
         except Exception as e:
             logger.error(f"Erreur récupération voix PiperTTS: {e}")
             return ["fr_FR-siwis-medium"]
+    
+    def optimize_cache(self) -> bool:
+        """Optimise le cache voix."""
+        try:
+            if len(self._audio_cache) > 50:  # Limite de 50 entrées
+                # Supprimer les entrées les plus anciennes
+                keys_to_remove = list(self._audio_cache.keys())[:25]
+                for key in keys_to_remove:
+                    del self._audio_cache[key]
+                logger.info(f"🧹 Cache TTS réduit: {len(self._audio_cache)} entrées")
+                return True
+            return False
+        except Exception as e:
+            logger.debug(f"Erreur optimisation cache TTS: {e}")
+            return False
 
 class TTSService:
     """Service de synthèse vocale avec injection de dépendance."""
@@ -113,12 +136,9 @@ class TTSService:
             return False
 
     def optimize_voice_cache(self):
-        """Optimise le cache voix - délégué à l'adaptateur si supporté."""
+        """Optimise le cache voix en déléguant à l'adaptateur."""
         try:
-            # Si l'adaptateur supporte l'optimisation de cache, l'appeler
-            if hasattr(self.tts_adapter, 'optimize_cache'):
-                return self.tts_adapter.optimize_cache()
-            return False
+            return self.tts_adapter.optimize_cache()
         except Exception as e:
             logger.debug(f"Erreur optimisation cache TTS: {e}")
             return False
