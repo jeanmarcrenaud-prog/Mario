@@ -28,6 +28,8 @@ class AssistantVocal:
         self.tts_service = TTSService.create_with_piper(self.settings.voice_name)
         # Utilisation de la factory méthode pour Porcupine
         self.wake_word_service = WakeWordService.create_with_porcupine()
+        # Utilisation de la factory méthode pour Whisper
+        self.speech_recognition_service = SpeechRecognitionService.create_with_whisper("base")
         self.speech_recognition_service = SpeechRecognitionService("base")
         self.llm_service = LLMService()
         self.project_analyzer_service = ProjectAnalyzerService(self.llm_service)
