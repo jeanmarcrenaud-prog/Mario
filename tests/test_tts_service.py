@@ -10,31 +10,49 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.core.tts_service import TTSService
+from src.core.tts_service import TTSService, ITTSAdapter, PiperTTSAdapter
+
+class MockTTSAdapter(ITTSAdapter):
+    """Adaptateur mock pour les tests"""
+    
+    def __init__(self):
+        self.say_called = False
+        self.unload_voice_called = False
+    
+    def say(self, text: str, speed: float = 1.0) -> bool:
+        self.say_called = True
+        return True
+    
+    def unload_voice(self) -> bool:
+        self.unload_voice_called = True
+        return True
+    
+    def get_available_voices(self) -> list:
+        return ["test-voice"]
+    
+    def optimize_cache(self) -> bool:
+        return True
 
 class TestTTSService(unittest.TestCase):
     """Tests pour TTSService"""
 
     def setUp(self):
         """Initialisation avant chaque test"""
-        with patch('src.core.tts_service.logger'):
-            self.tts_service = TTSService()
-            # Initialize audio_cache for cache-related tests
-            self.tts_service.audio_cache = {}
+        self.mock_adapter = MockTTSAdapter()
+        self.tts_service = TTSService(self.mock_adapter)
 
     def test_initialization(self):
         """Test d'initialisation du service TTS"""
-        self.assertIsNotNone(self.tts_service)
-        self.assertEqual(self.tts_service.voice_name, "fr_FR-siwis-medium")
+        self.assertIsNotNone(self.tts_service.tts_adapter)
         self.assertTrue(self.tts_service.is_available)
+        self.assertIsInstance(self.tts_service, TTSService)
 
     def test_speak_success(self):
         """Test de synthèse vocale réussie"""
-        with patch('src.core.tts_service.logger') as mock_logger:
-            result = self.tts_service.speak("Bonjour")
-            
-            self.assertTrue(result)
-            mock_logger.info.assert_called_with("🗣️ TTS: Bonjour")
+        result = self.tts_service.speak("Bonjour")
+        
+        self.assertTrue(result)
+        self.assertTrue(self.mock_adapter.say_called)
 
     def test_speak_empty_text(self):
         """Test de synthèse vocale avec texte vide"""
@@ -65,10 +83,9 @@ class TestTTSService(unittest.TestCase):
 
     def test_speak_with_exception(self):
         """Test de synthèse vocale avec exception"""
-        # Simuler une exception
+        self.mock_adapter.say = MagicMock(side_effect=Exception("TTS Error"))
+        
         with patch('src.core.tts_service.logger') as mock_logger:
-            mock_logger.info.side_effect = Exception("Erreur de log")
-            
             result = self.tts_service.speak("Bonjour")
             
             self.assertFalse(result)
@@ -76,77 +93,42 @@ class TestTTSService(unittest.TestCase):
 
     def test_test_synthesis_success(self):
         """Test de synthèse de test réussie"""
-        with patch.object(self.tts_service, 'speak', return_value=True):
-            with patch('src.core.tts_service.logger') as mock_logger:
-                result = self.tts_service.test_synthesis()
-                
-                self.assertTrue(result)
-                mock_logger.info.assert_called_with("✅ Test TTS réussi")
+        with patch('src.core.tts_service.logger') as mock_logger:
+            result = self.tts_service.test_synthesis()
+            
+            self.assertTrue(result)
+            mock_logger.info.assert_called_with("✅ Test TTS réussi")
 
     def test_test_synthesis_failure(self):
         """Test de synthèse de test échouée"""
-        with patch.object(self.tts_service, 'speak', return_value=False):
-            with patch('src.core.tts_service.logger') as mock_logger:
-                result = self.tts_service.test_synthesis()
-                
-                self.assertFalse(result)
-                mock_logger.error.assert_called_once_with("❌ Test TTS échoué")
+        self.mock_adapter.say = MagicMock(return_value=False)
+        # Recréer le service avec l'adaptateur modifié
+        self.tts_service = TTSService(self.mock_adapter)
+        
+        with patch('src.core.tts_service.logger') as mock_logger:
+            result = self.tts_service.test_synthesis()
+            
+            self.assertFalse(result)
+            mock_logger.error.assert_called_once_with("❌ Test TTS échoué")
 
     def test_test_synthesis_with_custom_text(self):
         """Test de synthèse de test avec texte personnalisé"""
         test_text = "Test personnalisé"
         
-        with patch.object(self.tts_service, 'speak') as mock_speak:
-            mock_speak.return_value = True
-            
-            result = self.tts_service.test_synthesis(test_text)
-            
-            mock_speak.assert_called_once_with(test_text)
+        result = self.tts_service.test_synthesis(test_text)
+        
+        self.assertTrue(result)
+        self.assertTrue(self.mock_adapter.say_called)
 
-    @patch('os.path.exists')
-    @patch('os.listdir')
-    @patch('src.config.config.config')  # Mock config at the source
-    def test_get_available_voices_success(self, mock_config, mock_listdir, mock_exists):
+    def test_get_available_voices_success(self):
         """Test de récupération des voix disponibles"""
-        mock_exists.return_value = True
-        mock_config.VOICES_FOLDER = "/voices"
-        mock_config.DEFAULT_VOICE = "fr_FR-siwis-medium"
-        
-        # First call to listdir returns the voice directories
-        # Second and third calls return files in each voice directory
-        mock_listdir.side_effect = [
-            ["voice1", "voice2"],  # First call: directories in VOICES_FOLDER
-            [".onnx"],             # Second call: files in voice1 directory
-            [".onnx"]              # Third call: files in voice2 directory
-        ]
-        
-        with patch('os.path.isdir', return_value=True):
-            voices = self.tts_service.get_available_voices()
-            
-            self.assertIn("voice1", voices)
-            self.assertIn("voice2", voices)
-
-    @patch('os.path.exists')
-    @patch('src.config.config.config')  # Mock config at the source
-    def test_get_available_voices_no_folder(self, mock_config, mock_exists):
-        """Test de récupération des voix avec dossier inexistant"""
-        mock_exists.return_value = False
-        mock_config.VOICES_FOLDER = "/nonexistent"
-        mock_config.DEFAULT_VOICE = "fr_FR-siwis-medium"
-        
         voices = self.tts_service.get_available_voices()
         
-        self.assertEqual(voices, ["fr_FR-siwis-medium"])
+        self.assertEqual(voices, ["test-voice"])
 
-    @patch('os.path.exists')
-    @patch('os.listdir')
-    @patch('src.config.config.config')  # Mock config at the source
-    def test_get_available_voices_exception(self, mock_config, mock_listdir, mock_exists):
+    def test_get_available_voices_with_exception(self):
         """Test de récupération des voix avec exception"""
-        mock_exists.return_value = True
-        mock_listdir.side_effect = Exception("Erreur d'accès")
-        mock_config.VOICES_FOLDER = "/voices"
-        mock_config.DEFAULT_VOICE = "fr_FR-siwis-medium"
+        self.mock_adapter.get_available_voices = MagicMock(side_effect=Exception("Voice error"))
         
         with patch('src.core.tts_service.logger') as mock_logger:
             voices = self.tts_service.get_available_voices()
@@ -154,49 +136,16 @@ class TestTTSService(unittest.TestCase):
             self.assertEqual(voices, ["fr_FR-siwis-medium"])
             mock_logger.error.assert_called_once()
 
-    def test_unload_voice_with_engine(self):
-        """Test de déchargement de voix avec moteur"""
-        # Simuler un moteur TTS
-        mock_engine = MagicMock()
-        mock_engine.cleanup = MagicMock()
-        self.tts_service.tts_engine = mock_engine
-        
-        with patch('src.core.tts_service.logger') as mock_logger:
-            result = self.tts_service.unload_voice()
-            
-            self.assertTrue(result)
-            mock_engine.cleanup.assert_called_once()
-            mock_logger.info.assert_called_with("🗑️ Voix déchargée")
-
-    def test_unload_voice_with_current_voice(self):
-        """Test de déchargement de voix avec voix courante"""
-        # Simuler une voix courante
-        self.tts_service.current_voice = "test_voice"
-        
-        with patch('src.core.tts_service.logger') as mock_logger:
-            result = self.tts_service.unload_voice()
-            
-            self.assertTrue(result)
-            self.assertIsNone(self.tts_service.current_voice)
-            mock_logger.info.assert_called_with("🗑️ Voix déchargée")
-
-    def test_unload_voice_nothing_to_unload(self):
-        """Test de déchargement de voix sans rien à décharger"""
-        # S'assurer qu'il n'y a rien à décharger
-        if hasattr(self.tts_service, 'tts_engine'):
-            delattr(self.tts_service, 'tts_engine')
-        if hasattr(self.tts_service, 'current_voice'):
-            delattr(self.tts_service, 'current_voice')
-        
+    def test_unload_voice_success(self):
+        """Test de déchargement de voix réussi"""
         result = self.tts_service.unload_voice()
-        self.assertFalse(result)
+        
+        self.assertTrue(result)
+        self.assertTrue(self.mock_adapter.unload_voice_called)
 
     def test_unload_voice_with_exception(self):
         """Test de déchargement de voix avec exception"""
-        # Simuler un moteur TTS qui lève une exception
-        mock_engine = MagicMock()
-        mock_engine.cleanup.side_effect = Exception("Erreur de nettoyage")
-        self.tts_service.tts_engine = mock_engine
+        self.mock_adapter.unload_voice = MagicMock(side_effect=Exception("Unload error"))
         
         with patch('src.core.tts_service.logger') as mock_logger:
             result = self.tts_service.unload_voice()
@@ -204,13 +153,36 @@ class TestTTSService(unittest.TestCase):
             self.assertFalse(result)
             mock_logger.error.assert_called_once()
 
-    def test_optimize_voice_cache_with_cache(self):
-        """Test d'optimisation du cache voix avec cache"""
-        # Simuler un cache avec plus de 50 entrées pour déclencher l'optimisation
-        self.tts_service.audio_cache = {}
-        for i in range(60):
-            self.tts_service.audio_cache[f"key{i}"] = f"value{i}"
-        
+    def test_optimize_voice_cache_success(self):
+        """Test d'optimisation du cache voix"""
         result = self.tts_service.optimize_voice_cache()
+        
         self.assertTrue(result)
-        # After optimization, cache should be reduced (implementation depends on your logic)
+
+    def test_optimize_voice_cache_with_exception(self):
+        """Test d'optimisation du cache voix avec exception"""
+        # Créer un mock qui n'a pas optimize_cache
+        mock_adapter_no_cache = MagicMock()
+        del mock_adapter_no_cache.optimize_cache  # Supprimer la méthode
+        mock_adapter_no_cache.has_calls = []  # Ajouter un attribut pour le suivi
+        
+        service = TTSService(mock_adapter_no_cache)
+        
+        with patch('src.core.tts_service.logger') as mock_logger:
+            result = service.optimize_voice_cache()
+            
+            self.assertFalse(result)
+
+    def test_create_with_piper(self):
+        """Test de la factory method create_with_piper"""
+        with patch('src.core.tts_service.PiperTTSAdapter') as mock_piper:
+            mock_adapter_instance = MagicMock()
+            mock_piper.return_value = mock_adapter_instance
+            
+            service = TTSService.create_with_piper("test-voice")
+            
+            self.assertIsInstance(service, TTSService)
+            mock_piper.assert_called_once_with("test-voice")
+
+if __name__ == '__main__':
+    unittest.main()

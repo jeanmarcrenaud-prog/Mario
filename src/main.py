@@ -31,7 +31,8 @@ class AssistantVocal:
         # Utilisation de la factory méthode pour Whisper
         self.speech_recognition_service = SpeechRecognitionService.create_with_whisper("base")
         self.speech_recognition_service = SpeechRecognitionService("base")
-        self.llm_service = LLMService()
+        # Utilisation de la factory avec fallback automatique
+        self.llm_service = LLMService.create_with_ollama(self.settings.llm_model)
         # Utilisation de l'adaptateur LLM existant
         self.project_analyzer_service = ProjectAnalyzerService(self.llm_service)
         self.system_monitor = SystemMonitor()

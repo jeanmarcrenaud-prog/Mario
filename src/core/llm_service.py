@@ -1,5 +1,7 @@
 from typing import List, Dict, Optional
 from abc import ABC, abstractmethod
+import json
+import requests
 from ..utils.logger import logger
 
 class ILLMAdapter(ABC):
@@ -10,38 +12,119 @@ class ILLMAdapter(ABC):
         """Génère une réponse à partir des messages."""
         pass
 
-class LLMService(ILLMAdapter):
-    """Service LLM concret implémentant ILLMAdapter."""
+class OllamaLLMAdapter(ILLMAdapter):
+    """Adaptateur concret pour Ollama."""
     
-    def __init__(self, model_name: str = "qwen3-coder:latest"):
+    def __init__(self, model_name: str = "qwen3-coder:latest", base_url: str = "http://localhost:11434"):
         self.model_name = model_name
+        self.base_url = base_url
         self.is_available = self._check_availability()
-        logger.info(f"LLMService initialisé - Modèle: {model_name}")
+        logger.info(f"OllamaLLMAdapter initialisé - Modèle: {model_name}, URL: {base_url}")
     
     def _check_availability(self) -> bool:
-        """Vérifie si le service LLM est disponible."""
+        """Vérifie si Ollama est disponible."""
         try:
-            # Test basique de disponibilité
-            return True
+            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
+            return response.status_code == 200
         except Exception as e:
-            logger.warning(f"LLM non disponible: {e}")
+            logger.warning(f"Ollama non disponible: {e}")
             return False
     
     def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        """Implémentation concrète de generate_response."""
+        """Implémentation concrète avec Ollama API."""
         try:
             if not self.is_available:
-                return "[ERREUR] Service LLM non disponible"
+                raise Exception("Ollama non disponible")
             
-            # Ici vient l'implémentation réelle avec Ollama/autre
-            # Pour l'exemple, simulation basique
-            last_message = messages[-1]["content"] if messages else ""
+            # Préparer la requête pour Ollama
+            payload = {
+                "model": self.model_name,
+                "messages": messages,
+                "stream": False,
+                **kwargs  # Permet de passer des paramètres supplémentaires (temperature, etc.)
+            }
             
-            if "test" in last_message.lower():
-                return "Test réussi - Service LLM fonctionnel"
+            response = requests.post(
+                f"{self.base_url}/api/chat",
+                json=payload,
+                headers={"Content-Type": "application/json"},
+                timeout=300  # 5 minutes timeout
+            )
+            
+            if response.status_code == 200:
+                result = response.json()
+                return result.get("message", {}).get("content", "").strip()
             else:
-                return f"Réponse du modèle {self.model_name} à: {last_message[:50]}..."
+                raise Exception(f"Erreur Ollama API: {response.status_code} - {response.text}")
                 
+        except Exception as e:
+            logger.error(f"Erreur génération réponse Ollama: {e}")
+            raise
+
+class SimulatedLLMAdapter(ILLMAdapter):
+    """Adaptateur simulé pour le développement et les tests."""
+    
+    def __init__(self, fake_responses: Optional[Dict[str, str]] = None):
+        self.fake_responses = fake_responses or {}
+        logger.info("SimulatedLLMAdapter initialisé")
+    
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse simulée."""
+        # Créer une clé basée sur le contenu du message
+        content = messages[-1]["content"] if messages else ""
+        
+        # Chercher une réponse prédéfinie
+        for key, response in self.fake_responses.items():
+            if key.lower() in content.lower():
+                return response
+        
+        # Réponse par défaut basée sur le contenu
+        if "test" in content.lower():
+            return "Test réussi - Service LLM simulé fonctionnel"
+        elif "analyse" in content.lower() and "projet" in content.lower():
+            return """Analyse du projet simulée:
+            
+1. Architecture modulaire bien structurée
+2. Bonnes pratiques de codage respectées
+3. Gestion des dépendances claire"""
+        elif "recommandation" in content.lower():
+            return """1. [Optimisation des performances]
+2. [Amélioration de la documentation]
+3. [Refactorisation du code]"""
+        else:
+            return f"Réponse simulée à: {content[:50]}..."
+
+class LLMService:
+    """Service LLM avec gestion d'adaptateurs multiples."""
+    
+    def __init__(self, llm_adapter: ILLMAdapter):
+        self.llm_adapter = llm_adapter
+        logger.info("LLMService initialisé avec adaptateur")
+    
+    @classmethod
+    def create_with_ollama(cls, model_name: str = "qwen3-coder:latest", base_url: str = "http://localhost:11434"):
+        """Factory method pour créer un service avec Ollama."""
+        try:
+            adapter = OllamaLLMAdapter(model_name, base_url)
+            if adapter.is_available:
+                return cls(adapter)
+        except Exception as e:
+            logger.warning(f"Impossible d'initialiser Ollama: {e}")
+        
+        # Fallback vers simulation
+        logger.info("Fallback vers SimulatedLLMAdapter")
+        return cls.create_with_simulation()
+    
+    @classmethod
+    def create_with_simulation(cls, fake_responses: Optional[Dict[str, str]] = None):
+        """Factory method pour créer un service avec simulation."""
+        adapter = SimulatedLLMAdapter(fake_responses)
+        return cls(adapter)
+    
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse via l'adaptateur."""
+        try:
+            return self.llm_adapter.generate_response(messages, **kwargs)
         except Exception as e:
             logger.error(f"Erreur génération réponse LLM: {e}")
             return "[ERREUR] Impossible de générer la réponse"
@@ -60,3 +143,11 @@ class LLMService(ILLMAdapter):
         except Exception as e:
             logger.error(f"❌ Test service LLM échoué: {e}")
             return False
+    
+    def get_available_models(self) -> List[str]:
+        """Retourne la liste des modèles disponibles."""
+        # Cette méthode pourrait être déplacée dans l'adaptateur si nécessaire
+        return [
+            "qwen3-coder:latest", "llama3.2:latest", "gemma2:latest",
+            "mistral:latest", "phi3:latest", "codellama:latest"
+        ]

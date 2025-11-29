@@ -1268,7 +1268,10 @@ Résumé:
     
     def _get_microphone_choices(self) -> List[str]:
         """Retourne la liste des microphones filtrés."""
-        return self.audio_controller.get_microphones()
+        try:
+            return self.audio_controller.get_microphones()
+        except Exception:
+            return []  # Return an empty list as a fallback
     
     def _get_audio_output_choices(self) -> List[str]:
         """Retourne la liste des sorties audio."""

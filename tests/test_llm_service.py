@@ -1,58 +1,102 @@
 import unittest
 from unittest.mock import MagicMock, patch
-from src.core.llm_service import LLMService
+import sys
+import os
+
+# Ajouter le chemin src pour les imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.core.llm_service import LLMService, ILLMAdapter, SimulatedLLMAdapter
+
+class MockLLMAdapter(ILLMAdapter):
+    """Adaptateur mock pour les tests"""
+    
+    def __init__(self):
+        self.generate_response_called = False
+        self.last_messages = None
+    
+    def generate_response(self, messages, **kwargs):
+        self.generate_response_called = True
+        self.last_messages = messages
+        return "Test response"
 
 class TestLLMService(unittest.TestCase):
 
-    @patch('src.core.llm_service.LLMAdapter')
-    def setUp(self, mock_adapter):
-        mock_adapter_instance = MagicMock()
-        mock_adapter.return_value = mock_adapter_instance
-        self.llm_service = LLMService(base_url="http://test-url")
+    def setUp(self):
+        """Initialisation avant chaque test"""
+        self.mock_adapter = MockLLMAdapter()
+        self.llm_service = LLMService(self.mock_adapter)
 
     def test_initialization(self):
+        """Test d'initialisation du service LLM"""
         self.assertIsNotNone(self.llm_service.llm_adapter)
-        self.assertEqual(self.llm_service.current_model, "qwen3-coder:latest")
+        self.assertIsInstance(self.llm_service, LLMService)
 
-    @patch('src.core.llm_service.LLMAdapter')
-    def test_set_model(self, mock_adapter):
-        mock_adapter_instance = MagicMock()
-        mock_adapter.return_value = mock_adapter_instance
-        self.llm_service = LLMService(base_url="http://test-url")
-
-        self.llm_service.set_model("test-model")
-        mock_adapter_instance.set_model.assert_called_once_with("test-model")
-        self.assertEqual(self.llm_service.current_model, "test-model")
-
-    @patch('src.core.llm_service.LLMAdapter')
-    def test_get_available_models(self, mock_adapter):
-        mock_adapter_instance = MagicMock()
-        mock_adapter_instance.get_available_models.return_value = ["model1", "model2"]
-        mock_adapter.return_value = mock_adapter_instance
-        self.llm_service = LLMService(base_url="http://test-url")
-
-        models = self.llm_service.get_available_models()
-        self.assertEqual(models, ["model1", "model2"])
-
-    @patch('src.core.llm_service.LLMAdapter')
-    def test_generate_response(self, mock_adapter):
-        mock_adapter_instance = MagicMock()
-        mock_adapter_instance.chat.return_value = {"response": "test response"}
-        mock_adapter.return_value = mock_adapter_instance
-        self.llm_service = LLMService(base_url="http://test-url")
-
-        response = self.llm_service.generate_response("test message")
-        self.assertEqual(response, {"response": "test response"})
-
-    @patch('src.core.llm_service.LLMAdapter')
-    def test_generate_response_stream(self, mock_adapter):
-        mock_adapter_instance = MagicMock()
-        mock_adapter_instance.chat_stream.return_value = (chunk for chunk in ["chunk1", "chunk2"])
-        mock_adapter.return_value = mock_adapter_instance
-        self.llm_service = LLMService(base_url="http://test-url")
-
-        response = self.llm_service.generate_response_stream([{"role": "user", "content": "test message"}])
-        self.assertEqual(list(response), ["chunk1", "chunk2"])
+    def test_generate_response(self):
+        """Test de génération de réponse"""
+        messages = [{"role": "user", "content": "Hello"}]
+        response = self.llm_service.generate_response(messages)
         
+        self.assertEqual(response, "Test response")
+        self.assertTrue(self.mock_adapter.generate_response_called)
+        self.assertEqual(self.mock_adapter.last_messages, messages)
+
+    def test_generate_response_with_exception(self):
+        """Test de génération de réponse avec exception"""
+        self.mock_adapter.generate_response = MagicMock(side_effect=Exception("API Error"))
+        
+        messages = [{"role": "user", "content": "Hello"}]
+        response = self.llm_service.generate_response(messages)
+        
+        self.assertEqual(response, "[ERREUR] Impossible de générer la réponse")
+
+    def test_test_service_success(self):
+        """Test du service de test réussi"""
+        self.mock_adapter.generate_response = MagicMock(return_value="Test response")
+        
+        result = self.llm_service.test_service()
+        self.assertTrue(result)
+
+    def test_test_service_with_exception(self):
+        """Test du service de test avec exception"""
+        self.mock_adapter.generate_response = MagicMock(side_effect=Exception("API Error"))
+        
+        result = self.llm_service.test_service()
+        self.assertFalse(result)
+
+    def test_get_available_models(self):
+        """Test de récupération des modèles disponibles"""
+        models = self.llm_service.get_available_models()
+        self.assertIsInstance(models, list)
+        self.assertGreater(len(models), 0)
+
+    def test_simulated_adapter(self):
+        """Test de SimulatedLLMAdapter"""
+        adapter = SimulatedLLMAdapter()
+        
+        messages = [{"role": "user", "content": "Test message"}]
+        response = adapter.generate_response(messages)
+        
+        self.assertIsInstance(response, str)
+        self.assertNotEqual(response, "")
+
+    def test_simulated_adapter_with_custom_responses(self):
+        """Test de SimulatedLLMAdapter avec réponses personnalisées"""
+        fake_responses = {"hello": "Bonjour!"}
+        adapter = SimulatedLLMAdapter(fake_responses)
+        
+        messages = [{"role": "user", "content": "Hello world"}]
+        response = adapter.generate_response(messages)
+        
+        self.assertEqual(response, "Bonjour!")
+
+    def test_create_with_simulation(self):
+        """Test de la factory method create_with_simulation"""
+        fake_responses = {"test": "Test response"}
+        service = LLMService.create_with_simulation(fake_responses)
+        
+        self.assertIsInstance(service, LLMService)
+        self.assertIsInstance(service.llm_adapter, SimulatedLLMAdapter)
+
 if __name__ == '__main__':
     unittest.main()

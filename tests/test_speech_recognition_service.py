@@ -1,90 +1,111 @@
 import unittest
-import tempfile
-import os
 from unittest.mock import MagicMock, patch
+import sys
+import os
 import numpy as np
-from src.core.speech_recognition_service import SpeechRecognitionService
+
+# Ajouter le chemin src pour les imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from src.core.speech_recognition_service import SpeechRecognitionService, ISpeechRecognitionAdapter
+
+class MockSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
+    """Adaptateur mock pour les tests"""
+    
+    def __init__(self):
+        self.transcribe_array_called = False
+        self.transcribe_file_called = False
+        self.unload_called = False
+        self.optimize_cache_called = False
+    
+    def transcribe_array(self, audio_data, language="fr"):
+        self.transcribe_array_called = True
+        return "Test transcription"
+    
+    def transcribe_file(self, file_path, language="fr"):
+        self.transcribe_file_called = True
+        return "Test file transcription"
+    
+    def unload(self):
+        self.unload_called = True
+        return True
+    
+    def optimize_cache(self):
+        self.optimize_cache_called = True
+        return True
+    
+    def get_available_models(self):
+        return ["tiny", "base", "small"]
 
 class TestSpeechRecognitionService(unittest.TestCase):
 
     def setUp(self):
-        self.speech_recognition_service = SpeechRecognitionService(model_name="base")
+        """Initialisation avant chaque test"""
+        self.mock_adapter = MockSpeechRecognitionAdapter()
+        self.speech_recognition_service = SpeechRecognitionService(self.mock_adapter)
 
     def test_initialization(self):
-        # Vérifie que le service s'initialise correctement
-        self.assertIsNotNone(self.speech_recognition_service)
-        self.assertEqual(self.speech_recognition_service.model_name, "base")
+        """Test d'initialisation du service"""
+        self.assertIsNotNone(self.speech_recognition_service.speech_recognition_adapter)
+        self.assertTrue(self.speech_recognition_service.is_available)
 
-    @patch('src.core.speech_recognition_service.whisper')
-    def test_load_model(self, mock_whisper):
-        # Mock de whisper.load_model
-        mock_model = MagicMock()
-        mock_whisper.load_model.return_value = mock_model
+    def test_transcribe(self):
+        """Test de transcription audio"""
+        audio_data = np.array([1, 2, 3], dtype=np.int16)
+        result = self.speech_recognition_service.transcribe(audio_data)
+        
+        self.assertEqual(result, "Test transcription")
+        self.assertTrue(self.mock_adapter.transcribe_array_called)
 
-        # Appel de la méthode de chargement du modèle
-        result = self.speech_recognition_service._load_model()
+    def test_transcribe_file(self):
+        """Test de transcription de fichier"""
+        result = self.speech_recognition_service.transcribe_file("test.wav")
+        
+        self.assertEqual(result, "Test file transcription")
+        self.assertTrue(self.mock_adapter.transcribe_file_called)
 
-        # Vérification du résultat
+    def test_unload_model(self):
+        """Test de déchargement du modèle"""
+        result = self.speech_recognition_service.unload_model()
+        
         self.assertTrue(result)
-        self.assertIsNotNone(self.speech_recognition_service.model)
+        self.assertTrue(self.mock_adapter.unload_called)
 
-    @patch('src.core.speech_recognition_service.whisper')
-    def test_transcribe(self, mock_whisper):
-        # Mock de whisper.load_model et model.transcribe
-        mock_model = MagicMock()
-        mock_model.transcribe.return_value = {"text": "test transcription"}
-        mock_whisper.load_model.return_value = mock_model
-        self.speech_recognition_service.model = mock_model
-
-        # Appel de la méthode de transcription
-        audio_data = np.zeros(16000, dtype=np.int16)
-        result = self.speech_recognition_service.transcribe(audio_data)
-
-        # Vérification du résultat
-        self.assertEqual(result, "test transcription")
-        mock_model.transcribe.assert_called_once()
-
-    @patch('src.core.speech_recognition_service.whisper')
-    def test_transcribe_failure(self, mock_whisper):
-        # Mock de whisper.load_model et model.transcribe pour simuler une erreur
-        mock_model = MagicMock()
-        mock_model.transcribe.side_effect = Exception("Erreur de transcription")
-        mock_whisper.load_model.return_value = mock_model
-        self.speech_recognition_service.model = mock_model
-
-        # Appel de la méthode de transcription
-        audio_data = np.zeros(16000, dtype=np.int16)
-        result = self.speech_recognition_service.transcribe(audio_data)
-
-        # Vérification du résultat
-        self.assertEqual(result, "")
-
-    @patch('src.core.speech_recognition_service.whisper')
-    def test_transcribe_file(self, mock_whisper):
-        # Mock de whisper.load_model et model.transcribe
-        mock_model = MagicMock()
-        mock_model.transcribe.return_value = {"text": "test transcription from file"}
-        mock_whisper.load_model.return_value = mock_model
-        self.speech_recognition_service.model = mock_model
-
-        # Appel de la méthode de transcription de fichier
-        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_file:
-            np.save(temp_file, np.zeros(16000, dtype=np.int16))
-            temp_file_path = temp_file.name
-
-        result = self.speech_recognition_service.transcribe_file(temp_file_path)
-
-        # Vérification du résultat
-        self.assertEqual(result, "test transcription from file")
-        mock_model.transcribe.assert_called_once_with(temp_file_path, language="fr", fp16=False)
-
-        # Nettoyage
-        os.unlink(temp_file_path)
+    def test_optimize_model_cache(self):
+        """Test d'optimisation du cache"""
+        result = self.speech_recognition_service.optimize_model_cache()
+        
+        self.assertTrue(result)
+        self.assertTrue(self.mock_adapter.optimize_cache_called)
 
     def test_get_available_models(self):
-        # Vérifie que la liste des modèles disponibles est correcte
+        """Test de récupération des modèles disponibles"""
         models = self.speech_recognition_service.get_available_models()
-        self.assertEqual(models, ["tiny", "base", "small", "medium", "large"])
+        self.assertIsInstance(models, list)
+        self.assertIn("base", models)
+
+    def test_transcribe_with_exception(self):
+        """Test de transcription avec exception"""
+        self.mock_adapter.transcribe_array = MagicMock(side_effect=Exception("Transcription error"))
+        
+        audio_data = np.array([1, 2, 3], dtype=np.int16)
+        result = self.speech_recognition_service.transcribe(audio_data)
+        
+        self.assertEqual(result, "")
+
+    def test_transcribe_file_with_exception(self):
+        """Test de transcription de fichier avec exception"""
+        self.mock_adapter.transcribe_file = MagicMock(side_effect=Exception("File transcription error"))
+        
+        result = self.speech_recognition_service.transcribe_file("test.wav")
+        
+        self.assertEqual(result, "")
+
+    def test_test_transcription(self):
+        """Test de transcription de test"""
+        with patch('src.core.speech_recognition_service.logger'):
+            result = self.speech_recognition_service.test_transcription()
+            self.assertTrue(result)
 
 if __name__ == '__main__':
     unittest.main()
