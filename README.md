@@ -18,20 +18,47 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond
 	🔄 Gestion historique, états de conversation, user profiles, settings
 
 📁 Structure du projet
-	text
-	src/
-	├─ core/           # Services métier : conversation, STT, TTS, intent, wake word
-	├─ adapters/       # Interfaces matérielles/API (micro, haut-parleur, ePaper, OpenAI)
-	├─ ui/             # Vues : web (Gradio), console, epaper
-	├─ controllers/    # Contrôleurs principaux (Assistant, Settings)
-	├─ models/         # Modèles : user, conversation_state, settings
-	├─ events/         # Events, bus de communication
-	├─ config/         # Fichiers de configuration YAML
-	├─ tests/          # Unit tests, mocks et factories
-	run.py             # Point d’entrée principal
-	requirements.txt   # Dépendances
-	README.md
-	CONTRIBUTING.md
+```
+Mario/
+├── .github/workflows       # GitHub Actions CI/CD
+├── .gitattributes          # Configuration Git LFS
+├── .gitignore              # Fichiers à ignorer
+├── CONTRIBUTING.md         # Guide de contribution
+├── README.md               # Ce fichier
+├── config.yaml             # Configuration globale
+├── prompts.json            # Prompts personnalisés
+├── pyproject.toml          # Configuration Python/Poetry
+├── pytest.ini              # Configuration pytest
+├── requirements.txt        # Dépendances Python
+│
+├── porcupine_libs/         # Bibliothèques Porcupine (LFS)
+├── voices/                 # Modèles vocaux TTS (Git LFS)
+│   └── fr_FR-siwis-medium/
+│
+├── src/                    # Code source principal
+│   ├── core/               # Services métier
+│   │
+│   ├── adapters/           # Interfaces matérielles/API
+│   │   └── mock/           # Mocks pour tests
+│   │
+│   ├── ui/                 # Interfaces utilisateur
+│   │
+│   ├── controllers/        # Contrôleurs principaux
+│   │
+│   ├── models/             # Modèles de données
+│   │
+│   ├── events/             # System d'événements
+│   │
+│   └── config/             # Gestion configuration
+│
+└── tests/                  # Tests unitaires & fonctionnels
+    ├── test_core/
+    ├── test_adapters/      # Tests adapters & mocks
+    ├── test_ui/
+    ├── test_models/
+    └── test_performance/   # Tests de performance
+```
+```
 
 ▶️⚙️ Installation
 
