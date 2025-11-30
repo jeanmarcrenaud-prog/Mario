@@ -5,6 +5,7 @@ import time
 import socket
 import yaml
 from typing import Dict, Optional
+import re
 from src.config.config import ConfigManager, config
 from src.utils.logger import logger, safe_run
 from src.utils.system_monitor import SystemMonitor
@@ -30,7 +31,6 @@ class AssistantVocal:
         self.wake_word_service = WakeWordService.create_with_porcupine()
         # Utilisation de la factory méthode pour Whisper
         self.speech_recognition_service = SpeechRecognitionService.create_with_whisper("base")
-        self.speech_recognition_service = SpeechRecognitionService("base")
         # Utilisation de la factory avec fallback automatique
         self.llm_service = LLMService.create_with_ollama(self.settings.llm_model)
         # Utilisation de l'adaptateur LLM existant
@@ -40,37 +40,26 @@ class AssistantVocal:
         self.performance_optimizer = PerformanceOptimizer()
         self.performance_optimizer.start_monitoring()
         
-        # Initialisation d'une console view basique
-        self.console_view = self._create_console_view()
+        # Paramètres pour la gestion d'erreurs
+        self.max_retry_attempts = 3
+        self.transcription_timeout = 10.0  # secondes
+        self.audio_processing_timeout = 30.0  # secondes
+        
+        # Console view
+        self.console_view = None
         
         self._setup_cleanup()
         logger.info("🔧 Initialisation de l'assistant vocal terminée")
 
-    def _create_console_view(self):
-        """Crée une console view basique ou utilise ConsoleView si disponible."""
+    def _setup_console_view(self):
+        """Configure la console view."""
         try:
             from src.views.console_view import ConsoleView
-            console = ConsoleView(self)
-            if hasattr(console, 'display_message') and hasattr(console, 'get_user_input'):
-                logger.info("✅ ConsoleView initialisé")
-                return console
-            else:
-                logger.warning("⚠️ ConsoleView incomplet, utilisation de la version basique")
+            self.console_view = ConsoleView(self)
+            logger.info("✅ ConsoleView initialisé")
         except Exception as e:
             logger.warning(f"⚠️ ConsoleView non disponible: {e}")
-        
-        # Console view basique (fallback)
-        class BasicConsoleView:
-            def display_message(self, message):
-                logger.info(f"🤖 {message}")
-            
-            def get_user_input(self, prompt):
-                try:
-                    return input(prompt)
-                except:
-                    return None
-                    
-        return BasicConsoleView()
+            self.console_view = None
 
     def _setup_cleanup(self):
         """Configure le nettoyage à la fermeture."""
@@ -86,28 +75,113 @@ class AssistantVocal:
         self.wake_word_service.stop_detection()
         self.performance_optimizer.stop_monitoring()
 
+    def _is_french_text(self, text: str) -> bool:
+        """Vérifie si le texte est en français."""
+        if not text or not text.strip():
+            return False
+            
+        # Expressions régulières pour détecter le français
+        french_patterns = [
+            r'\b(le|la|les|un|une|des|du|de|à|et|ou|mais|si|que|qui|quoi|où|quand|comment)\b',
+            r'\b(je|tu|il|elle|nous|vous|ils|elles)\b',
+            r'\b(suis|es|est|sommes|êtes|sont|ai|as|a|avons|avez|ont)\b',
+            r'\b(de|dans|sur|sous|entre|avant|après|pendant|pour|par|avec|sans)\b'
+        ]
+        
+        french_word_count = 0
+        total_words = len(text.split())
+        
+        if total_words == 0:
+            return False
+            
+        for pattern in french_patterns:
+            matches = re.findall(pattern, text.lower())
+            french_word_count += len(matches)
+        
+        # Si plus de 10% des mots sont des mots français courants
+        return (french_word_count / total_words) > 0.1
+
     def _on_wake_word_detected(self):
         """Callback quand le mot-clé est détecté."""
         logger.info("🎯 Mot-clé détecté ! Prêt à recevoir la commande")
         self.speak_response("Je vous écoute")
     
     def _on_audio_received(self, audio_data):
-        """Callback quand l'audio est reçu."""
+        """Callback quand l'audio est reçu - avec gestion d'erreurs améliorée."""
         logger.info(f"🎤 Audio reçu ({len(audio_data)} échantillons)")
         
+        # Timeout pour le traitement
+        import signal
+        
+        def timeout_handler(signum, frame):
+            raise TimeoutError("Timeout lors du traitement audio")
+        
+        # Configurer le timeout
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(int(self.audio_processing_timeout))
+        
         try:
-            text = self.speech_recognition_service.transcribe(audio_data, "fr")
+            # Tentatives de retry en cas d'erreur
+            for attempt in range(self.max_retry_attempts):
+                try:
+                    # Timeout spécifique pour la transcription
+                    signal.alarm(int(self.transcription_timeout))
+                    text = self.speech_recognition_service.transcribe(audio_data, "fr")
+                    signal.alarm(0)  # Désactiver le timeout
+                    
+                    if text and text.strip():
+                        logger.info(f"📝 Texte transcrit: {text}")
+                        
+                        # Validation du texte (vérifier si c'est du français)
+                        if not self._is_french_text(text):
+                            logger.warning(f"⚠️ Texte transcrit ne semble pas être en français: {text}")
+                            if attempt < self.max_retry_attempts - 1:
+                                logger.info(f"🔄 Tentative {attempt + 1}/{self.max_retry_attempts} de retranscription")
+                                continue
+                        
+                        response = self.process_user_message(text)
+                        self.speak_response(response)
+                        return  # Succès, sortir de la boucle
+                    else:
+                        logger.warning("🔇 Aucun texte transcrit")
+                        if attempt < self.max_retry_attempts - 1:
+                            logger.info(f"🔄 Tentative {attempt + 1}/{self.max_retry_attempts} de retranscription")
+                            time.sleep(0.5)  # Petite pause avant retry
+                            continue
+                        else:
+                            break
+                            
+                except TimeoutError:
+                    logger.error(f"⏰ Timeout transcription (tentative {attempt + 1})")
+                    if attempt < self.max_retry_attempts - 1:
+                        logger.info(f"🔄 Tentative {attempt + 1}/{self.max_retry_attempts} après timeout")
+                        continue
+                    else:
+                        raise
+                        
+                except Exception as e:
+                    logger.error(f"❌ Erreur transcription (tentative {attempt + 1}): {e}")
+                    if attempt < self.max_retry_attempts - 1:
+                        logger.info(f"🔄 Tentative {attempt + 1}/{self.max_retry_attempts} après erreur")
+                        time.sleep(1)  # Pause plus longue avant retry
+                        continue
+                    else:
+                        raise
             
-            if text and text.strip():
-                logger.info(f"📝 Texte transcrit: {text}")
-                response = self.process_user_message(text)
-                self.speak_response(response)
-            else:
-                logger.warning("🔇 Aucun texte transcrit")
-                
+            # Si toutes les tentatives ont échoué
+            logger.error("💥 Toutes les tentatives de transcription ont échoué")
+            self.speak_response("Désolé, je n'ai pas réussi à comprendre votre message. Pouvez-vous répéter ?")
+            
+        except TimeoutError:
+            logger.error("⏰ Timeout global lors du traitement audio")
+            self.speak_response("Désolé, le traitement de votre message a pris trop de temps.")
+            
         except Exception as e:
             logger.error(f"❌ Erreur traitement audio: {e}")
             self.speak_response("Désolé, je n'ai pas compris votre message.")
+            
+        finally:
+            signal.alarm(0)  # Toujours désactiver le timeout
 
     def optimize_performance(self, aggressive: bool = False) -> bool:
         """Optimise les performances de l'assistant."""
@@ -222,10 +296,6 @@ class AssistantVocal:
     def clear_conversation(self):
         self.conversation_service.clear_history()
         logger.info("Conversation effacée")
-        try:
-            self.console_view.display_message("Conversation effacée")
-        except:
-            logger.info("Conversation effacée")
 
     def analyze_project(self, project_path: str) -> Dict:
         """Analyse un projet complet."""
@@ -251,7 +321,10 @@ class AssistantVocal:
             return False
             
         try:
-            self.console_view.display_message(f"🤖 Assistant: {text}")
+            if self.console_view:
+                self.console_view.display_message(f"Assistant: {text}")
+            else:
+                logger.info(f"🤖 Assistant: {text}")
         except Exception:
             logger.info(f"🤖 Assistant: {text}")
         
@@ -267,86 +340,24 @@ class AssistantVocal:
         """Démarre l'interface console."""
         try:
             logger.info("🖥️  Démarrage interface console...")
-            try:
-                self.console_view.display_message("=== Assistant Vocal Mario ===")
-                self.console_view.display_message("Tapez 'quit' pour quitter")
-                self.console_view.display_message("Tapez 'help' pour la liste des commandes")
-            except:
-                logger.info("=== Assistant Vocal Mario ===")
-                logger.info("Tapez 'quit' pour quitter")
-                logger.info("Tapez 'help' pour la liste des commandes")
             
-            while self._is_running:
-                try:
-                    try:
-                        user_input = self.console_view.get_user_input("Vous> ")
-                    except:
-                        user_input = input("Vous> ")
-                    
-                    if not user_input:
-                        continue
-                        
-                    cmd = user_input.lower()
-                    if cmd in ['quit', 'exit', 'q']:
-                        break
-                    elif cmd == 'help':
-                        self._show_help()
-                    elif cmd == 'clear':
-                        self.clear_conversation()
-                    elif cmd == 'status':
-                        self._show_status()
-                    else:
-                        response = self.process_user_message(user_input)
-                        self.speak_response(response)
-                        
-                except KeyboardInterrupt:
-                    break
-                except Exception as e:
-                    logger.error(f"Erreur interface console: {e}")
-                    try:
-                        self.console_view.display_message(f"[ERREUR] {e}")
-                    except:
-                        logger.error(f"[ERREUR] {e}")
-                    
+            # Initialiser la console view si ce n'est pas déjà fait
+            if self.console_view is None:
+                self._setup_console_view()
+            
+            if self.console_view:
+                # Démarrer la boucle console dans un thread séparé
+                console_thread = threading.Thread(target=self.console_view.loop, daemon=True)
+                console_thread.start()
+                logger.info("✅ Interface console démarrée")
+                return True
+            else:
+                logger.warning("⚠️ Interface console non disponible")
+                return False
+                
         except Exception as e:
             logger.error(f"Erreur démarrage interface console: {e}")
-
-    def _show_help(self):
-        """Affiche l'aide de la console."""
-        help_text = """
-Commandes disponibles:
-  help    - Affiche cette aide
-  clear   - Efface l'historique de conversation
-  status  - Affiche le statut de l'assistant
-  quit    - Quitte l'application
-        """
-        try:
-            self.console_view.display_message(help_text)
-        except:
-            for line in help_text.strip().split('\n'):
-                logger.info(line)
-
-    def _show_status(self):
-        """Affiche le statut de l'assistant."""
-        try:
-            status = self.get_performance_status()
-            status_text = f"""
-Statut de l'assistant:
-  CPU: {status.get('cpu_percent', 'N/A')}%
-  Mémoire: {status.get('memory_percent', 'N/A')}%
-  Disque: {status.get('disk_percent', 'N/A')}%
-            """
-            try:
-                self.console_view.display_message(status_text)
-            except:
-                for line in status_text.strip().split('\n'):
-                    logger.info(line)
-        except Exception as e:
-            error_msg = f"[ERREUR] Impossible d'obtenir le statut: {e}"
-            try:
-                self.console_view.display_message(error_msg)
-            except:
-                logger.error(error_msg)
+            return False
 
     def start_web_interface(self):
         """Démarre l'interface web Gradio."""
@@ -434,8 +445,7 @@ Statut de l'assistant:
             
             # Interface console
             logger.info("🖥️  Démarrage interface console...")
-            console_thread = threading.Thread(target=self.start_console_interface, daemon=True)
-            console_thread.start()
+            self.start_console_interface()
             
             # Boucle principale
             self._is_running = True

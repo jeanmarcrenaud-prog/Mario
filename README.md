@@ -41,7 +41,7 @@ Mario/
 │   ├── adapters/           # Interfaces matérielles/API
 │   │   └── mock/           # Mocks pour tests
 │   │
-│   ├── ui/                 # Interfaces utilisateur
+│   ├── views/                 # Interfaces utilisateur
 │   │
 │   ├── controllers/        # Contrôleurs principaux
 │   │
