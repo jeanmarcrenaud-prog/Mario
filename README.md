@@ -18,21 +18,18 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond
 	🔄 Gestion historique, états de conversation, user profiles, settings
 
 📁 Structure du projet
-	```
+```
 Mario/
 ├── .github/workflows       # GitHub Actions CI/CD
 ├── .gitattributes          # Configuration Git LFS
 ├── .gitignore              # Fichiers à ignorer
 ├── CONTRIBUTING.md         # Guide de contribution
 ├── README.md               # Ce fichier
-├── cleanup_repo.py         # Script de nettoyage
 ├── config.yaml             # Configuration globale
 ├── prompts.json            # Prompts personnalisés
 ├── pyproject.toml          # Configuration Python/Poetry
 ├── pytest.ini              # Configuration pytest
 ├── requirements.txt        # Dépendances Python
-├── run.py                  # Point d'entrée principal
-├── run_tests.py            # Lancement des tests
 │
 ├── porcupine_libs/         # Bibliothèques Porcupine (LFS)
 ├── voices/                 # Modèles vocaux TTS (Git LFS)
@@ -40,56 +37,27 @@ Mario/
 │
 ├── src/                    # Code source principal
 │   ├── core/               # Services métier
-│   │   ├── conversation.py
-│   │   ├── stt.py          # Speech-to-Text (Whisper)
-│   │   ├── tts.py          # Text-to-Speech (Piper)
-│   │   ├── intent.py
-│   │   └── wake_word.py    # Détection mot-clé
 │   │
 │   ├── adapters/           # Interfaces matérielles/API
-│   │   ├── __init__.py
-│   │   ├── audio.py        # Micro/Haut-parleur
-│   │   ├── epaper.py       # Affichage ePaper
 │   │   └── mock/           # Mocks pour tests
-│   │       ├── __init__.py
-│   │       ├── audio.py
-│   │       └── epaper.py
 │   │
 │   ├── ui/                 # Interfaces utilisateur
-│   │   ├── __init__.py
-│   │   ├── gradio_ui.py    # Interface web
-│   │   ├── console_ui.py   # Terminal
-│   │   └── epaper_ui.py    # Affichage ePaper
 │   │
 │   ├── controllers/        # Contrôleurs principaux
-│   │   ├── __init__.py
-│   │   ├── assistant.py    # Contrôleur Assistant
-│   │   └── settings.py     # Gestion configuration
 │   │
 │   ├── models/             # Modèles de données
-│   │   ├── __init__.py
-│   │   ├── user.py
-│   │   ├── conversation_state.py
-│   │   └── settings.py
 │   │
 │   ├── events/             # System d'événements
-│   │   ├── __init__.py
-│   │   └── bus.py          # Bus de communication
 │   │
-│   ├── config/             # Gestion configuration
-│   │   ├── __init__.py
-│   │   └── loader.py       # Charger config YAML
-│   │
-│   └── __init__.py
+│   └── config/             # Gestion configuration
 │
 └── tests/                  # Tests unitaires & fonctionnels
-    ├── __init__.py
-    ├── conftest.py         # Fixtures pytest
     ├── test_core/
     ├── test_adapters/      # Tests adapters & mocks
     ├── test_ui/
     ├── test_models/
     └── test_performance/   # Tests de performance
+```
 ```
 
 ▶️⚙️ Installation
