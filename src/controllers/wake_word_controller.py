@@ -7,9 +7,8 @@ import threading
 import time
 from typing import Optional, Callable
 from pvrecorder import PvRecorder
-#from ..config import config
-from src.model.config_manager import ConfigManager
-from ..utils.logger import logger
+from src.models.config_manager import ConfigManager
+from src.utils.logger import logger
 
 
 class WakeWordController:
@@ -24,6 +23,12 @@ class WakeWordController:
         self.recorder = None
         self.energy_threshold = 1000
         self.sample_rate = 16000
+        
+        # Paramètres pour éviter les déclenchements intempestifs
+        self.last_wake_word_time = 0
+        self.wake_word_cooldown = 2.0  # 2 secondes de cooldown
+        self.detection_history = collections.deque(maxlen=5)  # Historique des détections
+        self.false_positive_threshold = 3  # Nombre de détections rapides pour considérer comme faux positif
 
     # ------------------------------------------------------------
     # Initialisation Silero-VAD
@@ -71,10 +76,11 @@ class WakeWordController:
                 library_path=ConfigManager.PORCUPINE_LIBRARY_PATH,
                 model_path=ConfigManager.PORCUPINE_MODEL_PATH,
                 keyword_paths=[ConfigManager.PORCUPINE_KEYWORD_PATH],
-                sensitivities=[ConfigManager.PORCUPINE_SENSITIVITY],
+                sensitivities=[min(0.7, ConfigManager.PORCUPINE_SENSITIVITY)],  # Réduire la sensibilité
             )
 
-            logger.info("[OK] Porcupine initialisé avec succès")
+            logger.info("[OK] Porcupine initialisé avec succès (sensibilité: %f)", 
+                       min(0.7, ConfigManager.PORCUPINE_SENSITIVITY))
             return True
 
         except ImportError:
@@ -126,6 +132,55 @@ class WakeWordController:
         if audio_data.size == 0:
             return 0.0
         return float(np.sqrt(np.mean(audio_data.astype(np.float64) ** 2)))
+
+    # ------------------------------------------------------------
+    # Gestion des déclenchements intempestifs
+    # ------------------------------------------------------------
+    def _is_false_positive(self) -> bool:
+        """Vérifie si la détection est potentiellement un faux positif."""
+        current_time = time.time()
+        
+        # Vérifier le cooldown
+        if current_time - self.last_wake_word_time < self.wake_word_cooldown:
+            logger.debug("[ALERTE] Déclenchement ignoré (cooldown)")
+            return True
+            
+        # Ajouter la détection à l'historique
+        self.detection_history.append(current_time)
+        
+        # Vérifier s'il y a trop de détections récentes (faux positifs)
+        if len(self.detection_history) >= self.false_positive_threshold:
+            time_span = self.detection_history[-1] - self.detection_history[0]
+            if time_span < 2.0:  # Moins de 2 secondes pour plusieurs détections
+                logger.warning("[ALERTE] Potentiel faux positif détecté")
+                self.detection_history.clear()  # Réinitialiser l'historique
+                return True
+                
+        return False
+
+    def _validate_wake_word_detection(self, pcm) -> bool:
+        """Valide la détection du mot-clé avec des vérifications supplémentaires."""
+        try:
+            # Vérifier l'énergie du signal
+            audio_chunk = np.array(pcm, dtype=np.int16)
+            energy = self._calculate_energy(audio_chunk)
+            
+            # Si l'énergie est trop faible, c'est probablement un faux positif
+            if energy < 50:  # Seuil minimum d'énergie
+                logger.debug("[ALERTE] Détection ignorée (énergie trop faible: %f)", energy)
+                return False
+                
+            # Vérifier avec VAD si disponible
+            if self.vad_model:
+                is_speech = self._is_speech_silero(audio_chunk)
+                if not is_speech:
+                    logger.debug("[ALERTE] Détection ignorée (pas de parole détectée)")
+                    return False
+            
+            return True
+        except Exception as e:
+            logger.debug("[ALERTE] Erreur validation détection: %s", e)
+            return True  # En cas d'erreur, on accepte la détection
 
     # ------------------------------------------------------------
     # Gestion d'écoute
@@ -185,6 +240,18 @@ class WakeWordController:
                 keyword_index = self.porcupine.process(pcm)
                 if keyword_index >= 0:
                     logger.info("[ALERTE] Mot-clé détecté!")
+                    
+                    # Validation de la détection
+                    if self._is_false_positive():
+                        continue
+                        
+                    if not self._validate_wake_word_detection(pcm):
+                        continue
+                    
+                    # Mise à jour du temps de dernière détection
+                    self.last_wake_word_time = time.time()
+                    
+                    # Jouer le bip de confirmation
                     self._play_beep()
 
                     if self.wake_word_callback:
@@ -260,7 +327,7 @@ class WakeWordController:
     def get_audio_devices(self) -> list:
         """Retourne la liste des périphériques audio disponibles."""
         try:
-            devices = PvRecorder.get_available_devices()  # ✅ Correct method
+            devices = PvRecorder.get_available_devices()
             return [(idx, device) for idx, device in enumerate(devices)]
         except Exception as e:
             logger.error("[ERREUR] Erreur liste périphériques: %s", e)

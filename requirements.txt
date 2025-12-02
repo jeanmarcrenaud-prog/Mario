@@ -21,6 +21,8 @@ gradio>=4.0.0
 flask>=3.0.0
 requests>=2.28.0
 python-dotenv>=1.0.0
+rich>=13.0.0
+prompt_toolkit>=3.0.0
 
 # === Utilitaires ===
 psutil>=5.9.0

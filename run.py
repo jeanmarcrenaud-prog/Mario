@@ -11,7 +11,7 @@ def main():
         # Importer les modules
         from src.utils.logger import logger, setup_logger
         from src.config.config import config
-        from src.main import AssistantVocal
+        from src.core.app_factory import create_assistant
         
         # Configuration du logger avec les paramètres de config
         from src.utils.setup import configure_logger_with_config
@@ -38,8 +38,8 @@ def main():
         logger.info("🚀 Démarrage de l'assistant vocal")
         logger.info(f"Configuration chargée - Voix: {config.DEFAULT_VOICE}, Modèle: {config.DEFAULT_MODEL}")
         
-        # Démarrer l'assistant
-        assistant = AssistantVocal()
+        # Démarrer l'assistant via la factory (composition root)
+        assistant = create_assistant()
         assistant.run()
         
     except Exception as e:

@@ -16,6 +16,8 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond
 	🧪 Prêt pour les tests unitaires et utilisation de mocks (adapters/mock)
 
 	🔄 Gestion historique, états de conversation, user profiles, settings
+	
+	🔧 Injection de dépendances — composition root pour assemblage propre
 
 📁 Structure du projet
 ```
@@ -114,6 +116,8 @@ Astuce : Installe PyTorch avec CUDA pour booster Whisper si tu as un GPU (Inst
 🧪 Développement & Extensions
 
 	Approche MVC — chaque partie est interchangeable (service, vue, contrôleur, modèle)
+	
+	Injection de dépendances — composition root dans src/core/app_factory.py
 
 	Mocks/Adapters : pour tests unitaires et debug offline
 
@@ -121,9 +125,9 @@ Astuce : Installe PyTorch avec CUDA pour booster Whisper si tu as un GPU (Inst
 
 	Créer sa classe dans le dossier adapté
 
-	Respecter l’interface publique
+	Implémenter l'interface appropriée (ITTSAdapter, ISpeechRecognitionAdapter, etc.)
 
-	L’enregistrer dans le contrôleur métier ou assistant vocal
+	Enregistrer dans la factory app_factory.py
 
 	Configuration dynamique (YAML)
 
