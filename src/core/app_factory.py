@@ -154,7 +154,7 @@ def create_minimal_assistant() -> AssistantVocal:
     tts_service = TTSService.create_with_simulation()
     wake_word_service = WakeWordService.create_with_simulation()
 speech_recognition_service = create_speech_recognition_service_prod()
-        llm_service = LLMService.create_with_simulation()
+llm_service = LLMService.create_with_simulation()
     
     # 4. Services dépendants
     project_analyzer_service = ProjectAnalyzerService(llm_service)
