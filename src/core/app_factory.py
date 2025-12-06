@@ -18,7 +18,7 @@ from .llm_service import LLMService
 from .project_analyzer_service import ProjectAnalyzerService
 from .performance_optimizer import PerformanceOptimizer
 from .prompt_manager import PromptManager
-
+from ..services.microphone_checker import MicrophoneChecker
 # Vues
 from ..views.web_interface_gradio import GradioWebInterface
 
@@ -42,6 +42,12 @@ def create_assistant() -> AssistantVocal:
     conversation_service = ConversationService()
     prompt_manager = PromptManager()
     
+    # Vérification du microphone
+    mic_checker = MicrophoneChecker()
+    if not mic_checker.is_microphone_available():
+        logger.error("❌ Aucun microphone détecté. Impossible de démarrer le mode vocal.")
+        raise RuntimeError("Microphone non disponible") 
+        
     # 3. Services avec injection de dépendances
     tts_service = TTSService.create_with_piper(settings.voice_name)
     wake_word_service = WakeWordService.create_with_porcupine()

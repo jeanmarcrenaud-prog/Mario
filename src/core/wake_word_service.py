@@ -6,6 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from ..utils.logger import logger
 from ..config.config import config
+from ..services.microphone_checker import MicrophoneChecker
 
 class IWakeWordAdapter(ABC):
     """Interface pour les adaptateurs de détection de mot-clé."""
@@ -29,6 +30,7 @@ class PorcupineWakeWordAdapter(IWakeWordAdapter):
     """Adaptateur concret pour Porcupine."""
     
     def __init__(self):
+        self.mic_checker = MicrophoneChecker()
         self.porcupine = None
         self.recorder = None
         self.is_active = False
@@ -38,6 +40,9 @@ class PorcupineWakeWordAdapter(IWakeWordAdapter):
         logger.info("PorcupineWakeWordAdapter initialisé")
     
     def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
+        if not self.mic_checker.is_microphone_available():
+            logger.error("❌ Aucun microphone détecté.")
+            return False
         """Démarre la détection avec Porcupine."""
         try:
             if not self._initialize_porcupine():
@@ -267,6 +272,7 @@ class WakeWordService:
     
     @classmethod
     def create_with_porcupine(cls):
+        mic_checker = MicrophoneChecker()
         """Factory method pour créer un WakeWordService avec Porcupine."""
         adapter = PorcupineWakeWordAdapter()
         return cls(adapter)
