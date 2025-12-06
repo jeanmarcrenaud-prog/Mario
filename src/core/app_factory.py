@@ -53,7 +53,7 @@ def create_assistant() -> AssistantVocal:
     # 3. Services avec injection de dépendances
     tts_service = TTSService.create_with_piper(settings.voice_name)
     wake_word_service = WakeWordService.create_with_porcupine()
-    speech_recognition_service = SpeechRecognitionService.create_with_whisper("base")
+    speech_recognition_service = create_speech_recognition_service_prod()
     llm_service = LLMService.create_with_ollama(settings.llm_model)
     
     # 4. Services dépendants
