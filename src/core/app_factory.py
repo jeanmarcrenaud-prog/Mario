@@ -14,6 +14,8 @@ from .conversation_service import ConversationService
 from .tts_service import TTSService
 from .wake_word_service import WakeWordService
 from .speech_recognition_service import SpeechRecognitionService
+from ..adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
+from ..adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
 from .llm_service import LLMService
 from .project_analyzer_service import ProjectAnalyzerService
 from .performance_optimizer import PerformanceOptimizer
@@ -151,8 +153,7 @@ def create_minimal_assistant() -> AssistantVocal:
     # 3. Services simulés
     tts_service = TTSService.create_with_simulation()
     wake_word_service = WakeWordService.create_with_simulation()
-    speech_recognition_service = SpeechRecognitionService.create_with_simulation()
-    llm_service = LLMService.create_with_simulation()
+speech_recognition_service = create_speech_recognition_service_prod()  # ou create_speech_recognition_service_simulated()    llm_service = LLMService.create_with_simulation()
     
     # 4. Services dépendants
     project_analyzer_service = ProjectAnalyzerService(llm_service)
@@ -177,3 +178,18 @@ def create_minimal_assistant() -> AssistantVocal:
     
     logger.info("✅ Assistant vocal minimal créé")
     return assistant
+
+
+
+# Speech Recognition Service Factories
+
+def create_speech_recognition_service_prod(model_name: str = "base") -> SpeechRecognitionService:
+    """Factory pour créer un service STT avec Whisper (production)."""
+    adapter = WhisperSpeechRecognitionAdapter(model_name=model_name)
+    return SpeechRecognitionService(speech_recognition_adapter=adapter)
+
+
+def create_speech_recognition_service_simulated(fake_result: str = "Bonjour, comment allez-vous ?") -> SpeechRecognitionService:
+    """Factory pour créer un service STT avec simulation (développement/tests)."""
+    adapter = SimulatedSpeechRecognitionAdapter(fake_result=fake_result)
+    return SpeechRecognitionService(speech_recognition_adapter=adapter)
