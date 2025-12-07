@@ -126,7 +126,7 @@ class PorcupineWakeWordAdapter(IWakeWordAdapter):
                 model_path=model_path,
                 keyword_paths=[keyword_path],
                 library_path=library_path,
-                sensitivities=[0.7]  # Sensibilité moyenne
+                sensitivities=[0.9]  # Sensibilité moyenne
             )
             
             logger.info("✅ Porcupine initialisé avec succès")
