@@ -5,6 +5,14 @@ import importlib
 import importlib.metadata
 from datetime import datetime
 from typing import Dict, List, Optional
+
+# ✅ Import Rich
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TextColumn
+from rich import box
+
 from .logger import logger  # Import relatif
 
 class SystemMonitor:
@@ -12,6 +20,7 @@ class SystemMonitor:
     
     def __init__(self):
         self.start_time = datetime.now()
+        self.console = Console()  # ✅ Console Rich
         logger.info("SystemMonitor initialisé")
     
     def get_cpu_usage(self) -> float:
@@ -170,110 +179,115 @@ class SystemMonitor:
 
     @staticmethod
     def get_system_info_text() -> str:
-        """Retourne les informations système sous forme de texte détaillé."""
+        """Retourne les informations système sous forme de texte détaillé avec Rich."""
         try:
-            cuda_available = False
-            gpus = []
-            try:
-                if torch.cuda.is_available():
-                    cuda_available = True
-                    for i in range(torch.cuda.device_count()):
-                        gpus.append({
-                            "name": torch.cuda.get_device_name(i),
-                            "memoryMB": round(torch.cuda.get_device_properties(i).total_memory / 1024**2)
-                        })
-            except Exception:
-                pass
+            # ✅ Création d'une console virtuelle pour capturer la sortie
+            from io import StringIO
+            from rich.console import Console as RichConsole
             
-            modules_to_check = [
-                "gradio", "numpy", "pyaudio", "torch", "whisper", 
-                "webrtcvad", "psutil", "librosa", "piper", "pvporcupine",
-                "openai", "faster_whisper"
-            ]
+            string_buffer = StringIO()
+            rich_console = RichConsole(file=string_buffer, force_terminal=False)
             
-            info_lines = [
-                "="*80,
-                "📊 DÉMARRAGE DE L'APPLICATION - INFORMATIONS SYSTÈME".center(80),
-                "="*80,
-                f"📅 Date et heure      : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}",
-                f"🖥️  OS                : {platform.system()} {platform.release()} ({platform.version()})",
-                f"🐍 Python            : {platform.python_version()} ({platform.architecture()[0]})",
-                f"🧠 CPU               : {platform.processor()}",
-                f"   • Cœurs physiques : {psutil.cpu_count(logical=False) or 'N/A'}",
-                f"   • Cœurs logiques  : {psutil.cpu_count(logical=True) or 'N/A'}",
-                f"   • Fréquence       : {f'{psutil.cpu_freq().current:.1f} MHz' if psutil.cpu_freq() else 'N/A'}",
-            ]
+            # ✅ Panel principal
+            rich_console.print(Panel("[bold blue]📊 Informations Système[/bold blue]", expand=False))
+
+            # ✅ Tableau des infos système
+            sys_table = Table(title="Système", box=box.SIMPLE)
+            sys_table.add_column("Composant", style="cyan", no_wrap=True)
+            sys_table.add_column("Détails", style="magenta")
+
+            sys_table.add_row("Date/Heure", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+            sys_table.add_row("OS", f"{platform.system()} {platform.release()}")
+            sys_table.add_row("Python", f"{platform.python_version()} ({platform.architecture()[0]})")
+            sys_table.add_row("CPU", platform.processor() or "Inconnu")
+            sys_table.add_row("Cœurs physiques", str(psutil.cpu_count(logical=False) or "N/A"))
+            sys_table.add_row("Cœurs logiques", str(psutil.cpu_count(logical=True) or "N/A"))
             
-            # Mémoire
+            if psutil.cpu_freq():
+                sys_table.add_row("Fréquence CPU", f"{psutil.cpu_freq().current:.1f} MHz")
+
+            rich_console.print(sys_table)
+
+            # ✅ Mémoire
             vm = psutil.virtual_memory()
-            info_lines.extend([
-                f"💾 Mémoire totale    : {vm.total/1024**3:.2f} GB",
-                f"   • Disponible      : {vm.available/1024**3:.2f} GB ({vm.percent:.1f}%)",
-                f"   • Utilisée        : {vm.used/1024**3:.2f} GB",
-            ])
-            
-            # Disques
+            mem_table = Table(title="Mémoire", box=box.SIMPLE)
+            mem_table.add_column("Type", style="cyan")
+            mem_table.add_column("Valeur", style="green")
+            mem_table.add_row("Totale", f"{vm.total / 1024**3:.2f} GB")
+            mem_table.add_row("Utilisée", f"{vm.used / 1024**3:.2f} GB")
+            mem_table.add_row("Disponible", f"{vm.available / 1024**3:.2f} GB ({vm.percent:.1f}%)")
+            rich_console.print(mem_table)
+
+            # ✅ Disques
+            disk_table = Table(title="Disques", box=box.SIMPLE)
+            disk_table.add_column("Point de montage", style="cyan")
+            disk_table.add_column("Utilisation", style="yellow")
             try:
                 for partition in psutil.disk_partitions():
                     try:
                         usage = psutil.disk_usage(partition.mountpoint)
-                        info_lines.append(
-                            f"📂 {partition.mountpoint:<10} : "
-                            f"{usage.used/1024**3:.1f}/{usage.total/1024**3:.1f} GB "
-                            f"({usage.percent:.1f}%)"
+                        percent = (usage.used / usage.total) * 100
+                        disk_table.add_row(
+                            partition.mountpoint,
+                            f"{usage.used / 1024**3:.1f}/{usage.total / 1024**3:.1f} GB ({percent:.1f}%)"
                         )
                     except Exception:
                         continue
             except Exception:
-                info_lines.append("📂 Disques           : Information non disponible")
-            
-            # GPU
-            if gpus:
-                for gpu in gpus:
-                    info_lines.append(f"🎮 [GPU] Détecté      : {gpu['name']} ({gpu['memoryMB']} MB VRAM)")
-            else:
-                info_lines.append("🎮 [GPU] Aucun GPU détecté ou non supporté")
-            
-            info_lines.append(f"⚡ CUDA disponible    : {'✅ Oui' if cuda_available else '❌ Non'}")
-            
-            # Modules
-            info_lines.append("\n📦 Versions des modules :")
+                disk_table.add_row("Erreur", "Impossible de lire les disques")
+            rich_console.print(disk_table)
+
+            # ✅ GPU
+            gpu_table = Table(title="GPU", box=box.SIMPLE)
+            gpu_table.add_column("Nom", style="cyan")
+            gpu_table.add_column("VRAM", style="blue")
+            try:
+                if torch.cuda.is_available():
+                    for i in range(torch.cuda.device_count()):
+                        props = torch.cuda.get_device_properties(i)
+                        gpu_table.add_row(
+                            torch.cuda.get_device_name(i),
+                            f"{props.total_memory / 1024**2:.0f} MB"
+                        )
+                else:
+                    gpu_table.add_row("Aucun GPU", "CUDA non disponible")
+            except Exception as e:
+                gpu_table.add_row("Erreur", str(e))
+            rich_console.print(gpu_table)
+
+            # ✅ Modules
+            modules_table = Table(title="Modules", box=box.SIMPLE)
+            modules_table.add_column("Module", style="cyan")
+            modules_table.add_column("Version", style="green")
+
+            modules_to_check = [
+                "gradio", "numpy", "pyaudio", "torch", "whisper",
+                "webrtcvad", "psutil", "librosa", "piper", "pvporcupine",
+                "openai", "faster_whisper"
+            ]
+
             for mod in modules_to_check:
                 try:
                     if mod == "piper":
-                        try:
-                            ver = importlib.metadata.version("piper-tts")
-                        except importlib.metadata.PackageNotFoundError:
-                            ver = "Installée, version inconnue"
+                        ver = importlib.metadata.version("piper-tts")
                     elif mod == "librosa":
-                        try:
-                            import librosa
-                            ver = librosa.__version__
-                        except Exception:
-                            ver = "Non installé"
+                        import librosa
+                        ver = librosa.__version__
                     elif mod == "whisper":
-                        try:
-                            import whisper
-                            ver = getattr(whisper, '__version__', 'Installé')
-                        except Exception:
-                            ver = "Installé"
+                        import whisper
+                        ver = getattr(whisper, '__version__', 'Installé')
                     else:
-                        try:
-                            module = importlib.import_module(mod)
-                            ver = getattr(module, '__version__', 'Version non disponible')
-                            if ver is None:
-                                ver = 'Version non disponible'
-                        except Exception:
-                            ver = "Non installé"
+                        module = importlib.import_module(mod)
+                        ver = getattr(module, '__version__', 'Version non disponible')
                 except Exception:
-                    ver = "Non installé"
-                info_lines.append(f"   • {mod.strip():<18}: {ver}")
-            
-            info_lines.append("="*80)
-            return "\n".join(info_lines)
-            
+                    ver = "[red]Non installé[/red]"
+                modules_table.add_row(mod, ver)
+            rich_console.print(modules_table)
+
+            return string_buffer.getvalue()
+
         except Exception as e:
-            logger.error(f"Erreur informations système: {e}")
+            logger.error(f"Erreur informations système avec Rich: {e}")
             return f"❌ Erreur récupération infos système: {e}"
 
     def get_system_stats(self) -> dict:
