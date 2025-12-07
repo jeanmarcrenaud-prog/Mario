@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 from ..utils.logger import logger
 from ..config.config import config
 from ..services.microphone_checker import MicrophoneChecker
+from ..adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
 
 class IWakeWordAdapter(ABC):
     """Interface pour les adaptateurs de détection de mot-clé."""
@@ -282,6 +283,12 @@ class WakeWordService:
         """Factory method pour créer un WakeWordService avec simulation."""
         adapter = SimulatedWakeWordAdapter()
         return cls(adapter)
+
+        @classmethod
+            def create_with_vosk(cls, model_path: str):
+                        """Factory method pour creer un WakeWordService avec Vosk."""
+                        adapter = VoskWakeWordAdapter(model_path)
+                        return cls(adapter)
     
     def set_wake_word_callback(self, callback: Callable):
         """Définit le callback pour la détection du mot-clé."""
