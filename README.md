@@ -7,7 +7,7 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond
 
 	🗣️ Synthèse vocale naturelle (Piper TTS)
 
-	🧠 Détection mot-clé ("Hey Mario", Porcupine)
+	🧠 Détection mot-clé ("Hey Mario", vosk)
 
 	💬 Interfaces graphiques : Gradio (web), Console, ePaper
 
@@ -107,7 +107,7 @@ Astuce : Installe PyTorch avec CUDA pour booster Whisper si tu as un GPU (Inst
 	Domaine					Bibliothèque
 	Reconnaissance vocale	openai-whisper
 	Synthèse vocale			piper-tts
-	Détection mot-clé		pvporcupine, pvrecorder
+	Détection mot-clé		vosk
 	GUI/Web					gradio
 	Audio HW				sounddevice, pyaudio
 	Monitoring système		psutil
