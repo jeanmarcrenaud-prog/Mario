@@ -6,7 +6,7 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.services.wake_word_service import WakeWordService, IWakeWordAdapter
+from src.services.wake_word_service import IWakeWordService, IWakeWordAdapter
 
 class MockWakeWordAdapter(IWakeWordAdapter):
     """Adaptateur mock pour les tests"""

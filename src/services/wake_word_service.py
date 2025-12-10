@@ -6,7 +6,7 @@ import numpy as np
 from abc import ABC, abstractmethod
 from src.utils.logger import logger
 from src.config.config import config
-from src.interfaces.microphone_checker import MicrophoneChecker
+from src.interfaces.microphone_checker import IMicrophoneChecker
 from src.adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
 
 class IWakeWordAdapter(ABC):
