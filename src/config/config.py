@@ -25,14 +25,6 @@ class ConfigManager:
     
     # Ollama
     DEFAULT_MODEL: str = "qwen3-coder"
-
-
-    # Porcupine
-    PORCUPINE_ACCESS_KEY: str = os.getenv("PORCUPINE_ACCESS_KEY", "")
-    PORCUPINE_MODEL_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "common", "porcupine_params_fr.pv")
-    PORCUPINE_LIBRARY_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "windows", "amd64", "pv_porcupine.dll")
-    PORCUPINE_KEYWORD_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "keywords", "windows", "mario_fr_windows_v3_0_0.ppn")
-    PORCUPINE_SENSITIVITY: float = 0.9
     
     # Interface
     WEB_PORT: int = 7860
