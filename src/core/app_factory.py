@@ -180,7 +180,15 @@ def create_minimal_assistant() -> AssistantVocal:
     logger.info("✅ Assistant vocal minimal créé")
     return assistant
 
-
+@classmethod
+def create_with_vosk(cls, model_path: str = None):
+    """Factory method pour créer un WakeWordService avec Vosk."""
+    if model_path is None:
+        # Utiliser un chemin par défaut depuis config
+        model_path = getattr(config, 'VOSK_MODEL_PATH', './models/vosk-model-small-fr')
+    
+    adapter = VoskWakeWordAdapter(model_path)
+    return cls(adapter)
 
 # Speech Recognition Service Factories
 
