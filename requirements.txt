@@ -30,6 +30,7 @@ tqdm>=4.65.0
 typing-extensions>=4.8.0
 dataclasses-json>=0.6.3
 colorlog>=6.8.0
+GPutil>=1.4.0
 
 # === Tests ===
 pytest>=8.0.0
