@@ -8,7 +8,7 @@ from rich.prompt import Confirm
 from src.utils.logger import logger
 from src.config.config import config
 from src.core.app_factory import create_assistant
-from src.main import show_welcome_screen, show_main_menu, show_system_info
+from src.views.welcome_screen import show_welcome_screen, show_main_menu, show_system_info
 from src.utils.setup import configure_logger_with_config
 
 
