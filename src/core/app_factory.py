@@ -52,7 +52,8 @@ def create_assistant() -> AssistantVocal:
         
     # 3. Services avec injection de dépendances
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    wake_word_service = WakeWordService.create_with_porcupine()
+    # ✅ CHANGEMENT ICI : Utiliser Vosk au lieu de Porcupine
+    wake_word_service = WakeWordService.create_with_vosk()
     speech_recognition_service = create_speech_recognition_service_prod()
     llm_service = LLMService.create_with_ollama(settings.llm_model)
     
@@ -179,16 +180,6 @@ def create_minimal_assistant() -> AssistantVocal:
     
     logger.info("✅ Assistant vocal minimal créé")
     return assistant
-
-@classmethod
-def create_with_vosk(cls, model_path: str = None):
-    """Factory method pour créer un WakeWordService avec Vosk."""
-    if model_path is None:
-        # Utiliser un chemin par défaut depuis config
-        model_path = getattr(config, 'VOSK_MODEL_PATH', './models/vosk-model-small-fr')
-    
-    adapter = VoskWakeWordAdapter(model_path)
-    return cls(adapter)
 
 # Speech Recognition Service Factories
 

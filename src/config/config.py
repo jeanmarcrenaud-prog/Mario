@@ -10,7 +10,7 @@ class ConfigManager:
     CONFIG_FILE: str = os.path.join(BASE_DIR, "config.yaml")
     LOG_FOLDER: str = os.path.join(BASE_DIR, "logs")
     PORCUPINE_LIB_PATH: str = os.path.join(BASE_DIR, "porcupine_libs")
-    
+    VOSK_MODEL_PATH: str = os.path.join(BASE_DIR, "models", "vosk-model-small-fr")
     # API Keys
     OPENAI_API_KEY: str = ""
     PORCUPINE_ACCESS_KEY: str = ""
@@ -75,19 +75,6 @@ class ConfigManager:
         for directory in directories:
             os.makedirs(directory, exist_ok=True)
 
-    def _validate_porcupine_files(self):
-        """Valide l'existence des fichiers Porcupine."""
-        required_files = [
-            ("PORCUPINE_MODEL_PATH", self.PORCUPINE_MODEL_PATH),
-            ("PORCUPINE_LIBRARY_PATH", self.PORCUPINE_LIBRARY_PATH),
-            ("PORCUPINE_KEYWORD_PATH", self.PORCUPINE_KEYWORD_PATH)
-        ]
-        
-        for name, path in required_files:
-            if not os.path.exists(path):
-                print(f"⚠️  Fichier {name} manquant: {path}")
-            else:
-                print(f"✅ Fichier {name} trouvé: {path}")
-                
+
 # Instance globale
 config = ConfigManager()
