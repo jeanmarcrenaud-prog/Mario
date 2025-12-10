@@ -5,10 +5,10 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.core.tts_service import TTSService
-from src.core.speech_recognition_service import SpeechRecognitionService
-from src.core.wake_word_service import WakeWordService
-from src.core.llm_service import LLMService
+from src.services.tts_service import TTSService
+from src.services.speech_recognition_service import SpeechRecognitionService
+from src.services.wake_word_service import WakeWordService
+from src.services.llm_service import LLMService
 
 class TestIntegration(unittest.TestCase):
     """Tests d'intégration pour vérifier l'orchestration des services"""
