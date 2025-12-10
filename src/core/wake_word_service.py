@@ -284,11 +284,11 @@ class WakeWordService:
         adapter = SimulatedWakeWordAdapter()
         return cls(adapter)
 
-        @classmethod
+    @classmethod
     def create_with_vosk(cls, model_path: str):
-                """Factory method pour creer un WakeWordService avec Vosk."""
-                adapter = VoskWakeWordAdapter(model_path)
-                return cls(adapter)
+        """Factory method pour creer un WakeWordService avec Vosk."""
+        adapter = VoskWakeWordAdapter(model_path)
+        return cls(adapter)
     
     def set_wake_word_callback(self, callback: Callable):
         """Définit le callback pour la détection du mot-clé."""
@@ -305,14 +305,13 @@ class WakeWordService:
         logger.info(f"Démarrage détection wake word sur device {device_index}")
         
         # Wrapper les callbacks pour le passage à l'adaptateur
-        def on_detect_wrapper():
-            if self.wake_word_callback:
-                self.wake_word_callback()
+    def on_detect_wrapper():
+        if self.wake_word_callback:
+            self.wake_word_callback()
         
-        def on_audio_wrapper(audio_data):
-            if self.audio_callback:
-                self.audio_callback(audio_data)
-        
+    def on_audio_wrapper(audio_data):
+        f self.audio_callback:
+            self.audio_callback(audio_data)   
         success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
         if not success:
             logger.warning("Échec du démarrage de la détection, tentative avec simulation")
