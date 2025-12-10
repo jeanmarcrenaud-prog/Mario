@@ -311,14 +311,18 @@ class WakeWordService:
         
         def on_audio_wrapper(audio_data):
             if self.audio_callback:
-                self.audio_callback(audio_data)   
-            success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
-            if not success:
-                logger.warning("Échec du démarrage de la détection, tentative avec simulation")
-                # Fallback vers simulation si disponible
-                simulated_adapter = SimulatedWakeWordAdapter()
-                self.wake_word_adapter = simulated_adapter
-                self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
+                self.audio_callback(audio_data)
+        
+        # Démarrer la détection avec les wrappers
+        success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
+        
+        if not success:
+            logger.warning("Échec du démarrage de la détection, tentative avec simulation")
+            # Fallback vers simulation si disponible
+            simulated_adapter = SimulatedWakeWordAdapter()
+            self.wake_word_adapter = simulated_adapter
+            # Redémarrer avec le simulateur
+            self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
     
     def stop_detection(self):
         """Arrête la détection du mot-clé."""
