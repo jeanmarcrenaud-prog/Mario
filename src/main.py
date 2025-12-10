@@ -17,7 +17,7 @@ from src.services.tts_service import TTSService
 from src.services.wake_word_service import WakeWordService
 from src.services.speech_recognition_service import SpeechRecognitionService
 from src.services.llm_service import LLMService
-from src.service.project_analyzer_service import ProjectAnalyzerService
+from src.services.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
 
