@@ -4,28 +4,28 @@ Cette composition root sépare clairement l'assemblage des objets de la logique 
 """
 
 from typing import Optional
-from ..config.config import config
-from ..models.settings import Settings
-from ..utils.logger import logger
-from ..utils.system_monitor import SystemMonitor
+from src.config.config import config
+from src.models.settings import Settings
+from src.utils.logger import logger
+from src.utils.system_monitor import SystemMonitor
 
 # Services principaux
-from .conversation_service import ConversationService
-from .tts_service import TTSService
-from .wake_word_service import WakeWordService
-from .speech_recognition_service import SpeechRecognitionService
-from ..adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
-from ..adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
-from .llm_service import LLMService
-from .project_analyzer_service import ProjectAnalyzerService
-from .performance_optimizer import PerformanceOptimizer
-from .prompt_manager import PromptManager
-from ..services.microphone_checker import MicrophoneChecker
+from src.services.conversation_service import ConversationService
+from src.services.tts_service import TTSService
+from src.services.wake_word_service import WakeWordService
+from src.services.speech_recognition_service import SpeechRecognitionService
+from src.adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
+from src.adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
+from src.services.llm_service import LLMService
+from src.services.project_analyzer_service import ProjectAnalyzerService
+from src.core.performance_optimizer import PerformanceOptimizer
+from src.core.prompt_manager import PromptManager
+from src.services.microphone_checker import MicrophoneChecker
 # Vues
-from ..views.web_interface_gradio import GradioWebInterface
+from src.views.web_interface_gradio import GradioWebInterface
 
 # Modèle principal
-from .main import AssistantVocal
+from src.main import AssistantVocal
 
 def create_assistant() -> AssistantVocal:
     """

@@ -11,7 +11,7 @@ from ..utils.logger import logger, safe_run
 from ..utils.system_monitor import SystemMonitor
 from ..models.settings import Settings
 from ..views.web_interface_gradio import GradioWebInterface
-from .conversation_service import ConversationService
+from src.service.conversation_service import ConversationService
 from .tts_service import TTSService
 from .wake_word_service import WakeWordService
 from .speech_recognition_service import SpeechRecognitionService
