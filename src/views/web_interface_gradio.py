@@ -9,7 +9,7 @@ import time
 import json
 from typing import List, Dict, Any, Optional, Tuple
 from ..utils.logger import logger
-from ..services.microphone_checker import MicrophoneChecker
+from src.interfaces.microphone_checker import MicrophoneChecker
 
 class GradioWebInterface:
     """
