@@ -12,11 +12,11 @@ from src.utils.logger import logger, safe_run
 from src.utils.system_monitor import SystemMonitor
 from src.models.settings import Settings
 from src.views.web_interface_gradio import GradioWebInterface
-from src.service.conversation_service import ConversationService
-from src.service.tts_service import TTSService
+from src.services.conversation_service import ConversationService
+from src.services.tts_service import TTSService
 from src.services.wake_word_service import WakeWordService
-from src.service.speech_recognition_service import SpeechRecognitionService
-from src.service.llm_service import LLMService
+from src.services.speech_recognition_service import SpeechRecognitionService
+from src.services.llm_service import LLMService
 from src.service.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
