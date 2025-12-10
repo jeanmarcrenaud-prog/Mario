@@ -310,7 +310,7 @@ class WakeWordService:
             self.wake_word_callback()
         
     def on_audio_wrapper(audio_data):
-        f self.audio_callback:
+        if self.audio_callback:
             self.audio_callback(audio_data)   
         success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
         if not success:
