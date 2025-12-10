@@ -285,7 +285,7 @@ class WakeWordService:
         return cls(adapter)
 
         @classmethod
-            def create_with_vosk(cls, model_path: str):
+    def create_with_vosk(cls, model_path: str):
                 """Factory method pour creer un WakeWordService avec Vosk."""
                 adapter = VoskWakeWordAdapter(model_path)
                 return cls(adapter)
