@@ -286,9 +286,9 @@ class WakeWordService:
 
         @classmethod
             def create_with_vosk(cls, model_path: str):
-                        """Factory method pour creer un WakeWordService avec Vosk."""
-                        adapter = VoskWakeWordAdapter(model_path)
-                        return cls(adapter)
+                """Factory method pour creer un WakeWordService avec Vosk."""
+                adapter = VoskWakeWordAdapter(model_path)
+                return cls(adapter)
     
     def set_wake_word_callback(self, callback: Callable):
         """Définit le callback pour la détection du mot-clé."""
