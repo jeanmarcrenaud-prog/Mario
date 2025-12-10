@@ -8,7 +8,7 @@ import pyaudio
 from vosk import KaldiRecognizer, Model
 
 from ..services.microphone_checker import MicrophoneChecker
-from .interfaces import IWakeWordAdapter
+from ..interfaces.wake_word import IWakeWordAdapter
 
 logger = logging.getLogger(__name__)
 

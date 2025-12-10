@@ -52,7 +52,7 @@ def create_assistant() -> AssistantVocal:
         
     # 3. Services avec injection de dépendances
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    # ✅ CHANGEMENT ICI : Utiliser Vosk au lieu de Porcupine
+    # ✅ Utiliser Vosk au lieu de Porcupine
     wake_word_service = WakeWordService.create_with_vosk()
     speech_recognition_service = create_speech_recognition_service_prod()
     llm_service = LLMService.create_with_ollama(settings.llm_model)

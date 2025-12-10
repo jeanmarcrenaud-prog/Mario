@@ -1,6 +1,7 @@
 import os
 from dataclasses import dataclass
 import yaml
+from ..utils.logger import logger
 
 @dataclass
 class ConfigManager:
@@ -9,12 +10,11 @@ class ConfigManager:
     VOICES_FOLDER: str = os.path.join(BASE_DIR, "voices")
     CONFIG_FILE: str = os.path.join(BASE_DIR, "config.yaml")
     LOG_FOLDER: str = os.path.join(BASE_DIR, "logs")
-    PORCUPINE_LIB_PATH: str = os.path.join(BASE_DIR, "porcupine_libs")
     VOSK_MODEL_PATH: str = os.path.join(BASE_DIR, "models", "vosk-model-small-fr")
+    
     # API Keys
     OPENAI_API_KEY: str = ""
-    PORCUPINE_ACCESS_KEY: str = ""
-    
+
     # Audio settings
     SAMPLE_RATE: int = 16000
     DEFAULT_MICROPHONE_INDEX: int = 0
@@ -44,12 +44,11 @@ class ConfigManager:
         """Charge la configuration depuis le fichier YAML."""
         self._load_from_file()
         self._create_directories()
-        self._validate_porcupine_files()
         
     def _load_from_file(self):
         """Charge la configuration depuis le fichier."""
         if not os.path.exists(self.CONFIG_FILE):
-            print(f"Warning: Fichier de config non trouvé: {self.CONFIG_FILE}")
+            logger.warning(f"Fichier de config non trouvé: {self.CONFIG_FILE}")
             return
         
         try:
@@ -63,7 +62,7 @@ class ConfigManager:
                     setattr(self, attr_name, value)
                     
         except Exception as e:
-            print(f"Erreur chargement config: {e}")
+            logger.error(f"Erreur chargement config: {e}")
     
     def _create_directories(self):
         """Crée les répertoires nécessaires."""
