@@ -4,10 +4,10 @@ from typing import Callable, Optional
 import os
 import numpy as np
 from abc import ABC, abstractmethod
-from ..utils.logger import logger
-from ..config.config import config
-from ..services.microphone_checker import MicrophoneChecker
-from ..adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
+from src.utils.logger import logger
+from src.config.config import config
+from src.interfaces.microphone_checker import MicrophoneChecker
+from src.adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
 
 class IWakeWordAdapter(ABC):
     """Interface pour les adaptateurs de détection de mot-clé."""
