@@ -19,20 +19,12 @@ class TestIntegration(unittest.TestCase):
         tts_service = TTSService.create_with_piper("fr_FR-siwis-medium")
         self.assertIsInstance(tts_service, TTSService)
         self.assertTrue(hasattr(tts_service, 'tts_adapter'))
-    
     def test_speech_recognition_with_whisper_adapter(self):
         """Test du service de reconnaissance vocale avec adaptateur Whisper"""
         # Test avec la factory method
         stt_service = SpeechRecognitionService.create_with_whisper("base")
         self.assertIsInstance(stt_service, SpeechRecognitionService)
         self.assertTrue(hasattr(stt_service, 'speech_recognition_adapter'))
-    
-    def test_wake_word_with_porcupine_adapter(self):
-        """Test du service de détection de mot-clé avec adaptateur Porcupine"""
-        # Test avec la factory method
-        wake_service = WakeWordService.create_with_porcupine()
-        self.assertIsInstance(wake_service, WakeWordService)
-        self.assertTrue(hasattr(wake_service, 'wake_word_adapter'))
     
     def test_llm_with_ollama_adapter(self):
         """Test du service LLM avec adaptateur Ollama"""

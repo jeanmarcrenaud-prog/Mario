@@ -1,6 +1,7 @@
 🎙️ Assistant Vocal Intelligent — Mario
 
-Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond et parle en utilisant OpenAI Whisper (STT), Piper (TTS), Picovoice Porcupine (détection mot-clé), Gradio (web), Console et ePaper. Adapté PC ou microcontrôleur.
+Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond et parle en utilisant OpenAI Whisper (STT), Piper (TTS), Picovo
+ion mot-clé)étection mot-clé), Gradio (web), Console et ePaper. Adapté PC ou microcontrôleur.
 
 ▶️🚀 Fonctionnalités
 	🎧 Reconnaissance vocale (Whisper, GPU CUDA si dispo)
@@ -33,7 +34,6 @@ Mario/
 ├── pytest.ini              # Configuration pytest
 ├── requirements.txt        # Dépendances Python
 │
-├── porcupine_libs/         # Bibliothèques Porcupine (LFS)
 ├── voices/                 # Modèles vocaux TTS (Git LFS)
 │   └── fr_FR-siwis-medium/
 │

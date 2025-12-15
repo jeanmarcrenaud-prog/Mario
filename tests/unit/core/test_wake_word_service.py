@@ -75,17 +75,6 @@ class TestWakeWordService(unittest.TestCase):
         self.assertTrue(self.mock_adapter.get_audio_devices_called)
         self.assertEqual(devices, [(0, "Test Microphone")])
 
-    def test_create_with_porcupine(self):
-        """Test de la factory method create_with_porcupine"""
-        with patch('src.core.wake_word_service.PorcupineWakeWordAdapter') as mock_porcupine:
-            mock_adapter_instance = MagicMock()
-            mock_porcupine.return_value = mock_adapter_instance
-            
-            service = WakeWordService.create_with_porcupine()
-            
-            self.assertIsInstance(service, WakeWordService)
-            mock_porcupine.assert_called_once()
-
     def test_create_with_simulation(self):
         """Test de la factory method create_with_simulation"""
         with patch('src.core.wake_word_service.SimulatedWakeWordAdapter') as mock_simulated:

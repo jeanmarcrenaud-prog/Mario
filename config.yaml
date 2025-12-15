@@ -1,13 +1,3 @@
-# Configuration de l'assistant vocal
-
-# API Keys
-openai_api_key: ""
-porcupine_access_key: "Hw96KAW+RctXF3rrBMMsjXLTQN7P+nPhl8IJAZHNXXdiMkotjN/iKg=="  # Remplacez par votre vraie clé
-
-# Chemins Porcupine (ajustez selon votre installation)
-porcupine_model_path: "porcupine_libs/common/porcupine_params_fr.pv"
-porcupine_library_path: "porcupine_libs/windows/amd64/pv_porcupine.dll"
-porcupine_keyword_path: "porcupine_libs/keywords/windows/mario_fr_windows_v3_0_0.ppn"
 
 # Audio settings
 sample_rate: 16000

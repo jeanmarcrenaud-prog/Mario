@@ -10,7 +10,6 @@ class ConfigManager:
     VOICES_FOLDER: str = os.path.join(BASE_DIR, "voices")
     CONVERSATION_HISTORY_FOLDER: str = os.path.join(BASE_DIR, "conversations")
     LOG_FOLDER: str = os.path.join(BASE_DIR, "logs")
-    PORCUPINE_LIB_PATH: str = os.path.join(BASE_DIR, "porcupine_libs")
     
     # Fichiers de configuration
     VAD_THRESHOLD_FILE: str = os.path.join(BASE_DIR, "vad_threshold.json")
@@ -23,12 +22,6 @@ class ConfigManager:
     WAKE_WORD_MODEL: str = "small"
     DEFAULT_PIPER_VOICE: str = "fr_FR-siwis-medium"
     
-    # Porcupine
-    PORCUPINE_ACCESS_KEY: str = os.getenv("PORCUPINE_ACCESS_KEY", "")
-    PORCUPINE_MODEL_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "porcupine_params_fr.pv")
-    PORCUPINE_LIBRARY_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "pv_porcupine.dll")
-    PORCUPINE_KEYWORD_PATH: str = os.path.join(PORCUPINE_LIB_PATH, "mario_fr_windows_v3_0_0.ppn")
-    PORCUPINE_SENSITIVITY: float = 0.9
     
     # Audio
     SAMPLERATE: int = 22050
@@ -53,7 +46,6 @@ class ConfigManager:
     def __post_init__(self):
         # Création des dossiers nécessaires
         for folder in [self.VOICES_FOLDER, self.CONVERSATION_HISTORY_FOLDER, 
-                      self.LOG_FOLDER, self.PORCUPINE_LIB_PATH]:
             os.makedirs(folder, exist_ok=True)
         
         # Vérification des fichiers nécessaires
@@ -61,14 +53,9 @@ class ConfigManager:
     
     def _validate_config(self):
         """Valide la configuration"""
-        if not self.PORCUPINE_ACCESS_KEY:
-            logging.warning("PORCUPINE_ACCESS_KEY non configuré")
         
         # Vérifier que les fichiers existent
         required_files = [
-            self.PORCUPINE_MODEL_PATH,
-            self.PORCUPINE_LIBRARY_PATH,
-            self.PORCUPINE_KEYWORD_PATH,
             self.PIPER_VOICE_ONNX,
             self.PIPER_VOICE_JSON
         ]
