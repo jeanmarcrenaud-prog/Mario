@@ -1,9 +1,18 @@
 import sys
+import os
 import traceback
 from typing import Callable, Optional
 
 from rich.console import Console
 from rich.prompt import Confirm
+
+# Forcer l'encodage UTF-8 sur Windows
+if sys.platform == "win32":
+    os.environ["PYTHONIOENCODING"] = "utf-8"
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8")
+    if hasattr(sys.stderr, "reconfigure"):
+        sys.stderr.reconfigure(encoding="utf-8")
 
 from src.utils.logger import logger
 from src.config.config import config
@@ -75,7 +84,8 @@ def run_application(
     *,
     console_factory: Callable[[], Console] = Console,
 ) -> int:
-    console = console_factory()
+    # Créer la console avec support des emojis désactivé sur Windows pour éviter les problèmes d'encodage
+    console = console_factory(legacy_windows=False, force_terminal=True) if sys.platform == "win32" else console_factory()
 
     configure_logger_with_config(logger)
     _install_global_exception_handler(console)

@@ -7,7 +7,7 @@ from typing import Callable, Optional
 import pyaudio
 from vosk import KaldiRecognizer, Model
 
-from ..services.microphone_checker import MicrophoneChecker
+from ..interfaces.microphone_checker import MicrophoneChecker
 from ..interfaces.wake_word import IWakeWordAdapter
 
 logger = logging.getLogger(__name__)
