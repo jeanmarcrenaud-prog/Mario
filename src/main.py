@@ -1,13 +1,15 @@
 import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))  # Ajoute le dossier "Mario" au chemin
+from src.utils.logger import logger, safe_run
 import atexit
+import re
+import signal
+import socket
 import threading
 import time
-import socket
-import yaml
-import signal
-from typing import Dict, Optional, Any
-import re
-from src.config.config import ConfigManager, config
+import traceback
+from typing import Dict, Optional
 from src.utils.logger import logger, safe_run
 from src.utils.system_monitor import SystemMonitor
 from src.models.settings import Settings
@@ -22,6 +24,14 @@ from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
 
 class AssistantVocal:
+    # Compilation des regex pour détecter le français (optimisation)
+    _FRENCH_PATTERNS = [
+        re.compile(r'\b(le|la|les|un|une|des|du|de|à|et|ou|mais|si|que|qui|quoi|où|quand|comment)\b', re.IGNORECASE),
+        re.compile(r'\b(je|tu|il|elle|nous|vous|ils|elles)\b', re.IGNORECASE),
+        re.compile(r'\b(suis|es|est|sommes|êtes|sont|ai|as|a|avons|avez|ont)\b', re.IGNORECASE),
+        re.compile(r'\b(de|dans|sur|sous|entre|avant|après|pendant|pour|par|avec|sans)\b', re.IGNORECASE)
+    ]
+    
     def __init__(
         self,
         settings: Settings,
@@ -61,7 +71,7 @@ class AssistantVocal:
         self._setup_cleanup()
         logger.info("🔧 AssistantVocal initialisé avec injection de dépendances")
 
-    def _setup_console_view(self):
+    def _setup_console_view(self) -> None:
         """Configure la console view."""
         try:
             from src.views.console_view import ConsoleView
@@ -71,11 +81,11 @@ class AssistantVocal:
             logger.warning(f"⚠️ ConsoleView non disponible: {e}")
             self.console_view = None
 
-    def _setup_cleanup(self):
+    def _setup_cleanup(self) -> None:
         """Configure le nettoyage à la fermeture."""
         atexit.register(self._cleanup)
 
-    def _cleanup(self):
+    def _cleanup(self) -> None:
         """Nettoie les ressources à la fermeture."""
         if not self._is_running:
             return
@@ -89,41 +99,29 @@ class AssistantVocal:
         """Vérifie si le texte est en français."""
         if not text or not text.strip():
             return False
-            
-        # Expressions régulières pour détecter le français
-        french_patterns = [
-            r'\b(le|la|les|un|une|des|du|de|à|et|ou|mais|si|que|qui|quoi|où|quand|comment)\b',
-            r'\b(je|tu|il|elle|nous|vous|ils|elles)\b',
-            r'\b(suis|es|est|sommes|êtes|sont|ai|as|a|avons|avez|ont)\b',
-            r'\b(de|dans|sur|sous|entre|avant|après|pendant|pour|par|avec|sans)\b'
-        ]
         
-        french_word_count = 0
         total_words = len(text.split())
-        
         if total_words == 0:
             return False
-            
-        for pattern in french_patterns:
-            matches = re.findall(pattern, text.lower())
-            french_word_count += len(matches)
+        
+        french_word_count = 0
+        for pattern in self._FRENCH_PATTERNS:
+            french_word_count += len(pattern.findall(text))
         
         # Si plus de 10% des mots sont des mots français courants
         return (french_word_count / total_words) > 0.1
 
-    def _on_wake_word_detected(self):
+    def _on_wake_word_detected(self) -> None:
         """Callback quand le mot-clé est détecté."""
         logger.info("🎯 Mot-clé détecté ! Prêt à recevoir la commande")
         self.speak_response("Je vous écoute")
     
-    def _on_audio_received(self, audio_data):
+    def _on_audio_received(self, audio_data) -> None:
         """Callback quand l'audio est reçu - avec gestion d'erreurs améliorée."""
         logger.info(f"🎤 Audio reçu ({len(audio_data)} échantillons)")
         
         try:
             # Timeout pour le traitement
-            import signal
-            
             def timeout_handler(signum, frame):
                 raise TimeoutError("Timeout lors du traitement audio")
 
@@ -240,11 +238,11 @@ class AssistantVocal:
         """Retourne le profil d'optimisation."""
         return self.performance_optimizer.get_optimization_profile()
 
-    def set_optimization_profile(self, profile: Dict):
+    def set_optimization_profile(self, profile: Dict) -> None:
         """Définit le profil d'optimisation."""
         self.performance_optimizer.set_optimization_profile(profile)
 
-    def set_performance_thresholds(self, **thresholds):
+    def set_performance_thresholds(self, **thresholds) -> None:
         """Définit les seuils de performance."""
         self.performance_optimizer.set_thresholds(**thresholds)
     
@@ -252,7 +250,7 @@ class AssistantVocal:
         """Retourne le statut de performance."""
         return self.performance_optimizer.get_resource_usage()
 
-    def use_custom_prompt(self, prompt_id: str, input_text: str, custom_vars: Dict = None) -> str:
+    def use_custom_prompt(self, prompt_id: str, input_text: str, custom_vars: Optional[Dict] = None) -> str:
         """
         Utilise un prompt personnalisé.
         """
@@ -283,19 +281,23 @@ class AssistantVocal:
             return f"[ERREUR] {str(e)}"
 
     # Méthodes d'adaptation pour ConsoleView
-    def add_user_message(self, user_input: str):
+    def add_user_message(self, user_input: str) -> None:
+        """Ajoute un message utilisateur à l'historique."""
         self.conversation_service.add_message("user", user_input)
 
     def generate_response(self) -> str:
+        """Génère une réponse et l'ajoute à l'historique."""
         messages = self.conversation_service.get_history()
         response = self.llm_service.generate_response(messages)
         self.conversation_service.add_message("assistant", response)
         return response
 
-    def play_tts_response(self, text: str):
+    def play_tts_response(self, text: str) -> None:
+        """Joue une réponse via TTS."""
         self.speak_response(text)
 
-    def get_history(self):
+    def get_history(self) -> list:
+        """Retourne l'historique de conversation."""
         return self.conversation_service.get_history()
 
     def process_user_message(self, message: str) -> str:
@@ -317,10 +319,12 @@ class AssistantVocal:
             self.conversation_service.add_message("assistant", error_response)
             return error_response
 
-    def get_conversation_history(self):
+    def get_conversation_history(self) -> list:
+        """Retourne l'historique complet de la conversation."""
         return self.conversation_service.get_history()
 
-    def clear_conversation(self):
+    def clear_conversation(self) -> None:
+        """Efface l'historique de conversation."""
         self.conversation_service.clear_history()
         logger.info("Conversation effacée")
 
@@ -363,7 +367,7 @@ class AssistantVocal:
             logger.error(f"❌ Erreur dans speak_response: {e}")
             return False
 
-    def start_console_interface(self):
+    def start_console_interface(self) -> bool:
         """Démarre l'interface console."""
         try:
             logger.info("🖥️  Démarrage interface console...")
@@ -386,7 +390,7 @@ class AssistantVocal:
             logger.error(f"Erreur démarrage interface console: {e}")
             return False
 
-    def start_web_interface(self):
+    def start_web_interface(self) -> bool:
         """Démarre l'interface web Gradio."""
         try:
             logger.info("🌐 Démarrage interface web...")
@@ -419,7 +423,7 @@ class AssistantVocal:
             return False
 
     @safe_run("AssistantVocal")
-    def run(self):
+    def run(self) -> None:
         """Démarre l'assistant vocal."""
         logger.info("🚀 Démarrage de l'assistant vocal")
         
@@ -483,7 +487,6 @@ class AssistantVocal:
             logger.info("🛑 Arrêt manuel par l'utilisateur")
         except Exception as e:
             logger.critical(f"💥 Erreur fatale dans run(): {e}")
-            import traceback
             logger.error(traceback.format_exc())
         finally:
             self._cleanup()
