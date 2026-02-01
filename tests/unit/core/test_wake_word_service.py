@@ -6,7 +6,7 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.services.wake_word_service import WakeWordService, IWakeWordAdapter
+from src.services.wake_word_service import IWakeWordService, IWakeWordAdapter
 
 class MockWakeWordAdapter(IWakeWordAdapter):
     """Adaptateur mock pour les tests"""
@@ -74,17 +74,6 @@ class TestWakeWordService(unittest.TestCase):
         devices = self.wake_word_service.get_audio_devices()
         self.assertTrue(self.mock_adapter.get_audio_devices_called)
         self.assertEqual(devices, [(0, "Test Microphone")])
-
-    def test_create_with_porcupine(self):
-        """Test de la factory method create_with_porcupine"""
-        with patch('src.core.wake_word_service.PorcupineWakeWordAdapter') as mock_porcupine:
-            mock_adapter_instance = MagicMock()
-            mock_porcupine.return_value = mock_adapter_instance
-            
-            service = WakeWordService.create_with_porcupine()
-            
-            self.assertIsInstance(service, WakeWordService)
-            mock_porcupine.assert_called_once()
 
     def test_create_with_simulation(self):
         """Test de la factory method create_with_simulation"""

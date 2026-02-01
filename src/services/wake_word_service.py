@@ -1,141 +1,153 @@
+# src/services/wake_word_service.py
+"""
+Wake‑word detection service.
+
+- Utilise Vosk pour la reconnaissance en temps réel.
+- Expose deux callbacks :
+    * `wake_word_callback` – appelé dès que le mot‑clé est détecté.
+    * `audio_callback`     – appelé avec le chunk audio capturé.
+- Le service tourne dans un thread séparé pour ne pas bloquer le reste de l’application.
+"""
+
+import queue
 import threading
 import time
+import logging
 from typing import Callable, Optional
-import os
-import numpy as np
-from abc import ABC, abstractmethod
-from src.utils.logger import logger
-from src.config.config import config
-from src.interfaces.microphone_checker import Microphone_Checker
-from src.adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
 
-class IWakeWordAdapter(ABC):
-    """Interface pour les adaptateurs de détection de mot-clé."""
-    
-    @abstractmethod
-    def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
-        """Démarre la détection avec les callbacks fournis."""
-        pass
-    
-    @abstractmethod
-    def stop(self) -> None:
-        """Arrête la détection."""
-        pass
-    
-    @abstractmethod
-    def get_audio_devices(self) -> list:
-        """Retourne la liste des périphériques audio disponibles."""
-        pass
+import pyaudio
+from vosk import Model, KaldiRecognizer
 
-class SimulatedWakeWordAdapter(IWakeWordAdapter):
-    """Adaptateur simulé pour le développement."""
-    
-    def __init__(self):
-        self.is_active = False
-        self.detection_thread: Optional[threading.Thread] = None
-        self._on_detect: Optional[Callable] = None
-        self._on_audio: Optional[Callable] = None
-        logger.info("SimulatedWakeWordAdapter initialisé")
-    
-    def start(self, device_index: int, on_detect: Callable, on_audio: Callable) -> bool:
-        """Démarre la détection simulée."""
-        self._on_detect = on_detect
-        self._on_audio = on_audio
-        self.is_active = True
-        
-        def detection_loop():
-            logger.info("🔍 Détection simulée démarrée")
-            counter = 0
-            while self.is_active:
-                time.sleep(2)  # Simulation
-                counter += 1
-                if counter % 3 == 0:  # Toutes les 6 secondes
-                    logger.debug("🔍 Simulation détection mot-clé")
-                    if self._on_detect:
-                        self._on_detect()
-            
-            logger.info("⏹️ Détection simulée terminée")
-        
-        self.detection_thread = threading.Thread(target=detection_loop, daemon=True)
-        self.detection_thread.start()
-        return True
-    
-    def stop(self) -> None:
-        """Arrête la détection simulée."""
-        self.is_active = False
-        logger.info("Détection simulée arrêtée")
-    
-    def get_audio_devices(self) -> list:
-        """Retourne la liste des périphériques audio disponibles."""
-        return [(0, "Microphone par défaut"), (1, "Microphone USB")]
+logger = logging.getLogger(__name__)
 
 class WakeWordService:
-    """Service de détection du mot-clé avec injection de dépendance."""
-    
-    def __init__(self, wake_word_adapter: IWakeWordAdapter):
-        self.wake_word_adapter = wake_word_adapter
-        self.wake_word_callback: Optional[Callable] = None
-        self.audio_callback: Optional[Callable] = None
-        self._is_started = False
-        logger.info("WakeWordService initialisé avec adaptateur")
-    
-    @classmethod
-    def create_with_vosk(cls, model_path: str = None):
-        """Factory method pour créer un WakeWordService avec Vosk."""
-        if model_path is None:
-            model_path = getattr(config, 'VOSK_MODEL_PATH', './models/vosk-model-small-fr')
-        
-        adapter = VoskWakeWordAdapter(model_path)
-        return cls(adapter)
-    
-    @classmethod
-    def create_with_simulation(cls):
-        """Factory method pour créer un WakeWordService avec simulation."""
-        adapter = SimulatedWakeWordAdapter()
-        return cls(adapter)
-    
-    def set_wake_word_callback(self, callback: Callable):
-        """Définit le callback pour la détection du mot-clé."""
-        self.wake_word_callback = callback
-        logger.debug("Callback wake word défini")
-    
-    def set_audio_callback(self, callback: Callable):
-        """Définit le callback pour l'audio capturé."""
-        self.audio_callback = callback
-        logger.debug("Callback audio défini")
-    
-    def start_detection(self, device_index: int = 0):
-        """Démarre la détection du mot-clé."""
-        if self._is_started:
-            logger.warning("La détection est déjà démarrée.")
+    """
+    Wake‑word detection service.
+
+    Parameters
+    ----------
+    wake_word : str
+        Mot‑clé à détecter (ex. "mario").
+    model_path : str
+        Chemin vers le modèle Vosk (ex. "vosk-model-small-fr-0.22").
+    sample_rate : int, default 16000
+        Fréquence d’échantillonnage du microphone.
+    chunk_size : int, default 4000
+        Taille du chunk audio (en échantillons) envoyé au recognizer.
+    """
+
+    def __init__(
+        self,
+        wake_word: str = "mario",
+        model_path: str = "vosk-model-small-fr-0.22",
+        sample_rate: int = 16000,
+        chunk_size: int = 4000,
+    ):
+        self.wake_word = wake_word.lower()
+        self.sample_rate = sample_rate
+        self.chunk_size = chunk_size
+
+        # Callbacks – à définir par l’utilisateur
+        self._wake_word_callback: Optional[Callable[[], None]] = None
+        self._audio_callback: Optional[Callable[[bytes], None]] = None
+
+        # Threading
+        self._running = False
+        self._thread: Optional[threading.Thread] = None
+
+        # Vosk
+        try:
+            self.model = Model(model_path)
+            self.recognizer = KaldiRecognizer(self.model, self.sample_rate)
+        except Exception as e:
+            logger.exception(f"Impossible de charger le modèle Vosk ({model_path}): {e}")
+            raise
+
+        # PyAudio
+        self.pyaudio_instance = pyaudio.PyAudio()
+        self.stream = None
+
+    # ------------------------------------------------------------------
+    # Callbacks
+    # ------------------------------------------------------------------
+    def set_wake_word_callback(self, callback: Callable[[], None]) -> None:
+        """Définit la fonction appelée quand le mot‑clé est détecté."""
+        self._wake_word_callback = callback
+
+    def set_audio_callback(self, callback: Callable[[bytes], None]) -> None:
+        """Définit la fonction appelée avec le chunk audio capturé."""
+        self._audio_callback = callback
+
+    # ------------------------------------------------------------------
+    # Démarrage / arrêt
+    # ------------------------------------------------------------------
+    def start_detection(self, microphone_index: int = 0) -> None:
+        """Démarre la détection en arrière‑plan."""
+        if self._running:
+            logger.warning("WakeWordService déjà en cours d’exécution")
             return
 
-        logger.info(f"Démarrage détection wake word sur device {device_index}")
-        
-        def on_detect_wrapper():
-            if self.wake_word_callback:
-                self.wake_word_callback()
-        
-        def on_audio_wrapper(audio_data):
-            if self.audio_callback:
-                self.audio_callback(audio_data)
-        
-        success = self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
-        
-        if not success:
-            logger.warning("Échec du démarrage de la détection, tentative avec simulation")
-            self.wake_word_adapter.stop()
-            simulated_adapter = SimulatedWakeWordAdapter()
-            self.wake_word_adapter = simulated_adapter
-            self.wake_word_adapter.start(device_index, on_detect_wrapper, on_audio_wrapper)
+        self._running = True
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+        logger.info("WakeWordService démarré")
 
-        self._is_started = True
-    
-    def stop_detection(self):
-        """Arrête la détection du mot-clé."""
-        self.wake_word_adapter.stop()
-        self._is_started = False
-    
-    def get_audio_devices(self) -> list:
-        """Retourne la liste des périphériques audio disponibles."""
-        return self.wake_word_adapter.get_audio_devices()
+    def stop_detection(self) -> None:
+        """Arrête la détection."""
+        self._running = False
+        if self._thread:
+            self._thread.join(timeout=2.0)
+        if self.stream:
+            self.stream.stop_stream()
+            self.stream.close()
+        self.pyaudio_instance.terminate()
+        logger.info("WakeWordService arrêté")
+
+    # ------------------------------------------------------------------
+    # Boucle principale
+    # ------------------------------------------------------------------
+    def _run(self) -> None:
+        """Boucle de capture audio et de reconnaissance."""
+        try:
+            self.stream = self.pyaudio_instance.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=self.sample_rate,
+                input=True,
+                frames_per_buffer=self.chunk_size,
+            )
+        except Exception as e:
+            logger.exception(f"Impossible d’ouvrir le microphone: {e}")
+            self._running = False
+            return
+
+        while self._running:
+            try:
+                data = self.stream.read(self.chunk_size, exception_on_overflow=False)
+                if self._audio_callback:
+                    # On transmet le chunk brut (bytes) au callback
+                    self._audio_callback(data)
+
+                if self.recognizer.AcceptWaveform(data):
+                    result = self.recognizer.Result()
+                    # Le résultat est un JSON; on ne s’intéresse qu’au champ "text"
+                    import json
+
+                    text = json.loads(result).get("text", "").lower()
+                    if self.wake_word in text:
+                        logger.info(f"Mot‑clé détecté : '{self.wake_word}'")
+                        if self._wake_word_callback:
+                            self._wake_word_callback()
+            except Exception as e:
+                logger.exception(f"Erreur dans la boucle de détection : {e}")
+                time.sleep(0.1)  # éviter un loop trop rapide en cas d’erreur
+
+    # ------------------------------------------------------------------
+    # Contexte (facultatif)
+    # ------------------------------------------------------------------
+    def __enter__(self):
+        self.start_detection()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.stop_detection()

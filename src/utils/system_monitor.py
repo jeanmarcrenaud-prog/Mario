@@ -262,7 +262,7 @@ class SystemMonitor:
 
             modules_to_check = [
                 "gradio", "numpy", "pyaudio", "torch", "whisper",
-                "webrtcvad", "psutil", "librosa", "piper", "pvporcupine",
+                "webrtcvad", "psutil", "librosa", "piper",
                 "openai", "faster_whisper"
             ]
 

@@ -20,7 +20,7 @@ from src.services.llm_service import LLMService
 from src.services.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
-from src.interfaces.microphone_checker import Microphone_Checker
+from src.interfaces.microphone_checker import MicrophoneChecker
 # Vues
 from src.views.web_interface_gradio import GradioWebInterface
 
@@ -52,7 +52,7 @@ def create_assistant() -> AssistantVocal:
         
     # 3. Services avec injection de dépendances
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    # ✅ Utiliser Vosk au lieu de Porcupine
+    # ✅ Utiliser Vosk au lieu de  Vosk pour la détection du mot-clé
     wake_word_service = WakeWordService.create_with_vosk()
     speech_recognition_service = create_speech_recognition_service_prod()
     llm_service = LLMService.create_with_ollama(settings.llm_model)

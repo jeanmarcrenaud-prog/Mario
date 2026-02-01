@@ -12,7 +12,6 @@ class Settings:
     web_port: int = 7860
     sample_rate: int = 16000
     openai_api_key: str = ""
-    porcupine_access_key: str = ""
 
     @classmethod
     def from_config(cls, config):
@@ -24,5 +23,4 @@ class Settings:
             web_port=getattr(config, 'WEB_PORT', 7860),
             sample_rate=getattr(config, 'SAMPLE_RATE', 16000),
             openai_api_key=getattr(config, 'OPENAI_API_KEY', ''),
-            porcupine_access_key=getattr(config, 'PORCUPINE_ACCESS_KEY', ''),
         )
