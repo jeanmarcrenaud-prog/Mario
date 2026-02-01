@@ -20,7 +20,7 @@ from src.services.llm_service import LLMService
 from src.services.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
-from src.services.microphone_checker import MicrophoneChecker
+from src.interfaces.microphone_checker import Microphone_Checker
 # Vues
 from src.views.web_interface_gradio import GradioWebInterface
 

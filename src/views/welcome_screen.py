@@ -3,7 +3,8 @@
 Écran d'accueil et menu principal de l'application.
 """
 
-from src.utils.system_monitor import SystemMonitor
+# Explicitly import the rich SystemMonitor class, not the simple one
+from src.utils.system_monitor import SystemMonitor  # This imports the rich one directly
 from src.core.app_factory import create_assistant, create_assistant_with_simulation, create_minimal_assistant
 from src.utils.logger import logger
 
@@ -29,18 +30,18 @@ def show_welcome_screen(console):
 [yellow]Version 1.0.0[/yellow]
 """, expand=False))
 
-def show_system_info(console):
-    """Affiche les informations système avec spinner."""
-    monitor = SystemMonitor()  # Instanciation de SystemMonitor
-    with Progress(
-        SpinnerColumn(),
-        TextColumn("[progress.description]{task.description}"),
-        transient=True,
-    ) as progress:
-        progress.add_task(description="📊 Analyse du système en cours...", total=None)
-        system_info_text = monitor.get_system_info_text()  # Appel de la méthode sur l'instance
-    console.print("\n[bold cyan]📋 Configuration Système :[/bold cyan]")
-    console.print(system_info_text)
+def show_system_info(console: Console) -> None:
+    """Affiche les informations système détaillées."""
+    try:
+        # Now this will call the correct static method
+        system_info_text = SystemMonitor.get_system_info_text()
+        
+        console.print("\n[bold blue]📊 Informations Système[/bold blue]")
+        console.print(system_info_text)
+        
+    except Exception as e:
+        logger.error(f"Erreur affichage infos système: {e}")
+        console.print(f"[red]❌ Erreur: {e}[/red]")
 
 def show_main_menu(console):
     """Affiche le menu principal et retourne le choix."""

@@ -1,8 +1,8 @@
 from __future__ import annotations
 import numpy as np
 from typing import Any
-from ..interfaces.speech_recognition import ISpeechRecognitionAdapter
-from ..utils.logger import logger
+from src.interfaces.speech_recognition import ISpeechRecognitionAdapter
+from src.utils.logger import logger
 
 
 class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):

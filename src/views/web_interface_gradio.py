@@ -8,7 +8,7 @@ import threading
 import time
 import json
 from typing import List, Dict, Any, Optional, Tuple
-from ..utils.logger import logger
+from src.utils.logger import logger
 
 class GradioWebInterface:
     """

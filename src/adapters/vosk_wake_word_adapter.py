@@ -7,8 +7,8 @@ from typing import Callable, Optional
 import pyaudio
 from vosk import KaldiRecognizer, Model
 
-from ..services.microphone_checker import MicrophoneChecker
-from ..interfaces.wake_word import IWakeWordAdapter
+from src.interfaces.microphone_checker import Microphone_Checker
+from src.interfaces.wake_word import IWakeWordAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -27,13 +27,13 @@ class VoskWakeWordAdapter(IWakeWordAdapter):
     def __init__(
         self,
         model_path: str,
-        microphone_checker: Optional[MicrophoneChecker] = None,
+        microphone_checker: Optional[Microphone_Checker] = None,
     ) -> None:
         """Initialise l'adaptateur Vosk.
         
         Args:
             model_path: Chemin vers le dossier du modele Vosk
-            microphone_checker: Instance de MicrophoneChecker
+            microphone_checker: Instance de Microphone_Checker
         """
         try:
             self._model = Model(model_path)
@@ -41,7 +41,7 @@ class VoskWakeWordAdapter(IWakeWordAdapter):
             logger.error(f"Impossible de charger le modele Vosk: {e}")
             raise
 
-        self._mic_checker = microphone_checker or MicrophoneChecker()
+        self._mic_checker = microphone_checker or Microphone_Checker()
         self._pyaudio = pyaudio.PyAudio()
         self._stream: Optional[pyaudio.Stream] = None
 
