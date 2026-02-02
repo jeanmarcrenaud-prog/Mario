@@ -1,5 +1,6 @@
 import sys
 import traceback
+import threading
 from typing import Callable, Optional
 
 from rich.console import Console
@@ -11,6 +12,11 @@ from src.core.app_factory import create_assistant
 from src.views.welcome_screen import show_welcome_screen, show_main_menu, show_system_info
 from src.utils.setup import configure_logger_with_config
 
+# ────────────────────────────────────────────────────────────────────────────────
+# 1️⃣  Import de l’interface Gradio
+# ────────────────────────────────────────────────────────────────────────────────
+from src.views.web_interface_gradio import GradioWebInterface
+# -------------------------------------------------------------------------------
 
 def _install_global_exception_handler(console: Console) -> None:
     def global_exception_handler(exc_type, exc_value, exc_traceback):
@@ -38,10 +44,23 @@ def _should_return_to_menu(console: Console, prompt: str) -> bool:
 
 
 def _run_assistant_loop(console: Console) -> bool:
+    """
+    Crée l’assistant vocal et lance l’interface Gradio (option 1 du menu).
+    """
     assistant = create_assistant()
     if not assistant:
         console.print("[red]❌ Erreur lors de la création de l'assistant[/red]")
         return False
+
+    # ────────────────────────────────────────────────────────────────────────────────
+    # 2️⃣  Lancement de l’interface Gradio dans un thread séparé
+    # ────────────────────────────────────────────────────────────────────────────────
+    web = GradioWebInterface(assistant)
+    threading.Thread(target=web.launch, daemon=True).start()
+    console.print(
+        "[green]✅ Interface Gradio lancée sur http://localhost:7860[/green]"
+    )
+    # -------------------------------------------------------------------------------
 
     console.print("\n[bold green]🤖 Assistant démarré ![/bold green]")
     console.print("[italic]Appuyez sur Ctrl+C pour quitter[/italic]\n")

@@ -74,6 +74,11 @@ class MicrophoneChecker:
             logger.warning(f"Microphone non disponible (index={self.index}): {e}")
             return False
 
+    # ---- Nouvelle méthode (alias) ----
+    def is_microphone_available(self) -> bool:
+        """Alias compatible avec le code existant."""
+        return self.is_device_available()
+
     # ------------------------------------------------------------------
     # 3️⃣  Test de capture en temps réel
     # ------------------------------------------------------------------

@@ -12,6 +12,7 @@ Wake‑word detection service.
 import queue
 import threading
 import time
+import os
 import logging
 from typing import Callable, Optional
 
@@ -65,7 +66,7 @@ class WakeWordService:
 
         # PyAudio
         self.pyaudio_instance = pyaudio.PyAudio()
-        self.stream = None
+        self.microphone_index: int = 0  # à modifier via la fabrique ou directement
 
     # ------------------------------------------------------------------
     # Callbacks
@@ -87,6 +88,7 @@ class WakeWordService:
             logger.warning("WakeWordService déjà en cours d’exécution")
             return
 
+        self.microphone_index = microphone_index
         self._running = True
         self._thread = threading.Thread(target=self._run, daemon=True)
         self._thread.start()
@@ -114,6 +116,7 @@ class WakeWordService:
                 channels=1,
                 rate=self.sample_rate,
                 input=True,
+                input_device_index=self.microphone_index,
                 frames_per_buffer=self.chunk_size,
             )
         except Exception as e:
@@ -151,3 +154,46 @@ class WakeWordService:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.stop_detection()
+
+    # ------------------------------------------------------------------
+    # Factory pour Vosk
+    # ------------------------------------------------------------------
+    @staticmethod
+    def create_with_vosk(
+        wake_word: str = "mario",
+        model_path: str = os.path.join("models", "vosk-model-small-fr-0.22"),
+        sample_rate: int = 16000,
+        chunk_size: int = 4000,
+        microphone_index: int = 0,
+    ) -> "WakeWordService":
+        """
+        Crée un WakeWordService configuré pour Vosk.
+
+        Parameters
+        ----------
+        wake_word : str
+            Mot‑clé à détecter.
+        model_path : str
+            Chemin vers le modèle Vosk (ex. "vosk-model-small-fr-0.22").
+        sample_rate : int
+            Fréquence d’échantillonnage (ex. 16000 Hz).
+        chunk_size : int
+            Taille du chunk audio (en échantillons).
+        microphone_index : int
+            Index du périphérique d’entrée.
+
+        Returns
+        -------
+        WakeWordService
+            Instance prête à être utilisée.
+        """
+        # Instanciation
+        service = WakeWordService(
+            wake_word=wake_word,
+            model_path=model_path,
+            sample_rate=sample_rate,
+            chunk_size=chunk_size,
+        )
+        # On fixe l’index du microphone (le stream sera ouvert avec cet index)
+        service.microphone_index = microphone_index
+        return service

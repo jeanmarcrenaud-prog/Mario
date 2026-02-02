@@ -9,6 +9,7 @@ import time
 import json
 from typing import List, Dict, Any, Optional, Tuple
 from src.utils.logger import logger
+from src.services.audio_controller import AudioController
 
 class GradioWebInterface:
     """
@@ -1266,52 +1267,42 @@ Résumé:
     # === Méthodes audio ===
     
     def _get_microphone_choices(self) -> List[str]:
-        """Retourne la liste des microphones filtrés."""
         try:
-            return self.audio_controller.get_microphones()
+            return [f"{d.index}: {d.name}" for d in self.audio_controller.get_microphones()]
         except Exception:
-            return []  # Return an empty list as a fallback
-    
+            return []
+
     def _get_audio_output_choices(self) -> List[str]:
-        """Retourne la liste des sorties audio."""
         try:
             import pyaudio
             p = pyaudio.PyAudio()
-            
             filtered = []
             for i in range(min(10, p.get_device_count())):
                 device_info = p.get_device_info_by_index(i)
                 name = device_info['name'].lower()
-                
                 if device_info['maxOutputChannels'] > 0:
-                    if any(virtual in name for virtual in ['virtual', 'voicemeeter', 'cable', 'loopback']):
+                    if any(v in name for v in ['virtual', 'voicemeeter', 'cable', 'loopback']):
                         continue
-                        
-                    if any(physical in name for physical in ['speakers', 'headphone', 'headset', 'haut-parleurs', 'casque']):
+                    if any(p in name for p in ['speakers', 'headphone', 'headset', 'haut-parleurs', 'casque']):
                         filtered.append((i, device_info['name']))
-            
             p.terminate()
-            
             if len(filtered) > 4:
                 filtered = filtered[:4]
-                
             if len(filtered) < 2:
                 filtered = [(0, "Haut-parleurs par défaut"), (1, "Casque audio")]
-                
             return [f"{idx}: {name}" for idx, name in filtered]
-            
         except Exception as e:
             logger.error(f"Erreur sorties audio: {e}")
             return ["0: Haut-parleurs par défaut", "1: Casque audio"]
-    
+
     def _get_default_microphone(self) -> str:
-        """Retourne le microphone par défaut."""
-        return self.audio_controller.get_default_microphone()
-    
+        mic = self.audio_controller.get_default_microphone()
+        return f"{mic.index}: {mic.name}" if mic else ""
+
     def _get_default_audio_output(self) -> str:
-        """Retourne la sortie audio par défaut."""
-        return self.audio_controller.get_default_speaker()
-    
+        out = self.audio_controller.get_default_speaker()
+        return f"{out.index}: {out.name}" if out else ""
+        
     def _get_all_audio_devices(self, device_type: str) -> List[str]:
         """Retourne tous les périphériques."""
         try:
