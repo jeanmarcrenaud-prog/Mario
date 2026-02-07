@@ -1,0 +1,39 @@
+name: Ollama CI
+
+on:
+  push:
+    branches: [main]          # ou votre branche de production
+  pull_request:
+
+jobs:
+  ollama-test:
+    runs-on: self-hosted      # <-- utilise votre runner local
+    # Si vous avez plusieurs runners, vous pouvez cibler par label
+    # labels: [windows, ollama]   # (décommentez si vous avez ajouté ce label)
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Start Ollama (Docker)
+        run: |
+          # Si Docker n’est pas déjà en cours d’exécution, démarrez‑le
+          docker run -d --name ollama \
+            -p 11434:11434 \
+            --gpus all \
+            ollama/ollama
+          # Attendre que le serveur soit prêt
+          sleep 10
+
+      - name: Pull model
+        run: |
+          curl -s -X POST http://localhost:11434/api/pull \
+            -d '{"name":"llama2"}' | jq
+
+      - name: Test chat
+        run: |
+          curl -s -X POST http://localhost:11434/api/chat \
+            -H "Content-Type: application/json" \
+            -d '{"model":"llama2","messages":[{"role":"user","content":"Bonjour"}]}' | jq
+
+      - name: Stop Ollama
+        run: docker stop ollama
