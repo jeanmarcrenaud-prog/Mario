@@ -5,7 +5,11 @@
 
 # Explicitly import the rich SystemMonitor class, not the simple one
 from src.utils.system_monitor import SystemMonitor  # This imports the rich one directly
-from src.core.app_factory import create_assistant, create_assistant_with_simulation, create_minimal_assistant
+from src.core.app_factory import (
+    create_assistant,
+    create_assistant_with_simulation,
+    create_minimal_assistant,
+)
 from src.utils.logger import logger
 
 # ✅ Import Rich pour l'interface interactive

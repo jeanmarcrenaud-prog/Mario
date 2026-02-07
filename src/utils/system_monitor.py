@@ -5,13 +5,15 @@ import importlib
 import importlib.metadata
 from datetime import datetime
 from typing import Dict, List, Optional
+from io import StringIO
 
 # ✅ Import Rich
-from rich.console import Console
+from rich.console import Console as RichConsole
 from rich.table import Table
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
 from rich import box
+from rich.style import Style
 
 from .logger import logger  # Import relatif
 
@@ -23,6 +25,14 @@ class SystemMonitor:
         self.console = Console()  # ✅ Console Rich
         logger.info("SystemMonitor initialisé")
     
+    def _color_value(value: float, thresholds=(80, 50)) -> Style:
+        """Return a Rich style based on usage thresholds."""
+        if value > thresholds[0]:
+            return Style(color="red", bold=True)
+        if value > thresholds[1]:
+            return Style(color="yellow")
+        return Style(color="green")
+        
     def get_cpu_usage(self) -> float:
         """Récupère l'utilisation du CPU."""
         return psutil.cpu_percent(interval=1)
@@ -179,117 +189,116 @@ class SystemMonitor:
 
     @staticmethod
     def get_system_info_text() -> str:
-        """Retourne les informations système sous forme de texte détaillé avec Rich."""
-        try:
-            # ✅ Création d'une console virtuelle pour capturer la sortie
-            from io import StringIO
-            from rich.console import Console as RichConsole
-            
-            string_buffer = StringIO()
-            rich_console = RichConsole(file=string_buffer, force_terminal=False)
-            
-            # ✅ Panel principal
-            rich_console.print(Panel("[bold blue]📊 Informations Système[/bold blue]", expand=False))
+        """Return a Rich‑formatted string with all system stats."""
+        buf = StringIO()
+        console = RichConsole(file=buf, force_terminal=False)
 
-            # ✅ Tableau des infos système
-            sys_table = Table(title="Système", box=box.SIMPLE)
-            sys_table.add_column("Composant", style="cyan", no_wrap=True)
-            sys_table.add_column("Détails", style="magenta")
+        # ---------- Header ----------
+        console.print(Panel("[bold blue]📊 Informations Système[/bold blue]", expand=False))
 
-            sys_table.add_row("Date/Heure", datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
-            sys_table.add_row("OS", f"{platform.system()} {platform.release()}")
-            sys_table.add_row("Python", f"{platform.python_version()} ({platform.architecture()[0]})")
-            sys_table.add_row("CPU", platform.processor() or "Inconnu")
-            sys_table.add_row("Cœurs physiques", str(psutil.cpu_count(logical=False) or "N/A"))
-            sys_table.add_row("Cœurs logiques", str(psutil.cpu_count(logical=True) or "N/A"))
-            
-            if psutil.cpu_freq():
-                sys_table.add_row("Fréquence CPU", f"{psutil.cpu_freq().current:.1f} MHz")
+        # ---------- Basic system ----------
+        sys_table = Table(title="Système", box=box.SIMPLE)
+        sys_table.add_column("Composant", style="cyan", no_wrap=True)
+        sys_table.add_column("Détails", style="magenta")
 
-            rich_console.print(sys_table)
+        sys_table.add_row("Date/Heure", datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        sys_table.add_row("OS", f"{platform.system()} {platform.release()}")
+        sys_table.add_row("Python", f"{platform.python_version()} ({platform.architecture()[0]})")
+        sys_table.add_row("CPU", platform.processor() or "Inconnu")
+        sys_table.add_row("Cœurs physiques", str(psutil.cpu_count(logical=False) or "N/A"))
+        sys_table.add_row("Cœurs logiques", str(psutil.cpu_count(logical=True) or "N/A"))
+        if freq := psutil.cpu_freq():
+            sys_table.add_row("Fréquence CPU", f"{freq.current:.1f} MHz")
+        console.print(sys_table)
 
-            # ✅ Mémoire
-            vm = psutil.virtual_memory()
-            mem_table = Table(title="Mémoire", box=box.SIMPLE)
-            mem_table.add_column("Type", style="cyan")
-            mem_table.add_column("Valeur", style="green")
-            mem_table.add_row("Totale", f"{vm.total / 1024**3:.2f} GB")
-            mem_table.add_row("Utilisée", f"{vm.used / 1024**3:.2f} GB")
-            mem_table.add_row("Disponible", f"{vm.available / 1024**3:.2f} GB ({vm.percent:.1f}%)")
-            rich_console.print(mem_table)
+        # ---------- Memory ----------
+        vm = psutil.virtual_memory()
+        mem_table = Table(title="Mémoire", box=box.SIMPLE)
+        mem_table.add_column("Type", style="cyan")
+        mem_table.add_column("Valeur", style="green")
+        mem_table.add_row("Totale", f"{vm.total / 1024**3:.2f} GB")
+        mem_table.add_row("Utilisée", f"{vm.used / 1024**3:.2f} GB")
+        mem_table.add_row(
+            "Disponible",
+            f"{vm.available / 1024**3:.2f} GB ({vm.percent:.1f}%)",
+        )
+        console.print(mem_table)
 
-            # ✅ Disques
-            disk_table = Table(title="Disques", box=box.SIMPLE)
-            disk_table.add_column("Point de montage", style="cyan")
-            disk_table.add_column("Utilisation", style="yellow")
+        # ---------- Disques ----------
+        disk_table = Table(title="Disques", box=box.SIMPLE)
+        disk_table.add_column("Point de montage", style="cyan")
+        disk_table.add_column("Utilisation", style="yellow")
+        for part in psutil.disk_partitions():
             try:
-                for partition in psutil.disk_partitions():
-                    try:
-                        usage = psutil.disk_usage(partition.mountpoint)
-                        percent = (usage.used / usage.total) * 100
-                        disk_table.add_row(
-                            partition.mountpoint,
-                            f"{usage.used / 1024**3:.1f}/{usage.total / 1024**3:.1f} GB ({percent:.1f}%)"
-                        )
-                    except Exception:
-                        continue
+                usage = psutil.disk_usage(part.mountpoint)
+                percent = usage.percent
+                disk_table.add_row(
+                    part.mountpoint,
+                    f"{usage.used / 1024**3:.1f}/{usage.total / 1024**3:.1f} GB ({percent:.1f}%)",
+                )
             except Exception:
-                disk_table.add_row("Erreur", "Impossible de lire les disques")
-            rich_console.print(disk_table)
+                continue
+        console.print(disk_table)
 
-            # ✅ GPU
-            gpu_table = Table(title="GPU", box=box.SIMPLE)
-            gpu_table.add_column("Nom", style="cyan")
-            gpu_table.add_column("VRAM", style="blue")
+        # ---------- GPU ----------
+        gpu_table = Table(title="GPU", box=box.SIMPLE)
+        gpu_table.add_column("Nom", style="cyan")
+        gpu_table.add_column("VRAM", style="blue")
+        gpu_table.add_column("Utilisation", style="magenta")
+        if torch.cuda.is_available():
+            for i in range(torch.cuda.device_count()):
+                props = torch.cuda.get_device_properties(i)
+                total_mb = props.total_memory / (1024**2)
+                used_mb = torch.cuda.memory_allocated(i) / (1024**2)
+                # Torch does not expose utilisation directly; we can approximate
+                gpu_table.add_row(
+                    torch.cuda.get_device_name(i),
+                    f"{total_mb:.0f} MB",
+                    f"{used_mb:.0f} MB ({used_mb/total_mb*100:.1f}%)",
+                )
+        else:
+            gpu_table.add_row("Aucun GPU", "CUDA non disponible", "-")
+        console.print(gpu_table)
+
+        # ---------- Modules ----------
+        mod_table = Table(title="Modules", box=box.SIMPLE)
+        mod_table.add_column("Module", style="cyan")
+        mod_table.add_column("Version", style="green")
+        # Whitelist of modules we care about
+        whitelist = [
+            "gradio",
+            "numpy",
+            "pyaudio",
+            "torch",
+            "whisper",
+            "webrtcvad",
+            "psutil",
+            "librosa",
+            "piper-tts",
+            "openai",
+            "faster_whisper",
+        ]
+        for mod in whitelist:
             try:
-                if torch.cuda.is_available():
-                    for i in range(torch.cuda.device_count()):
-                        props = torch.cuda.get_device_properties(i)
-                        gpu_table.add_row(
-                            torch.cuda.get_device_name(i),
-                            f"{props.total_memory / 1024**2:.0f} MB"
-                        )
+                if mod == "piper-tts":
+                    ver = importlib.metadata.version("piper-tts")
                 else:
-                    gpu_table.add_row("Aucun GPU", "CUDA non disponible")
-            except Exception as e:
-                gpu_table.add_row("Erreur", str(e))
-            rich_console.print(gpu_table)
+                    module = importlib.import_module(mod)
+                    ver = getattr(module, "__version__", "N/A")
+            except Exception:
+                ver = "[red]Non installé[/red]"
+            mod_table.add_row(mod, ver)
+        console.print(mod_table)
 
-            # ✅ Modules
-            modules_table = Table(title="Modules", box=box.SIMPLE)
-            modules_table.add_column("Module", style="cyan")
-            modules_table.add_column("Version", style="green")
+        # ---------- Uptime ----------
+        boot = datetime.fromtimestamp(psutil.boot_time())
+        uptime = datetime.now() - boot
+        console.print(
+            f"[bold]Uptime système:[/bold] {uptime.days}d {uptime.seconds//3600}h"
+        )
 
-            modules_to_check = [
-                "gradio", "numpy", "pyaudio", "torch", "whisper",
-                "webrtcvad", "psutil", "librosa", "piper",
-                "openai", "faster_whisper"
-            ]
-
-            for mod in modules_to_check:
-                try:
-                    if mod == "piper":
-                        ver = importlib.metadata.version("piper-tts")
-                    elif mod == "librosa":
-                        import librosa
-                        ver = librosa.__version__
-                    elif mod == "whisper":
-                        import whisper
-                        ver = getattr(whisper, '__version__', 'Installé')
-                    else:
-                        module = importlib.import_module(mod)
-                        ver = getattr(module, '__version__', 'Version non disponible')
-                except Exception:
-                    ver = "[red]Non installé[/red]"
-                modules_table.add_row(mod, ver)
-            rich_console.print(modules_table)
-
-            return string_buffer.getvalue()
-
-        except Exception as e:
-            logger.error(f"Erreur informations système avec Rich: {e}")
-            return f"❌ Erreur récupération infos système: {e}"
-
+        return buf.getvalue()
+    
     def get_system_stats(self) -> dict:
         """Retourne les statistiques système en temps réel."""
         try:

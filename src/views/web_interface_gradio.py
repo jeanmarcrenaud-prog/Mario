@@ -1300,8 +1300,18 @@ Résumé:
         return f"{mic.index}: {mic.name}" if mic else ""
 
     def _get_default_audio_output(self) -> str:
+        """Return the default audio output as a string.
+
+        The default value must be present in the list of choices; otherwise
+        Gradio will emit a warning.  We therefore validate the value and
+        fall back to the first available choice if necessary.
+        """
         out = self.audio_controller.get_default_speaker()
-        return f"{out.index}: {out.name}" if out else ""
+        default = f"{out.index}: {out.name}" if out else ""
+        choices = self._get_audio_output_choices()
+        if default not in choices:
+            default = choices[0] if choices else ""
+        return default
         
     def _get_all_audio_devices(self, device_type: str) -> List[str]:
         """Retourne tous les périphériques."""
