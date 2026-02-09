@@ -1,15 +1,33 @@
-# src/events/event_bus.py
-```
-"""Simple synchronous event bus for in‑process events."""
+"""Simple synchronous event bus for in-process events."""
+
 from collections import defaultdict
+from collections.abc import Callable
+from typing import Any
+
 
 class EventBus:
-    def __init__(self):
-        self._subs = defaultdict(list)
+    """In-process pub/sub event bus."""
 
-    def subscribe(self, event_name: str, fn):
+    def __init__(self) -> None:
+        self._subs: dict[str, list[Callable[[Any], None]]] = defaultdict(list)
+
+    def subscribe(self, event_name: str, fn: Callable[[Any], None]) -> None:
+        """Register a subscriber callback for an event name."""
         self._subs[event_name].append(fn)
 
-    def publish(self, event_name: str, payload=None):
-        for fn in self._subs.get(event_name, []):
+    def unsubscribe(self, event_name: str, fn: Callable[[Any], None]) -> None:
+        """Unregister a subscriber callback if it exists."""
+        subscribers = self._subs.get(event_name)
+        if not subscribers:
+            return
+        try:
+            subscribers.remove(fn)
+        except ValueError:
+            return
+        if not subscribers:
+            del self._subs[event_name]
+
+    def publish(self, event_name: str, payload: Any = None) -> None:
+        """Publish a payload to all subscribers in registration order."""
+        for fn in list(self._subs.get(event_name, [])):
             fn(payload)

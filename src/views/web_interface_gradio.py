@@ -35,7 +35,15 @@ class GradioWebInterface:
     
     def create_interface(self) -> gr.Blocks:
         """Crée l'interface Gradio complète."""
-        with gr.Blocks(title="Assistant Vocal Intelligent") as demo:
+        with gr.Blocks(
+            title="Assistant Vocal Intelligent",
+            theme=themes.Soft(
+                primary_hue="blue",
+                secondary_hue="slate",
+                neutral_hue="zinc",
+            ),
+            css=self._get_custom_css(),
+        ) as demo:
             self.demo = demo
             self._setup_state()
             self._create_layout()
@@ -65,11 +73,22 @@ class GradioWebInterface:
     
     def _create_header(self):
         """Crée l'en-tête de l'interface."""
-        with gr.Row():
-            gr.Markdown("""
-            # 🎤 Assistant Vocal Intelligent
-            ## Votre compagnon IA avec reconnaissance et synthèse vocale
-            """)
+        with gr.Column(elem_classes=["app-header"]):
+            gr.Markdown(
+                """
+                # 🎤 Assistant Vocal Intelligent
+                ### Votre copilote vocal pour converser, analyser et automatiser
+                """
+            )
+            gr.Markdown(
+                (
+                    '<div class="status-badges">'
+                    '<span class="badge">🟢 Interface prête</span>'
+                    '<span class="badge">🤖 IA connectable</span>'
+                    '<span class="badge">🔊 Audio configurable</span>'
+                    '</div>'
+                )
+            )
     
     def _create_control_panel(self):
         """Crée le panneau de contrôle."""
@@ -163,20 +182,70 @@ class GradioWebInterface:
     
     def _build_chat_interface(self):
         """Construit l'interface de chat."""
-        self.chatbot = gr.Chatbot(label="Discussion", height=400)
+        self.chatbot = gr.Chatbot(
+            label="Discussion",
+            height=460,
+            bubble_full_width=False,
+            show_copy_button=True,
+            avatar_images=(None, None),
+            elem_classes=["chat-surface"],
+        )
         
         with gr.Row():
             self.user_input = gr.Textbox(
                 label="Votre message",
                 placeholder="Tapez votre message ou parlez après avoir dit 'Mario'...",
                 scale=4,
-                lines=2
+                lines=2,
+                autofocus=True,
             )
             
             with gr.Column(scale=1):
                 self.send_btn = gr.Button("📤 Envoyer", variant="primary")
                 self.clear_btn = gr.Button("🧹 Effacer", size="sm")
                 self.refresh_chat_btn = gr.Button("🔄 Actualiser", size="sm")
+
+    def _get_custom_css(self) -> str:
+        """Retourne le style CSS customisé de l'interface."""
+        return """
+        .gradio-container {
+            max-width: 1280px !important;
+            margin: 0 auto;
+        }
+
+        .app-header {
+            margin: 0.5rem 0 1rem 0;
+            padding: 1rem 1.2rem;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
+        }
+
+        .status-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-top: 0.5rem;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            border: 1px solid rgba(148, 163, 184, 0.4);
+            border-radius: 999px;
+            padding: 0.22rem 0.75rem;
+            font-size: 0.78rem;
+            background: rgba(148, 163, 184, 0.14);
+            color: #e2e8f0;
+            font-weight: 600;
+        }
+
+        .chat-surface {
+            border-radius: 14px;
+            box-shadow: inset 0 1px 0 rgba(148, 163, 184, 0.25);
+        }
+        """
     
     def _build_voice_commands(self):
         """Construit les commandes vocales."""
