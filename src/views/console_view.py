@@ -359,7 +359,7 @@ Tapez `help` pour voir toutes les commandes disponibles.
             self.display_error(f"Erreur dans la console: {e}")
         finally:
             if self.use_rich:
-                self.console.print("\n👋 Au revoir !", style="bold blue")
+                self.console.print("\nAu revoir !", style="bold blue")
             else:
-                print("\n👋 Au revoir !")
-            logger.info("Interface console terminée")
+                print("\nAu revoir !")
+            logger.info("Interface console terminee")

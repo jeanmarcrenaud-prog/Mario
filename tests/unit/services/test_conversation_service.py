@@ -3,7 +3,7 @@ Tests unitaires pour le service de conversation
 """
 
 import pytest
-from src.core.conversation_service import ConversationService
+from src.services.conversation_service import ConversationService
 from unittest.mock import MagicMock
 
 class TestConversationService:

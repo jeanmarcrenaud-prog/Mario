@@ -6,7 +6,7 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.core.llm_service import LLMService, ILLMAdapter, SimulatedLLMAdapter
+from src.services.llm_service import LLMService, ILLMAdapter, SimulatedLLMAdapter
 
 class MockLLMAdapter(ILLMAdapter):
     """Adaptateur mock pour les tests"""

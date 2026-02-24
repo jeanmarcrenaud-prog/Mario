@@ -50,11 +50,34 @@ class SpeechRecognitionService:
     def unload_model(self) -> bool:
         """Décharge le modèle de la mémoire."""
         try:
-            self.speech_recognition_adapter.unload_model()
+            # Adapter may expose unload() or unload_model(); try both
+            if hasattr(self.speech_recognition_adapter, "unload"):
+                self.speech_recognition_adapter.unload()
+            else:
+                self.speech_recognition_adapter.unload_model()
             return True
         except Exception as e:
             logger.error(f"Erreur déchargement modèle: {e}")
             return False
+
+    def get_available_models(self) -> list[str]:
+        """Retourne la liste des modèles disponibles."""
+        try:
+            return self.speech_recognition_adapter.get_available_models()
+        except Exception as e:
+            logger.debug(f"Erreur récupération modèles: {e}")
+            return []
+
+    def optimize_model_cache(self) -> bool:
+        """Optimise le cache du modèle."""
+        try:
+            # Adapter may expose optimize_cache(); use it
+            self.speech_recognition_adapter.optimize_cache()
+            return True
+        except Exception as e:
+            logger.debug(f"Erreur optimisation cache: {e}")
+            return False
+
 
     def get_available_models(self) -> list[str]:
         """Retourne la liste des modèles disponibles."""
@@ -75,3 +98,17 @@ class SpeechRecognitionService:
         except Exception as e:
             logger.error(f"❌ Test transcription échoué: {e}")
             return False
+
+    @classmethod
+    def create_with_simulation(cls):
+        """Factory method pour une instance de service simulé."""
+        from .simulated_speech_recognition import SimpleSimulationSpeechAdapter
+        adapter = SimpleSimulationSpeechAdapter()
+        return cls(adapter)
+
+    @classmethod
+    def create_with_whisper(cls, model_size: str = "base"):
+        """Factory method pour une instance de service avec Whisper."""
+        from ..adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
+        adapter = WhisperSpeechRecognitionAdapter(model_size)
+        return cls(adapter)

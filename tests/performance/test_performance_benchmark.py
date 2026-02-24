@@ -7,7 +7,7 @@ class TestPerformanceBenchmark:
 
     def test_conversation_service_performance(self, benchmark):
         """Benchmark du service de conversation"""
-        from src.core.conversation_service import ConversationService
+        from src.services.conversation_service import ConversationService
         
         service = ConversationService()
         

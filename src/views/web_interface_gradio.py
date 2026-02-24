@@ -1297,7 +1297,11 @@ Résumé:
 
     def _get_default_microphone(self) -> str:
         mic = self.audio_controller.get_default_microphone()
-        return f"{mic.index}: {mic.name}" if mic else ""
+        if mic is None:
+            return ""
+        if isinstance(mic, str):
+            return mic
+        return f"{mic.index}: {mic.name}"
 
     def _get_default_audio_output(self) -> str:
         """Return the default audio output as a string.

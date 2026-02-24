@@ -7,7 +7,7 @@ import numpy as np
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.core.speech_recognition_service import SpeechRecognitionService, ISpeechRecognitionAdapter
+from src.services.speech_recognition_service import SpeechRecognitionService, ISpeechRecognitionAdapter
 
 class MockSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
     """Adaptateur mock pour les tests"""

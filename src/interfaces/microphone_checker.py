@@ -20,24 +20,11 @@ class MicrophoneChecker:
     """
 
     def __init__(self, index: int = 0, sample_rate: int = 16000, chunk_size: int = 1024):
-        """
-        Parameters
-        ----------
-        index : int
-            Index du périphérique d’entrée (0 par défaut).
-        sample_rate : int
-            Fréquence d’échantillonnage (ex. 16000 Hz).
-        chunk_size : int
-            Taille du chunk audio (en échantillons).
-        """
         self.index = index
         self.sample_rate = sample_rate
         self.chunk_size = chunk_size
         self.pyaudio_instance = pyaudio.PyAudio()
 
-    # ------------------------------------------------------------------
-    # 1️⃣  Liste des périphériques
-    # ------------------------------------------------------------------
     def list_devices(self) -> list[dict]:
         """Retourne la liste des périphériques d’entrée audio."""
         devices = []
@@ -54,9 +41,6 @@ class MicrophoneChecker:
                 )
         return devices
 
-    # ------------------------------------------------------------------
-    # 2️⃣  Vérification d’un périphérique
-    # ------------------------------------------------------------------
     def is_device_available(self) -> bool:
         """Vérifie que le périphérique d’entrée existe et est utilisable."""
         try:
@@ -74,14 +58,10 @@ class MicrophoneChecker:
             logger.warning(f"Microphone non disponible (index={self.index}): {e}")
             return False
 
-    # ---- Nouvelle méthode (alias) ----
     def is_microphone_available(self) -> bool:
         """Alias compatible avec le code existant."""
         return self.is_device_available()
 
-    # ------------------------------------------------------------------
-    # 3️⃣  Test de capture en temps réel
-    # ------------------------------------------------------------------
     def test_capture(self, duration: float = 3.0) -> bool:
         """
         Capture un court clip audio pour vérifier la qualité.
@@ -111,24 +91,20 @@ class MicrophoneChecker:
                 frames.append(data)
             stream.stop_stream()
             stream.close()
-            # Si on a bien reçu des frames, on considère que le test a réussi
             return len(frames) > 0
         except Exception as e:
             logger.error(f"Erreur lors du test de capture : {e}")
             return False
 
-    # ------------------------------------------------------------------
-    # 4️⃣  Nettoyage
-    # ------------------------------------------------------------------
     def close(self):
         """Ferme l’instance PyAudio."""
         self.pyaudio_instance.terminate()
 
-    # ------------------------------------------------------------------
-    # 5️⃣  Contexte (facultatif)
-    # ------------------------------------------------------------------
     def __enter__(self):
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.close()
+
+# Alias for backward compatibility
+Microphone_Checker = MicrophoneChecker

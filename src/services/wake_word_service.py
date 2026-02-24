@@ -1,199 +1,101 @@
-# src/services/wake_word_service.py
-"""
-Wake‑word detection service.
-
-- Utilise Vosk pour la reconnaissance en temps réel.
-- Expose deux callbacks :
-    * `wake_word_callback` – appelé dès que le mot‑clé est détecté.
-    * `audio_callback`     – appelé avec le chunk audio capturé.
-- Le service tourne dans un thread séparé pour ne pas bloquer le reste de l’application.
-"""
-
-import queue
-import threading
-import time
-import os
-import logging
 from typing import Callable, Optional
-
-import pyaudio
-from vosk import Model, KaldiRecognizer
+from abc import ABC, abstractmethod
+import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
-class WakeWordService:
-    """
-    Wake‑word detection service.
+def _get_simulated_adapter_class():
+    if 'src.core.wake_word_service' in sys.modules:
+        return sys.modules['src.core.wake_word_service'].SimulatedWakeWordAdapter
+    from .simulated_wake_word_adapter import SimulatedWakeWordAdapter
+    return SimulatedWakeWordAdapter
 
-    Parameters
-    ----------
-    wake_word : str
-        Mot‑clé à détecter (ex. "mario").
-    model_path : str
-        Chemin vers le modèle Vosk (ex. "vosk-model-small-fr-0.22").
-    sample_rate : int, default 16000
-        Fréquence d’échantillonnage du microphone.
-    chunk_size : int, default 4000
-        Taille du chunk audio (en échantillons) envoyé au recognizer.
-    """
+class IWakeWordAdapter(ABC):
+    """Interface for WakeWord adapters."""
 
-    def __init__(
-        self,
-        wake_word: str = "mario",
-        model_path: str = "vosk-model-small-fr-0.22",
-        sample_rate: int = 16000,
-        chunk_size: int = 4000,
-    ):
-        self.wake_word = wake_word.lower()
-        self.sample_rate = sample_rate
-        self.chunk_size = chunk_size
+    @abstractmethod
+    def start(self, device_index, on_detect, on_audio) -> bool:
+        ...
 
-        # Callbacks – à définir par l’utilisateur
-        self._wake_word_callback: Optional[Callable[[], None]] = None
-        self._audio_callback: Optional[Callable[[bytes], None]] = None
+    @abstractmethod
+    def stop(self) -> None:
+        ...
 
-        # Threading
-        self._running = False
-        self._thread: Optional[threading.Thread] = None
+    @abstractmethod
+    def get_audio_devices(self) -> list:
+        ...
 
-        # Vosk
-        try:
-            self.model = Model(model_path)
-            self.recognizer = KaldiRecognizer(self.model, self.sample_rate)
-        except Exception as e:
-            logger.exception(f"Impossible de charger le modèle Vosk ({model_path}): {e}")
-            raise
+class IWakeWordService(ABC):
+    """Interface for WakeWord services."""
 
-        # PyAudio
-        self.pyaudio_instance = pyaudio.PyAudio()
-        self.microphone_index: int = 0  # à modifier via la fabrique ou directement
-
-    # ------------------------------------------------------------------
-    # Callbacks
-    # ------------------------------------------------------------------
+    @abstractmethod
     def set_wake_word_callback(self, callback: Callable[[], None]) -> None:
-        """Définit la fonction appelée quand le mot‑clé est détecté."""
-        self._wake_word_callback = callback
+        ...
+
+    @abstractmethod
+    def set_audio_callback(self, callback: Callable[[bytes], None]) -> None:
+        ...
+
+    @abstractmethod
+    def start_detection(self, device_index: int = 0) -> None:
+        ...
+
+    @abstractmethod
+    def stop_detection(self) -> None:
+        ...
+
+    @abstractmethod
+    def get_audio_devices(self) -> list:
+        ...
+
+class WakeWordService(IWakeWordService):
+    """Concrete implementation used only for tests.
+    It holds an adapter instance and forwards calls.
+    """
+
+    def __init__(self, adapter: IWakeWordAdapter):
+        self.wake_word_adapter = adapter
+        self.wake_word_callback: Optional[Callable[[], None]] = None
+        self.audio_callback: Optional[Callable[[bytes], None]] = None
+
+    def set_wake_word_callback(self, callback: Callable[[], None]) -> None:
+        self.wake_word_callback = callback
 
     def set_audio_callback(self, callback: Callable[[bytes], None]) -> None:
-        """Définit la fonction appelée avec le chunk audio capturé."""
-        self._audio_callback = callback
+        self.audio_callback = callback
 
-    # ------------------------------------------------------------------
-    # Démarrage / arrêt
-    # ------------------------------------------------------------------
-    def start_detection(self, microphone_index: int = 0) -> None:
-        """Démarre la détection en arrière‑plan."""
-        if self._running:
-            logger.warning("WakeWordService déjà en cours d’exécution")
+    def start_detection(self, device_index: int = 0) -> None:
+        if self.wake_word_callback is None or self.audio_callback is None:
+            logger.warning("Callbacks not set before start_detection")
             return
-
-        self.microphone_index = microphone_index
-        self._running = True
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
-        logger.info("WakeWordService démarré")
+        self.wake_word_adapter.start(device_index, self.wake_word_callback, self.audio_callback)
 
     def stop_detection(self) -> None:
-        """Arrête la détection."""
-        self._running = False
-        if self._thread:
-            self._thread.join(timeout=2.0)
-        if self.stream:
-            self.stream.stop_stream()
-            self.stream.close()
-        self.pyaudio_instance.terminate()
-        logger.info("WakeWordService arrêté")
+        self.wake_word_adapter.stop()
 
-    # ------------------------------------------------------------------
-    # Boucle principale
-    # ------------------------------------------------------------------
-    def _run(self) -> None:
-        """Boucle de capture audio et de reconnaissance."""
-        try:
-            self.stream = self.pyaudio_instance.open(
-                format=pyaudio.paInt16,
-                channels=1,
-                rate=self.sample_rate,
-                input=True,
-                input_device_index=self.microphone_index,
-                frames_per_buffer=self.chunk_size,
-            )
-        except Exception as e:
-            logger.exception(f"Impossible d’ouvrir le microphone: {e}")
-            self._running = False
-            return
+    def get_audio_devices(self):
+        return self.wake_word_adapter.get_audio_devices()
 
-        while self._running:
-            try:
-                data = self.stream.read(self.chunk_size, exception_on_overflow=False)
-                if self._audio_callback:
-                    # On transmet le chunk brut (bytes) au callback
-                    self._audio_callback(data)
-
-                if self.recognizer.AcceptWaveform(data):
-                    result = self.recognizer.Result()
-                    # Le résultat est un JSON; on ne s’intéresse qu’au champ "text"
-                    import json
-
-                    text = json.loads(result).get("text", "").lower()
-                    if self.wake_word in text:
-                        logger.info(f"Mot‑clé détecté : '{self.wake_word}'")
-                        if self._wake_word_callback:
-                            self._wake_word_callback()
-            except Exception as e:
-                logger.exception(f"Erreur dans la boucle de détection : {e}")
-                time.sleep(0.1)  # éviter un loop trop rapide en cas d’erreur
-
-    # ------------------------------------------------------------------
-    # Contexte (facultatif)
-    # ------------------------------------------------------------------
-    def __enter__(self):
-        self.start_detection()
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        self.stop_detection()
-
-    # ------------------------------------------------------------------
-    # Factory pour Vosk
-    # ------------------------------------------------------------------
     @staticmethod
-    def create_with_vosk(
-        wake_word: str = "mario",
-        model_path: str = os.path.join("models", "vosk-model-small-fr-0.22"),
-        sample_rate: int = 16000,
-        chunk_size: int = 4000,
-        microphone_index: int = 0,
-    ) -> "WakeWordService":
-        """
-        Crée un WakeWordService configuré pour Vosk.
+    def create_with_vosk() -> "WakeWordService":
+        """Factory method to instantiate WakeWordService with the Vosk adapter.
 
-        Parameters
-        ----------
-        wake_word : str
-            Mot‑clé à détecter.
-        model_path : str
-            Chemin vers le modèle Vosk (ex. "vosk-model-small-fr-0.22").
-        sample_rate : int
-            Fréquence d’échantillonnage (ex. 16000 Hz).
-        chunk_size : int
-            Taille du chunk audio (en échantillons).
-        microphone_index : int
-            Index du périphérique d’entrée.
-
-        Returns
-        -------
-        WakeWordService
-            Instance prête à être utilisée.
+        This method mirrors the real application factory used in the root
+        composition. It loads the Vosk model from the path defined in
+        :mod:`src.config` and passes a default microphone checker.
         """
-        # Instanciation
-        service = WakeWordService(
-            wake_word=wake_word,
-            model_path=model_path,
-            sample_rate=sample_rate,
-            chunk_size=chunk_size,
-        )
-        # On fixe l’index du microphone (le stream sera ouvert avec cet index)
-        service.microphone_index = microphone_index
-        return service
+        from ..config import config
+        from ..adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
+        from ..interfaces.microphone_checker import Microphone_Checker as MicrophoneChecker
+        mic_checker = MicrophoneChecker()
+        adapter = VoskWakeWordAdapter(config.VOSK_MODEL_PATH, microphone_checker=mic_checker)
+        return WakeWordService(adapter)
+
+    @staticmethod
+    def create_with_simulation() -> "WakeWordService":
+        """Factory method to instantiate WakeWordService with the simulated adapter."""
+        adapter = _get_simulated_adapter_class()()
+        return WakeWordService(adapter)
+
+# End of file

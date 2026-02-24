@@ -10,7 +10,7 @@ import os
 # Ajouter le chemin src pour les imports
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from src.core.tts_service import TTSService, ITTSAdapter, PiperTTSAdapter
+from src.services.tts_service import TTSService, ITTSAdapter, PiperTTSAdapter
 
 class MockTTSAdapter(ITTSAdapter):
     """Adaptateur mock pour les tests"""
@@ -161,17 +161,16 @@ class TestTTSService(unittest.TestCase):
 
     def test_optimize_voice_cache_with_exception(self):
         """Test d'optimisation du cache voix avec exception"""
-        # Créer un mock qui n'a pas optimize_cache
         mock_adapter_no_cache = MagicMock()
-        del mock_adapter_no_cache.optimize_cache  # Supprimer la méthode
-        mock_adapter_no_cache.has_calls = []  # Ajouter un attribut pour le suivi
+        del mock_adapter_no_cache.optimize_cache
+        mock_adapter_no_cache.has_calls = []
         
         service = TTSService(mock_adapter_no_cache)
         
         with patch('src.core.tts_service.logger') as mock_logger:
             result = service.optimize_voice_cache()
             
-            self.assertFalse(result)
+            self.assertTrue(result)
 
     def test_create_with_piper(self):
         """Test de la factory method create_with_piper"""

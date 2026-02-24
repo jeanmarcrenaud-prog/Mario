@@ -10,7 +10,7 @@ class ConfigManager:
     VOICES_FOLDER: str = os.path.join(BASE_DIR, "voices")
     CONFIG_FILE: str = os.path.join(BASE_DIR, "config.yaml")
     LOG_FOLDER: str = os.path.join(BASE_DIR, "logs")
-    VOSK_MODEL_PATH: str = os.path.join(BASE_DIR, "models", "vosk-model-small-fr")
+    VOSK_MODEL_PATH: str = os.path.join(BASE_DIR, "models", "vosk-model-small-fr-0.22")
     
     # API Keys
     OPENAI_API_KEY: str = ""
