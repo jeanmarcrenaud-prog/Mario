@@ -1,7 +1,6 @@
 🎙️ Assistant Vocal Intelligent — Mario
 
-Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond et parle en utilisant OpenAI Whisper (STT), Piper (TTS), Picovo
-ion mot-clé)étection mot-clé), Gradio (web), Console et ePaper. Adapté PC ou microcontrôleur.
+Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond et parle en utilisant OpenAI Whisper (STT), Piper (TTS), détection mot-clé (Vosk), Gradio (web), Console et ePaper. Adapté PC ou Raspberry Pi.
 
 ▶️🚀 Fonctionnalités
 	🎧 Reconnaissance vocale (Whisper, GPU CUDA si dispo)
@@ -43,18 +42,23 @@ Mario/
 │   ├── adapters/           # Interfaces matérielles/API
 │   │   └── mock/           # Mocks pour tests
 │   │
-│   ├── views/                 # Interfaces utilisateur
+│   ├── services/           # Services (STT, TTS, Wake Word)
+│   │
+│   ├── interfaces/         # Interfaces (microphone, etc.)
+│   │
+│   ├── views/              # Interfaces utilisateur
 │   │
 │   ├── controllers/        # Contrôleurs principaux
 │   │
 │   ├── models/             # Modèles de données
 │   │
-│   ├── events/             # System d'événements
+│   ├── events/             # Système d'événements
 │   │
 │   └── config/             # Gestion configuration
 │
 └── tests/                  # Tests unitaires & fonctionnels
     ├── test_core/
+    ├── test_services/       # Tests services (STT, TTS, Wake Word)
     ├── test_adapters/      # Tests adapters & mocks
     ├── test_ui/
     ├── test_models/
