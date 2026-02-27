@@ -7,58 +7,42 @@ on:
 
 jobs:
   ollama-test:
-    runs-on: self-hosted
-    # Si vous avez plusieurs runners, vous pouvez cibler par label
-    # labels: [windows, ollama]
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/ollama/ollama:latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      # 1️⃣ Vérifier que Docker est disponible
-      - name: Check Docker
-        shell: pwsh
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'pip'
+
+      - name: Install dependencies
         run: |
-          docker version | Out-Host
-          if ($LASTEXITCODE -ne 0) { throw "Docker not reachable" }
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
 
-      # 2️⃣ Démarrer Ollama
-      - name: Start Ollama (Docker)
-        shell: pwsh
+      - name: Start Ollama
         run: |
-          docker run -d --name ollama `
-            -p 11434:11434 `
-            --gpus all `
-            ollama/ollama
-          Start-Sleep -Seconds 10
+          ollama pull qwen3-coder:latest
+          echo "Ping Ollama..."
+          response=$(curl -s http://localhost:11434/api/ping)
+          echo "$response"
+          if [[ "$response" != "ok" ]]; then
+            echo "Ollama not ready"
+            exit 1
+          fi
 
-      # 3️⃣ Ping Ollama
-      - name: Ping Ollama
-        shell: pwsh
-        run: |
-          $resp = Invoke-RestMethod -Uri http://localhost:11434/api/ping
-          if ($resp.status -ne 'ok') { throw "Ollama not ready" }
-
-      # 4️⃣ Pull du modèle
-      - name: Pull model
-        shell: pwsh
-        run: |
-          Invoke-RestMethod -Method Post `
-            -Uri http://localhost:11434/api/pull `
-            -Body '{"name":"llama2"}' `
-            -ContentType 'application/json'
-
-      # 5️⃣ Test de chat
       - name: Test chat
-        shell: pwsh
         run: |
-          $chat = Invoke-RestMethod -Method Post `
-            -Uri http://localhost:11434/api/chat `
-            -Body '{"model":"llama2","messages":[{"role":"user","content":"Bonjour"}]}' `
-            -ContentType 'application/json'
-          $chat | ConvertTo-Json -Depth 10 | Write-Host
-
-      # 6️⃣ Nettoyage
-      - name: Stop Ollama
-        shell: pwsh
-        run: docker stop ollama
+          echo "Test Ollama chat..."
+          response=$(curl -X POST http://localhost:11434/api/chat \
+            -H 'Content-Type: application/json' \
+            -d '{"model":"qwen3-coder:latest","messages":[{"role":"user","content":"Bonjour"}]}')
+          echo "$response"
+          echo "Chat test passed"
         

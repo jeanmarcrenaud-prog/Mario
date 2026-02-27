@@ -1,0 +1,54 @@
+name: Documentation Build
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/**'
+      - 'mkdocs.yml'
+      - '*.md'
+
+  workflow_dispatch:
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip setuptools wheel
+          pip install -r requirements.txt
+          pip install mkdocs mkdocs-material mkdocs-mermaid-plugin
+
+      - name: Build documentation
+        run: |
+          mkdocs build
+          mkdir -p site
+          cp -r site/* .
+          mkdir -p docs/_build
+          mv site docs/_build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: docs/_build
+          retention-days: 30
+
+      - name: Deploy documentation to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        run: |
+          pip install ghp-import
+          echo "git.config.user.name=.github-actions" >> $GITHUB_ENV
+          echo "git.config.user.email=github-actions[bot]@users.noreply.github.com" >> $GITHUB_ENV
+          mkdocs gh-deploy --force
