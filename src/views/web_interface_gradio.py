@@ -1832,7 +1832,6 @@ Cette fonctionnalité sera pleinement opérationnelle avec le système d'IA int�
                 secondary_hue="purple",
                 font=[gr.themes.GoogleFont("Inter"), "Arial", "sans-serif"]
             ),
-            dark=None,
             **kwargs
         )
 
