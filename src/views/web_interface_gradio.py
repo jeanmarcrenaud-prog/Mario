@@ -65,15 +65,59 @@ class GradioWebInterface:
     
     def _create_header(self):
         """Crée l'en-tête de l'interface."""
-        with gr.Row():
-            gr.Markdown("""
-            # 🎤 Assistant Vocal Intelligent
-            ## Votre compagnon IA avec reconnaissance et synthèse vocale
-            """)
+        gr.HTML("""
+        <style>
+            .header-container {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                padding: 20px;
+                border-radius: 12px;
+                margin-bottom: 20px;
+                text-align: center;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            }
+            .header-title {
+                font-size: 2.5em;
+                font-weight: bold;
+                color: white;
+                margin: 0;
+            }
+            .header-subtitle {
+                font-size: 1.2em;
+                color: rgba(255,255,255,0.9);
+                margin-top: 5px;
+            }
+            .status-indicator {
+                display: inline-block;
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                margin-right: 8px;
+            }
+            .status-ready { background-color: #22c55e; }
+            .status-listening { background-color: #3b82f6; animation: pulse 1s infinite; }
+            .status-processing { background-color: #f59e0b; animation: pulse 0.5s infinite; }
+            .status-error { background-color: #ef4444; }
+            @keyframes pulse {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.5; }
+            }
+            .dark .header-container {
+                background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            }
+        </style>
+        <div class="header-container">
+            <h1 class="header-title">🎤 Assistant Vocal Intelligent</h1>
+            <p class="header-subtitle">Votre compagnon IA avec reconnaissance et synthèse vocale</p>
+        </div>
+        """)
     
     def _create_control_panel(self):
         """Crée le panneau de contrôle."""
         gr.Markdown("## ⚙️ Configuration")
+        
+        with gr.Row():
+            self.theme_toggle = gr.Button("🌙 Mode Sombre", size="sm")
+        
         self._create_status_section()
         self._create_audio_controls()
         self._create_ai_controls()
@@ -1782,7 +1826,15 @@ Cette fonctionnalité sera pleinement opérationnelle avec le système d'IA int�
         if not self.demo:
             self.create_interface()
         
-        self.demo.launch(theme=gr.themes.Default(font=[gr.themes.GoogleFont("Inconsolata"), "Arial", "sans-serif"]))
+        self.demo.launch(
+            theme=gr.themes.Soft(
+                primary_hue="indigo",
+                secondary_hue="purple",
+                font=[gr.themes.GoogleFont("Inter"), "Arial", "sans-serif"]
+            ),
+            dark=None,
+            **kwargs
+        )
 
 # Export pour l'importation
 __all__ = ['GradioWebInterface']
