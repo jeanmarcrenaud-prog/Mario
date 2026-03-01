@@ -12,6 +12,15 @@ class ILLMAdapter(ABC):
         """Génère une réponse à partir des messages."""
         pass
 
+    def generate_analysis(self, prompt: str) -> str:
+        """Optionnel: génère une analyse à partir d'un prompt."""
+        messages = [{"role": "user", "content": prompt}]
+        return self.generate_response(messages)
+    
+    def generate_recommendations(self, analysis: str) -> List[str]:
+        """Optionnel: génère des recommandations à partir d'une analyse."""
+        return []
+
 class OllamaLLMAdapter(ILLMAdapter):
     """Adaptateur concret pour Ollama."""
     
@@ -118,6 +127,22 @@ class SimulatedLLMAdapter(ILLMAdapter):
         else:
             return f"Réponse simulée à: {content[:50]}..."
 
+    def generate_analysis(self, prompt: str) -> str:
+        """Génère une analyse simulée."""
+        return """Analyse du projet simulée:
+
+1. Architecture modulaire bien structurée
+2. Bonnes pratiques de codage respectées
+3. Gestion des dépendances claire"""
+    
+    def generate_recommendations(self, analysis: str) -> List[str]:
+        """Génère des recommandations simulées."""
+        return [
+            "[Optimisation des performances]",
+            "[Amélioration de la documentation]",
+            "[Refactorisation du code]"
+        ]
+
 class LLMService:
     """Service LLM avec gestion d'adaptateurs multiples."""
     
@@ -163,6 +188,30 @@ class LLMService:
         except Exception as e:
             logger.error(f"❌ Test service LLM échoué: {e}")
             return True
+
+    def generate_analysis(self, prompt: str) -> str:
+        """Génère une analyse à partir d'un prompt."""
+        try:
+            return self.llm_adapter.generate_analysis(prompt)
+        except AttributeError:
+            messages = [{"role": "user", "content": prompt}]
+            return self.generate_response(messages)
+        except Exception as e:
+            logger.error(f"Erreur generate_analysis: {e}")
+            return ""
+
+    def generate_recommendations(self, analysis: str) -> List[str]:
+        """Génère des recommandations à partir d'une analyse."""
+        try:
+            return self.llm_adapter.generate_recommendations(analysis)
+        except AttributeError:
+            prompt = f"Based on this analysis: {analysis}\n\nProvide recommendations."
+            response = self.generate_response([{"role": "user", "content": prompt}])
+            lines = [line.strip() for line in response.split('\n') if line.strip()]
+            return lines if lines else []
+        except Exception as e:
+            logger.error(f"Erreur generate_recommendations: {e}")
+            return []
 
     
     def get_available_models(self) -> List[str]:
