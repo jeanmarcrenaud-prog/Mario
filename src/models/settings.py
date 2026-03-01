@@ -12,6 +12,9 @@ class Settings:
     web_port: int = 7860
     sample_rate: int = 16000
     openai_api_key: str = ""
+    chunk_size: int = 1024
+    audio_buffer_size: int = 3
+    enable_low_latency: bool = False
 
     @classmethod
     def from_config(cls, config):
@@ -23,4 +26,7 @@ class Settings:
             web_port=getattr(config, 'WEB_PORT', 7860),
             sample_rate=getattr(config, 'SAMPLE_RATE', 16000),
             openai_api_key=getattr(config, 'OPENAI_API_KEY', ''),
+            chunk_size=getattr(config, 'CHUNK_SIZE', 1024),
+            audio_buffer_size=getattr(config, 'AUDIO_BUFFER_SIZE', 3),
+            enable_low_latency=getattr(config, 'ENABLE_LOW_LATENCY', False),
         )

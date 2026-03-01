@@ -25,13 +25,22 @@ class AudioPipeline:
         self.settings = settings
 
         self._is_running = False
-        self._audio_queue: queue.Queue[np.ndarray] = queue.Queue(maxsize=5)
-
-        self._transcribe_executor = ProcessPoolExecutor(max_workers=2)
+        self._audio_queue: queue.Queue[np.ndarray] = queue.Queue(maxsize=settings.audio_buffer_size)
+        
+        chunk_size = settings.chunk_size // 2 if settings.enable_low_latency else settings.chunk_size
+        self._chunk_size = chunk_size
+        
+        self._transcribe_executor = ThreadPoolExecutor(max_workers=2)
         self._tts_executor = ThreadPoolExecutor(max_workers=1)
 
         self._on_transcription_ready: Optional[Callable] = None
         self._on_wake_word_detected: Optional[Callable] = None
+        
+        self._latency_stats = {
+            "transcription": [],
+            "tts": [],
+            "wake_word": [],
+        }
 
     def start(self):
         """Démarre le pipeline audio"""
@@ -64,9 +73,13 @@ class AudioPipeline:
         if not text or not text.strip():
             return False
         try:
+            start_time = time.time()
             success = self._tts_executor.submit(
                 self.tts_service.say, text, self.settings.speech_speed
             ).result(timeout=30)
+            latency = time.time() - start_time
+            self._latency_stats["tts"].append(latency)
+            logger.debug(f"Latence TTS: {latency:.3f}s")
             return bool(success)
         except Exception as e:
             logger.error(f"Erreur speak: {e}")
@@ -79,6 +92,7 @@ class AudioPipeline:
 
     def _on_audio_received_fn(self, audio_data: bytes):
         """Callback appelé quand des données audio sont reçues"""
+        start_time = time.time()
         logger.info(f"Audio reçu ({len(audio_data)} octets)")
 
         audio_np = np.frombuffer(audio_data, dtype=np.int16).astype(np.float32) / 32768.0
@@ -86,11 +100,15 @@ class AudioPipeline:
         future = self._transcribe_executor.submit(
             self.speech_recognition_service.transcribe, audio_np, "fr"
         )
-        future.add_done_callback(self._handle_transcription)
+        future.add_done_callback(lambda f: self._handle_transcription(f, start_time))
 
-    def _handle_transcription(self, future):
+    def _handle_transcription(self, future, start_time: float = 0.0):
         try:
             text = future.result()
+            if start_time:
+                latency = time.time() - start_time
+                self._latency_stats["transcription"].append(latency)
+                logger.debug(f"Latence transcription: {latency:.3f}s")
         except Exception as e:
             logger.error(f"Erreur transcription: {e}")
             return
@@ -111,7 +129,23 @@ class AudioPipeline:
                 self.speech_recognition_service.optimize_model_cache()
             if hasattr(self.tts_service, "optimize_voice_cache"):
                 self.tts_service.optimize_voice_cache()
+            
+            if aggressive:
+                self._chunk_size = 512
+                self._audio_queue = queue.Queue(maxsize=2)
+                logger.info("Mode agressif activé: chunk_size=512, buffer=2")
+            
             return True
         except Exception as e:
             logger.error(f"Erreur optimisation: {e}")
             return False
+
+    def get_latency_stats(self) -> Dict[str, float]:
+        """Retourne les statistiques de latence"""
+        stats = {}
+        for key, values in self._latency_stats.items():
+            if values:
+                stats[f"{key}_avg"] = sum(values) / len(values)
+                stats[f"{key}_min"] = min(values)
+                stats[f"{key}_max"] = max(values)
+        return stats
