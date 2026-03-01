@@ -140,11 +140,19 @@ class GradioWebInterface:
     def _create_audio_controls(self):
         """Crée les contrôles audio."""
         with gr.Accordion("🎤 Audio", open=True):
-            self.mic_dropdown = gr.Dropdown(
-                label="Microphone",
-                choices=self._get_microphone_choices(),
-                value=self._get_default_microphone(),
-                interactive=True
+            with gr.Row():
+                self.mic_dropdown = gr.Dropdown(
+                    label="Microphone",
+                    choices=self._get_microphone_choices(),
+                    value=self._get_default_microphone(),
+                    interactive=True,
+                    scale=4
+                )
+                self.refresh_mic_btn = gr.Button("🔄", size="sm", scale=1, variant="secondary")
+            
+            self.refresh_mic_btn.click(
+                fn=self._refresh_microphones,
+                outputs=[self.mic_dropdown]
             )
             
             self.voice_dropdown = gr.Dropdown(
@@ -1312,9 +1320,44 @@ Résumé:
     
     def _get_microphone_choices(self) -> List[str]:
         try:
-            return [f"{d.index}: {d.name}" for d in self.audio_controller.get_microphones()]
+            import pyaudio
+            p = pyaudio.PyAudio()
+            seen_names = set()
+            choices = []
+            
+            for i in range(min(15, p.get_device_count())):
+                try:
+                    device_info = p.get_device_info_by_index(i)
+                    if device_info['maxInputChannels'] > 0:
+                        name = device_info['name']
+                        name_lower = name.lower()
+                        if name_lower in seen_names:
+                            continue
+                        if any(v in name_lower for v in ['virtual', 'cable', 'loopback', 'virtual audio cable']):
+                            continue
+                        seen_names.add(name_lower)
+                        choices.append((i, name))
+                except Exception:
+                    continue
+            
+            p.terminate()
+            
+            if not choices:
+                return ["0: Microphone par défaut"]
+            
+            return [f"{idx}: {name}" for idx, name in choices[:8]]
         except Exception:
-            return []
+            return ["0: Microphone par défaut"]
+
+    def _refresh_microphones(self) -> List[str]:
+        """Rafraîchit la liste des microphones."""
+        try:
+            self.audio_controller.close()
+            self.audio_controller = AudioController()
+            return self._get_microphone_choices()
+        except Exception as e:
+            logger.error(f"Erreur refresh microphones: {e}")
+            return ["0: Microphone par défaut"]
 
     def _get_audio_output_choices(self) -> List[str]:
         try:
