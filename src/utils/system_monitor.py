@@ -218,14 +218,22 @@ class SystemMonitor:
                 for i in range(torch.cuda.device_count()):
                     try:
                         props = torch.cuda.get_device_properties(i)
+                        memory_total = props.total_memory / (1024**2)
+                        memory_used = torch.cuda.memory_allocated(i) / (1024**2)
+                        memory_cached = torch.cuda.memory_reserved(i) / (1024**2)
+                        
                         gpus.append({
                             "id": i,
                             "name": torch.cuda.get_device_name(i),
-                            "memory_total_mb": round(props.total_memory / (1024**2)),
-                            "memory_used_mb": round(torch.cuda.memory_allocated(i) / (1024**2)),
-                            "memory_cached_mb": round(torch.cuda.memory_reserved(i) / (1024**2)),
+                            "memory_total_mb": round(memory_total),
+                            "memory_used_mb": round(memory_used),
+                            "memory_free_mb": round(memory_total - memory_used),
+                            "memory_cached_mb": round(memory_cached),
+                            "memory_percent": round(memory_used / memory_total * 100, 1),
                             "compute_capability": f"{props.major}.{props.minor}",
-                            "temperature": self.get_gpu_temp()
+                            "temperature": self.get_gpu_temp(),
+                            "utilization": self._get_gpu_utilization(),
+                            "power_watts": self._get_gpu_power()
                         })
                     except Exception as e:
                         logger.debug(f"Erreur GPU {i}: {e}")
@@ -233,6 +241,67 @@ class SystemMonitor:
         except Exception as e:
             logger.debug(f"Erreur GPU général: {e}")
         
+        if not gpus:
+            gpus = self._get_gpu_info_nvidia_smi()
+        
+        return gpus
+    
+    def _get_gpu_utilization(self) -> Optional[float]:
+        """Récupère l'utilisation GPU via nvidia-smi."""
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=utilization.gpu", "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                return float(result.stdout.strip())
+        except Exception:
+            pass
+        return None
+    
+    def _get_gpu_power(self) -> Optional[float]:
+        """Récupère la puissance GPU via nvidia-smi."""
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=power.draw", "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                return float(result.stdout.strip())
+        except Exception:
+            pass
+        return None
+    
+    def _get_gpu_info_nvidia_smi(self) -> List[Dict]:
+        """Récupère les infos GPU via nvidia-smi (fallback)."""
+        gpus = []
+        try:
+            import subprocess
+            result = subprocess.run(
+                ["nvidia-smi", "--query-gpu=index,name,memory.total,memory.used,memory.free,temperature.gpu,utilization.gpu,power.draw",
+                 "--format=csv,noheader,nounits"],
+                capture_output=True, text=True, timeout=5
+            )
+            if result.returncode == 0:
+                for line in result.stdout.strip().split('\n'):
+                    if line:
+                        parts = [p.strip() for p in line.split(',')]
+                        if len(parts) >= 8:
+                            gpus.append({
+                                "id": int(parts[0]),
+                                "name": parts[1],
+                                "memory_total_mb": int(parts[2]),
+                                "memory_used_mb": int(parts[3]),
+                                "memory_free_mb": int(parts[4]),
+                                "memory_percent": round(int(parts[3]) / int(parts[2]) * 100, 1) if int(parts[2]) > 0 else 0,
+                                "temperature": float(parts[5]) if parts[5] != 'N/A' else None,
+                                "utilization": float(parts[6]) if parts[6] != 'N/A' else None,
+                                "power_watts": float(parts[7].replace(' W', '')) if parts[7] != 'N/A' else None
+                            })
+        except Exception as e:
+            logger.debug(f"Erreur nvidia-smi: {e}")
         return gpus
 
     def get_process_count(self) -> Dict:
