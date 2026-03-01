@@ -438,11 +438,49 @@ class SystemMonitor:
                 lines.append(f"{p['name'][:30]:<30} {p['cpu']:<10.1f} {p['memory']:<10.1f} {p['threads']}")
         
         lines.append("\n--- MODULES ---")
-        whitelist = ["gradio", "numpy", "pyaudio", "torch", "whisper", "webrtcvad", "psutil", "librosa", "piper-tts", "openai", "ollama", "fastapi"]
+        whitelist = [
+            "torch",
+            "whisper",
+            "piper_tts",
+            "onnxruntime",
+            "webrtcvad",
+            "pyaudio",
+            "pvrecorder",
+            "librosa",
+            "soundfile",
+            "scipy",
+            "numba",
+            "numpy",
+            "sounddevice",
+            "gradio",
+            "flask",
+            "fastapi",
+            "requests",
+            "dotenv",
+            "rich",
+            "prompt_toolkit",
+            "psutil",
+            "tqdm",
+            "typing_extensions",
+            "dataclasses_json",
+            "colorlog",
+            "gputil",
+            "pytest",
+        ]
         for mod in whitelist:
             try:
-                if mod == "piper-tts":
+                if mod == "piper_tts":
                     ver = importlib.metadata.version("piper-tts")
+                elif mod == "whisper":
+                    ver = importlib.metadata.version("openai-whisper")
+                elif mod == "dotenv":
+                    ver = importlib.metadata.version("python-dotenv")
+                elif mod == "typing_extensions":
+                    ver = importlib.metadata.version("typing-extensions")
+                elif mod == "dataclasses_json":
+                    ver = importlib.metadata.version("dataclasses-json")
+                elif mod == "gputil":
+                    ver = importlib.metadata.version("GPutil")
                 else:
                     module = importlib.import_module(mod)
                     ver = getattr(module, "__version__", "N/A")
