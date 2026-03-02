@@ -1,1 +1,36 @@
-site_name: My Docs
+site_name: Mario Assistant Vocal
+site_description: Documentation de l'assistant vocal intelligent Mario
+site_author: Jean-Marc Renaud
+
+repo_url: https://github.com/jeanmarcrenaud-prog/Mario
+repo_name: jeanmarcrenaud-prog/Mario
+
+theme:
+  name: material
+  palette: 
+    - scheme: default
+      primary: indigo
+      accent: purple
+    - scheme: slate
+      primary: deep purple
+      accent: purple
+  features:
+    - navigation.tabs
+    - navigation.top
+    - search.suggest
+
+nav:
+  - Accueil: index.md
+  - Installation: installation.md
+  - API: api.md
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - codehilite:
+      css_class: highlight
+  - admonition
+
+plugins:
+  - search:
+      lang: fr

@@ -1,17 +1,85 @@
-# Welcome to MkDocs
+# Mario - Assistant Vocal Intelligent
 
-For full documentation visit [mkdocs.org](https://www.mkdocs.org).
+Mario est un assistant vocal intelligent qui combine reconnaissance vocale, synthèse vocale et intelligence artificielle pour créer une expérience conversationnelle naturelle.
 
-## Commands
+## Fonctionnalités
 
-* `mkdocs new [dir-name]` - Create a new project.
-* `mkdocs serve` - Start the live-reloading docs server.
-* `mkdocs build` - Build the documentation site.
-* `mkdocs -h` - Print help message and exit.
+### 🎤 Reconnaissance Vocale
+- Utilise **Whisper** pour la transcription automatique de la parole
+- Support multi-langues (-Français par défaut)
+- Détection de mot-clé "Hey Mario" avec **Vosk**
 
-## Project layout
+### 🗣️ Synthèse Vocale
+- **Piper TTS** pour une synthèse vocale naturelle
+- Plusieurs voix disponibles
+- Contrôle de la vitesse de parole
 
-    mkdocs.yml    # The configuration file.
-    docs/
-        index.md  # The documentation homepage.
-        ...       # Other markdown pages, images and other files.
+### 🤖 Intelligence Artificielle
+- Intégration **Ollama** pour les modèles LLM locaux
+- Support de plusieurs modèles (qwen3-coder, llama3, etc.)
+- Analyse de projets et génération de recommandations
+
+### 💻 Interfaces Multiples
+- **Gradio** - Interface web moderne et interactive
+- **Console** - Interface en ligne de commande
+- Support pour affichage ePaper
+
+### ⚡ Optimisations
+- Mode faible latence configurable
+- Suivi des performances audio
+- Monitoring système (CPU, GPU, mémoire)
+
+## Architecture
+
+```
+src/
+├── core/           # Logique métier principale
+├── services/      # Services (LLM, TTS, STT, Wake Word)
+├── adapters/      # Adaptateurs pour les bibliothèques externes
+├── views/         # Interfaces utilisateur
+├── models/        # Modèles de données
+├── utils/         # Utilitaires
+└── interfaces/   # Définitions des interfaces
+```
+
+## Installation
+
+Voir [Guide d'installation](installation.md)
+
+## Utilisation
+
+### Interface Web
+```bash
+python run.py
+```
+
+### Console
+```bash
+python -m src.core.app_runner
+```
+
+## Configuration
+
+Le fichier `config.yaml` permet de configurer:
+- Le microphone par défaut
+- La voix TTS
+- Le modèle LLM
+- Le port de l'interface web
+
+## Tests
+
+```bash
+# Exécuter tous les tests
+pytest
+
+# Avec couverture
+pytest --cov=src
+```
+
+## Contribution
+
+Les contributions sont les bienvenues! Veuillez lire le guide de contribution avant de soumettre une PR.
+
+## Licence
+
+MIT License
