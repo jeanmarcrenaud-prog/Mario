@@ -30,7 +30,8 @@ class MicrophoneChecker:
         devices = []
         for i in range(self.pyaudio_instance.get_device_count()):
             info = self.pyaudio_instance.get_device_info_by_index(i)
-            if info.get("maxInputChannels", 0) > 0:
+            max_ch = info.get("maxInputChannels")
+            if isinstance(max_ch, (int, float)) and max_ch > 0:
                 devices.append(
                     {
                         "index": i,
@@ -58,8 +59,10 @@ class MicrophoneChecker:
             logger.warning(f"Microphone non disponible (index={self.index}): {e}")
             return False
 
-    def is_microphone_available(self) -> bool:
+    def is_microphone_available(self, device_index: int = 0) -> bool:
         """Alias compatible avec le code existant."""
+        # Met à jour l'index de périphérique avant vérification
+        self.index = device_index
         return self.is_device_available()
 
     def test_capture(self, duration: float = 3.0) -> bool:
