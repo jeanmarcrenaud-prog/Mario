@@ -47,7 +47,30 @@ Le projet est un assistant vocal intelligent bien structuré avec :
 - [X] Tests Settings audio
 - [X] Couverture passée de 22% à 27%
 
-### Interface Gradio
+- [X] Analyse complète de la structure du projet
+- [X] Documentation des dépendances (DEPENDANCES.md)
+- [X] Optimisation GPU documentée
+- [X] Tests de performance documentés
+
+### Structure du Projet (Nouvelle)
+- [X] Architecture MVC modulaire complète
+- [X] Services audio (STT, TTS, Wake Word)
+- [X] Interfaces multi-plateformes (Web, Console, ePaper)
+- [X] Système de gestion d'erreurs centralisé
+- [X] Monitoring système (CPU, GPU, Mémoire)
+- [X] Documentation MkDocs en cours
+- [X] CI/CD avec GitHub Actions
+
+## Sessions Récentes - Mar 2026
+**Mise à jour de ce dossier**
+- [X] Exploration complète du dossier root
+- [X] Lister tous les sous-dossiers (src, models, voices, data, tests, docs)
+- [X] Lire et analyser config.yaml
+- [X] Lire et analyser pyproject.toml
+- [X] Mettre à jour PLAN_AMÉLIORATION.md
+- [X] Créer TODO.md au root
+- [X] Créer TODO.md dans src/
+- [X] Mettre à jour TODO.md dans src/
 - [X] En-tête moderne avec gradient
 - [X] Animations CSS pour statuts
 - [X] Thème Soft indigo/purple
