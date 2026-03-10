@@ -95,4 +95,4 @@ class AudioInputAdapter:
             return [(idx, device) for idx, device in enumerate(devices)]
         except Exception as e:
             logger.error(f"Erreur récupération périphériques: {e}")
-            return []]
+            return []

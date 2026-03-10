@@ -5,7 +5,7 @@ from unittest.mock import MagicMock, patch
 class TestLLMService:
     def setup_method(self):
         self.adapter = SimulatedLLMAdapter()
-        self.llm_service = LLMService(llm_adapter=self.adapter)
+        self.llm_service = LLMService(adapter=self.adapter)
 
     def test_generate_response(self):
         messages = [{"role": "user", "content": "Bonjour"}]
@@ -14,7 +14,7 @@ class TestLLMService:
 
     def test_generate_response_with_custom_responses(self):
         adapter = SimulatedLLMAdapter(fake_responses={"hello": "Hello!"})
-        service = LLMService(llm_adapter=adapter)
+        service = LLMService(adapter=adapter)
         messages = [{"role": "user", "content": "Hello world"}]
         response = service.generate_response(messages)
         assert response == "Hello!"
@@ -55,7 +55,7 @@ class TestLLMService:
         assert service.llm_adapter.fake_responses == custom_responses
 
     def test_generate_response_error_handling(self):
-        self.adapter.generate_response = MagicMock(side_effect=Exception("API Error"))
+        self.adapter.chat = MagicMock(side_effect=Exception("API Error"))
         messages = [{"role": "user", "content": "Test"}]
         response = self.llm_service.generate_response(messages)
         assert "[ERREUR]" in response
@@ -100,7 +100,7 @@ class TestSimulatedLLMAdapter:
 
 
 class TestOllamaLLMAdapter:
-    @patch('src.services.llm_service.requests.get')
+    @patch('requests.get')
     def test_check_availability_success(self, mock_get):
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -110,7 +110,7 @@ class TestOllamaLLMAdapter:
         adapter = OllamaLLMAdapter()
         assert adapter.is_available is True
 
-    @patch('src.services.llm_service.requests.get')
+    @patch('requests.get')
     def test_check_availability_failure(self, mock_get):
         mock_get.side_effect = Exception("Connection error")
         

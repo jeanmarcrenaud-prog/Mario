@@ -1,0 +1,17 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.2, pluggy-1.5.0
+rootdir: C:\Users\johns\Documents\GitHub\Mario
+configfile: pyproject.toml
+plugins: anyio-4.11.0, cov-7.0.0
+collected 257 items / 1 error
+
+============================== warnings summary ===============================
+..\..\..\miniconda3\Lib\site-packages\coverage\config.py:346
+  C:\Users\johns\miniconda3\Lib\site-packages\coverage\config.py:346: CoverageWarning: Unrecognized option '[tool.coverage.report] missing_cover=' in config file pyproject.toml
+    warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/unit/services/test_app_factory.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+========================= 1 warning, 1 error in 3.63s =========================

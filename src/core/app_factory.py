@@ -15,7 +15,6 @@ from src.services.tts_service import TTSService
 from src.services.wake_word_service import WakeWordService
 from src.services.speech_recognition_service import SpeechRecognitionService
 from src.adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
-from src.adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
 from src.services.llm_service import LLMService
 from src.services.project_analyzer_service import ProjectAnalyzerService
 from src.core.performance_optimizer import PerformanceOptimizer
@@ -30,7 +29,6 @@ from src.main import AssistantVocal
 def create_assistant() -> AssistantVocal:
     """
     Factory method pour créer un AssistantVocal complètement configuré.
-    Cette fonction centralise l'assemblage de toutes les dépendances.
     
     Returns:
         AssistantVocal: Instance configurée et prête à l'emploi
@@ -47,15 +45,14 @@ def create_assistant() -> AssistantVocal:
     # Vérification du microphone
     mic_checker = MicrophoneChecker()
     if not mic_checker.is_microphone_available():
-        logger.error("❌ Aucun microphone détecté. Impossible de démarrer le mode vocal.")
+        logger.error("❌ Aucun microphone détecté.")
         raise RuntimeError("Microphone non disponible") 
         
-    # 3. Services avec injection de dépendances
+    # 3. Services
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    # ✅ Utiliser Vosk au lieu de  Vosk pour la détection du mot-clé
     wake_word_service = WakeWordService.create_with_vosk()
-    speech_recognition_service = create_speech_recognition_service_prod()
-    llm_service = LLMService.create_with_ollama(settings.llm_model)
+    speech_recognition_service = create_speech_recognition_service()
+    llm_service = LLMService.create_with_simulation()
     
     # 4. Services dépendants
     project_analyzer_service = ProjectAnalyzerService(llm_service)
@@ -84,112 +81,9 @@ def create_assistant() -> AssistantVocal:
     logger.info("✅ Assistant vocal créé avec injection de dépendances")
     return assistant
 
-def create_assistant_with_simulation() -> AssistantVocal:
-    """
-    Factory method pour créer un AssistantVocal avec des services simulés.
-    Utile pour les tests et le développement hors ligne.
-    
-    Returns:
-        AssistantVocal: Instance avec services simulés
-    """
-    logger.info("🔧 Démarrage de la composition root (simulation)...")
-    
-    # 1. Configuration
-    settings = Settings.from_config(config)
-    
-    # 2. Services de base
-    conversation_service = ConversationService()
-    prompt_manager = PromptManager()
-    
-    # 3. Services simulés
-    tts_service = TTSService.create_with_piper(settings.voice_name)  # TTS réel pour les tests
-    wake_word_service = WakeWordService.create_with_simulation()
-    speech_recognition_service = SpeechRecognitionService.create_with_simulation()
-    llm_service = LLMService.create_with_simulation()
-    
-    # 4. Services dépendants
-    project_analyzer_service = ProjectAnalyzerService(llm_service)
-    
-    # 5. Services système
-    system_monitor = SystemMonitor()
-    performance_optimizer = PerformanceOptimizer()
-    
-    # 6. Démarrer le monitoring
-    performance_optimizer.start_monitoring()
-    
-    # 7. Créer l'instance de l'assistant
-    assistant = AssistantVocal(
-        settings=settings,
-        conversation_service=conversation_service,
-        prompt_manager=prompt_manager,
-        tts_service=tts_service,
-        wake_word_service=wake_word_service,
-        speech_recognition_service=speech_recognition_service,
-        llm_service=llm_service,
-        project_analyzer_service=project_analyzer_service,
-        system_monitor=system_monitor,
-        performance_optimizer=performance_optimizer
-    )
-    
-    logger.info("✅ Assistant vocal simulé créé")
-    return assistant
+# Speech Recognition Service Factory
 
-def create_minimal_assistant() -> AssistantVocal:
-    """
-    Factory method pour créer un AssistantVocal minimal.
-    Utile pour les tests unitaires ou les environnements restreints.
-    
-    Returns:
-        AssistantVocal: Instance minimale
-    """
-    logger.info("🔧 Démarrage de la composition root (minimal)...")
-    
-    # 1. Configuration minimale
-    settings = Settings.from_config(config)
-    
-    # 2. Services de base uniquement
-    conversation_service = ConversationService()
-    prompt_manager = PromptManager()
-    
-    # 3. Services simulés
-    tts_service = TTSService.create_with_simulation()
-    wake_word_service = WakeWordService.create_with_simulation()
-    speech_recognition_service = create_speech_recognition_service_prod()
-    llm_service = LLMService.create_with_simulation()
-    
-    # 4. Services dépendants
-    project_analyzer_service = ProjectAnalyzerService(llm_service)
-    
-    # 5. Services système minimalistes
-    system_monitor = SystemMonitor()
-    performance_optimizer = PerformanceOptimizer()
-    
-    # 6. Créer l'instance de l'assistant
-    assistant = AssistantVocal(
-        settings=settings,
-        conversation_service=conversation_service,
-        prompt_manager=prompt_manager,
-        tts_service=tts_service,
-        wake_word_service=wake_word_service,
-        speech_recognition_service=speech_recognition_service,
-        llm_service=llm_service,
-        project_analyzer_service=project_analyzer_service,
-        system_monitor=system_monitor,
-        performance_optimizer=performance_optimizer
-    )
-    
-    logger.info("✅ Assistant vocal minimal créé")
-    return assistant
-
-# Speech Recognition Service Factories
-
-def create_speech_recognition_service_prod(model_name: str = "base") -> SpeechRecognitionService:
-    """Factory pour créer un service STT avec Whisper (production)."""
+def create_speech_recognition_service(model_name: str = "base") -> SpeechRecognitionService:
+    """Factory pour créer un service STT avec Whisper."""
     adapter = WhisperSpeechRecognitionAdapter(model_name=model_name)
-    return SpeechRecognitionService(speech_recognition_adapter=adapter)
-
-
-def create_speech_recognition_service_simulated(fake_result: str = "Bonjour, comment allez-vous ?") -> SpeechRecognitionService:
-    """Factory pour créer un service STT avec simulation (développement/tests)."""
-    adapter = SimulatedSpeechRecognitionAdapter(fake_result=fake_result)
     return SpeechRecognitionService(speech_recognition_adapter=adapter)

@@ -2,14 +2,14 @@ import json
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 from ..utils.file_analyzer import FileAnalyzer
-from ..core.llm_client import LLMClient
+from ..services.llm_service import LLMService
 from ..utils.logger import logger
 import threading
 
 class AnalysisManager:
     """Gère les analyses de fichiers et l'intégration avec Ollama."""
     
-    def __init__(self, file_analyzer: FileAnalyzer, llm_client: LLMClient):
+    def __init__(self, file_analyzer: FileAnalyzer, llm_client: LLMService):
         self.file_analyzer = file_analyzer
         self.llm_client = llm_client
 

@@ -1,15 +1,9 @@
 from typing import Callable, Optional
 from abc import ABC, abstractmethod
 import logging
-import sys
 
 logger = logging.getLogger(__name__)
 
-def _get_simulated_adapter_class():
-    if 'src.core.wake_word_service' in sys.modules:
-        return sys.modules['src.core.wake_word_service'].SimulatedWakeWordAdapter
-    from .simulated_wake_word_adapter import SimulatedWakeWordAdapter
-    return SimulatedWakeWordAdapter
 
 class IWakeWordAdapter(ABC):
     """Interface for WakeWord adapters."""
@@ -92,10 +86,4 @@ class WakeWordService(IWakeWordService):
         adapter = VoskWakeWordAdapter(config.VOSK_MODEL_PATH, microphone_checker=mic_checker)
         return WakeWordService(adapter)
 
-    @staticmethod
-    def create_with_simulation() -> "WakeWordService":
-        """Factory method to instantiate WakeWordService with the simulated adapter."""
-        adapter = _get_simulated_adapter_class()()
-        return WakeWordService(adapter)
-
-# End of file
+    # End of file

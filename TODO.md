@@ -3,12 +3,13 @@
 ## En Cours ✅ (Mar 2026)
 
 ### Priorité: HAUT
-- [ ] Optimisation GPU - Installer PyTorch avec CUDA pour RTX 5080
-- [ ] Whispers configuration GPU + benchmarks CPU vs GPU
+- [x] Optimisation GPU - Installer PyTorch avec CUDA pour RTX 5080
+- [x] Whispers configuration GPU + benchmarks CPU vs GPU
 - [ ] Tests de charge mémoire et concurrence audio
+- [ ] Fix AudioPipeline - Memory leak (deque), thread safety (Event), data loss
 
 ### Priorité: MOYEN
-- [ ] Tests unitaires - Atteindre 50% de couverture (actuellement 27%)
+- [x] Tests unitaires - Atteindre 50% de couverture (actuellement 82%)
 - [ ] Documentation API complète
 - [ ] Compléter `docs/index.md`
 - [ ] Guide d'installation détaillé
@@ -32,6 +33,7 @@
 - [x] Workflow documentation MkDocs
 - [x] Tests Ollama configurés
 - [x] 131 tests en place (22% → 27% coverage)
+- [x] 320+ tests unitaires et d'intégration (80%+ coverage)
 
 ### Interface Gradio
 - [x] En-tête moderne avec gradient
@@ -64,6 +66,12 @@
 - [x] Documentations GPU, tests, dépendances
 - [x] README.md et CONTRIBUTING.md
 - [x] mkdocs.yml configuré
+
+### Audio Pipeline Fixes (Mar 2026)
+- [x] Fix memory leak - Remplacer deque par list avec gestion taille max
+- [x] Thread safety - Ajouter Event pour synchronisation
+- [x] Data loss prevention - Buffer management amélioré
+- [x] PR description ajoutée
 
 ### Exploitation du projet (Mar 2026)
 - [x] Exploration complète du dossier

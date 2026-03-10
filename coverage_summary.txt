@@ -1,0 +1,3 @@
+C:\Users\johns\miniconda3\Lib\site-packages\coverage\config.py:346: CoverageWarning: Unrecognized option '[tool.coverage.report] missing_cover=' in config file pyproject.toml
+  warn(
+Couldn't parse 'C:\Users\johns\Documents\GitHub\Mario\src\adapters\audio_input_microphone.py' as Python source: "unmatched ']'" at line 98

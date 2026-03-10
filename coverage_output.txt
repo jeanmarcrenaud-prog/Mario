@@ -1,0 +1,1204 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.5, pytest-8.4.2, pluggy-1.5.0
+rootdir: C:\Users\johns\Documents\GitHub\Mario
+configfile: pyproject.toml
+plugins: anyio-4.11.0, cov-7.0.0, xdist-3.8.0
+collected 444 items
+
+tests\core\test_core_comprehensive.py ...FFFFF.FFFFFFFFFF                [  4%]
+tests\core\test_core_modules.py FFFFFF                                   [  5%]
+tests\core\test_core_with_mocks.py FFFFFFFFFF                            [  7%]
+tests\e2e\test_full_assistant.py ...                                     [  8%]
+tests\integration\test_full_pipeline.py ...                              [  9%]
+tests\integration\test_integration.py ....                               [ 10%]
+tests\integration\test_integration_e2e.py FFFFFFF..FFF.FF                [ 13%]
+tests\integration\test_service_orchestration.py ....                     [ 14%]
+tests\performance\test_performance_benchmark.py ..                       [ 14%]
+tests\performance\test_performance_optimizer.py ........................ [ 20%]
+....                                                                     [ 21%]
+tests\test_imports.py .                                                  [ 21%]
+tests\unit\adapters\test_adapter_interfaces.py ...........F.FF           [ 24%]
+tests\unit\adapters\test_dummy_audio_input.py .                          [ 25%]
+tests\unit\adapters\test_dummy_audio_output.py .                         [ 25%]
+tests\unit\adapters\test_vosk_wake_word_adapter.py .                     [ 25%]
+tests\unit\adapters\test_whisper_adapter.py .                            [ 25%]
+tests\unit\core\test_core.py ........                                    [ 27%]
+tests\unit\core\test_core_coverage.py ..........                         [ 29%]
+tests\unit\services\test_app_factory.py FFFF                             [ 30%]
+tests\unit\services\test_conversation_service.py ......                  [ 31%]
+tests\unit\services\test_llm_service.py .................                [ 35%]
+tests\unit\services\test_project_analyzer_service.py .                   [ 36%]
+tests\unit\services\test_services.py .......                             [ 37%]
+tests\unit\services\test_speech_recognition_service.py .........         [ 39%]
+tests\unit\services\test_tts_service.py ................                 [ 43%]
+tests\unit\services\test_wake_word_service.py .......                    [ 44%]
+tests\unit\test_adapters.py ...............                              [ 48%]
+tests\unit\test_adapters_fixed.py .............F.                        [ 51%]
+tests\unit\test_config.py .....FF........FFFF                            [ 55%]
+tests\unit\test_coverage.py ..............................               [ 62%]
+tests\unit\test_models.py ..F.F..FFF............F....F.F                 [ 69%]
+tests\unit\test_modules_coverage.py .......                              [ 70%]
+tests\unit\test_recent_features.py ............                          [ 73%]
+tests\unit\test_uncovered_modules.py ....F...F.....FFFFFFFFFFF.FFFFF..FF [ 81%]
+.F.FF.FFFFFFFF.F                                                         [ 85%]
+tests\unit\test_views.py .EEFFFFFFFFFFE                                  [ 88%]
+tests\unit\test_views_and_models.py FFFFFFFFFFFFFFFFFF.FFF...F.FFF..FFFF [ 96%]
+FFFFF                                                                    [ 97%]
+tests\unit\views\test_web_interface_gradio.py ...........                [100%]
+
+=================================== ERRORS ====================================
+__________ ERROR at setup of TestConsoleView.test_console_view_init ___________
+tests\unit\test_views.py:13: in mock_assistant
+    assistant = Mock()
+                ^^^^
+E   NameError: name 'Mock' is not defined
+___________ ERROR at setup of TestConsoleView.test_display_message ____________
+tests\unit\test_views.py:13: in mock_assistant
+    assistant = Mock()
+                ^^^^
+E   NameError: name 'Mock' is not defined
+_______ ERROR at setup of TestAppInitialization.test_app_factory_create _______
+tests\unit\test_views.py:150: in mock_configs
+    configs = Mock()
+              ^^^^
+E   NameError: name 'Mock' is not defined
+================================== FAILURES ===================================
+________________________ TestCloudOpenAIAPI.test_init _________________________
+tests\core\test_core_comprehensive.py:86: in test_init
+    from src.adapters.cloud_openai_api import CloudOpenAIAPI
+src\adapters\cloud_openai_api.py:2: in <module>
+    import openai
+E   ModuleNotFoundError: No module named 'openai'
+_____________ TestCloudOpenAIAPI.test_init_with_different_models ______________
+tests\core\test_core_comprehensive.py:95: in test_init_with_different_models
+    from src.adapters.cloud_openai_api import CloudOpenAIAPI
+src\adapters\cloud_openai_api.py:2: in <module>
+    import openai
+E   ModuleNotFoundError: No module named 'openai'
+_________________________ TestDisplayEPaper.test_init _________________________
+tests\core\test_core_comprehensive.py:118: in test_init
+    patch("src.adapters.display_epaper.Display", return_value=mock_display):
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.adapters.display_epaper' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\adapters\\display_epaper.py'> does not have the attribute 'Display'
+_____________________ TestDisplayEPaper.test_clear_method _____________________
+tests\core\test_core_comprehensive.py:130: in test_clear_method
+    patch("src.adapters.display_epaper.Display", return_value=mock_display):
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.adapters.display_epaper' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\adapters\\display_epaper.py'> does not have the attribute 'Display'
+______________ TestLLMAdapter.test_llm_service_interface_exists _______________
+tests\core\test_core_comprehensive.py:145: in test_llm_service_interface_exists
+    from src.interfaces.llm import LLMService
+E   ModuleNotFoundError: No module named 'src.interfaces.llm'
+___________________________ TestVoiceTTS.test_init ____________________________
+tests\core\test_core_comprehensive.py:174: in test_init
+    patch("src.services.text_to_speech", return_value=mock_tts_module):
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\__init__.py'> does not have the attribute 'text_to_speech'
+________________________ TestWakeWordService.test_init ________________________
+tests\core\test_core_comprehensive.py:200: in test_init
+    patch("src.services.wake_word_service.VoskWakeWordDetector", return_value=mock_detector):
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services.wake_word_service' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\wake_word_service.py'> does not have the attribute 'VoskWakeWordDetector'
+_______________ TestWakeWordService.test_start_method_signature _______________
+tests\core\test_core_comprehensive.py:213: in test_start_method_signature
+    patch("src.services.wake_word_service.VoskWakeWordDetector"):
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services.wake_word_service' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\wake_word_service.py'> does not have the attribute 'VoskWakeWordDetector'
+___________________________ TestAppRunner.test_init ___________________________
+tests\core\test_core_comprehensive.py:236: in test_init
+    with patch("src.core.app_runner.AppFactory", return_value=mock_app_factory), \
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.core.app_runner' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\core\\app_runner.py'> does not have the attribute 'AppFactory'
+______________________ TestConversationHandler.test_init ______________________
+tests\core\test_core_comprehensive.py:265: in test_init
+    handler = ConversationHandler(
+              ^^^^^^^^^^^^^^^^^^^
+E   NameError: name 'ConversationHandler' is not defined
+_____________ TestConversationHandler.test_handle_message_exists ______________
+tests\core\test_core_comprehensive.py:274: in test_handle_message_exists
+    handler = ConversationHandler(
+              ^^^^^^^^^^^^^^^^^^^
+E   NameError: name 'ConversationHandler' is not defined
+__________ TestExceptions.test_all_exceptions_exist_and_are_classes ___________
+tests\core\test_core_comprehensive.py:287: in test_all_exceptions_exist_and_are_classes
+    from src.core.exceptions import (
+E   ImportError: cannot import name 'AssistantStateError' from 'src.core.exceptions' (C:\Users\johns\Documents\GitHub\Mario\src\core\exceptions.py)
+__________________ TestExceptions.test_exception_inheritance __________________
+tests\core\test_core_comprehensive.py:304: in test_exception_inheritance
+    from src.core.exceptions import (
+E   ImportError: cannot import name 'AssistantStateError' from 'src.core.exceptions' (C:\Users\johns\Documents\GitHub\Mario\src\core\exceptions.py)
+_______________________ TestInterfaceManager.test_init ________________________
+tests\core\test_core_comprehensive.py:339: in test_init
+    manager = InterfaceManager(
+              ^^^^^^^^^^^^^^^^
+E   NameError: name 'InterfaceManager' is not defined
+__________________ TestInterfaceManager.test_interface_types __________________
+tests\core\test_core_comprehensive.py:352: in test_interface_types
+    from src.core.interface_manager import InterfaceType
+E   ImportError: cannot import name 'InterfaceType' from 'src.core.interface_manager' (C:\Users\johns\Documents\GitHub\Mario\src\core\interface_manager.py)
+______________ TestInterfaceManager.test_init_creates_interfaces ______________
+tests\core\test_core_modules.py:17: in test_init_creates_interfaces
+    manager = InterfaceManager()
+              ^^^^^^^^^^^^^^^^^^
+E   TypeError: InterfaceManager.__init__() missing 2 required positional arguments: 'assistant' and 'settings'
+_______________ TestInterfaceManager.test_interface_types_exist _______________
+tests\core\test_core_modules.py:25: in test_interface_types_exist
+    from src.core.interface_manager import InterfaceType
+E   ImportError: cannot import name 'InterfaceType' from 'src.core.interface_manager' (C:\Users\johns\Documents\GitHub\Mario\src\core\interface_manager.py)
+________________ TestPromptManager.test_generate_system_prompt ________________
+tests\core\test_core_modules.py:36: in test_generate_system_prompt
+    result = manager.generate_system_prompt("Test prompt")
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'PromptManager' object has no attribute 'generate_system_prompt'
+---------------------------- Captured stderr call -----------------------------
+2026-03-08 09:53:51,586 - INFO - PromptManager initialisé avec 2 prompts
+------------------------------ Captured log call ------------------------------
+INFO     AssistantVocal:prompt_manager.py:25 PromptManager initialisé avec 2 prompts
+__________________________ TestAudioPlayer.test_init __________________________
+tests\core\test_core_modules.py:44: in test_init
+    from src.core.audio_player import AudioPlayer
+E   ModuleNotFoundError: No module named 'src.core.audio_player'
+__________________________ TestAudioPlayer.test_play __________________________
+tests\core\test_core_modules.py:51: in test_play
+    from src.core.audio_player import AudioPlayer
+E   ModuleNotFoundError: No module named 'src.core.audio_player'
+____________________________ TestRouter.test_init _____________________________
+tests\core\test_core_modules.py:61: in test_init
+    from src.core.router import Router
+E   ModuleNotFoundError: No module named 'src.core.router'
+_____________________ TestAudioPlayer.test_init_and_play ______________________
+..\..\..\miniconda3\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\..\miniconda3\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.utils.audio_player' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\utils\\audio_player.py'> does not have the attribute 'open_mixer_control'
+_____________________ TestAudioPlayer.test_methods_exist ______________________
+tests\core\test_core_with_mocks.py:30: in test_methods_exist
+    with patch('src.utils.audio_player.open_playback_device'), \
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.utils.audio_player' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\utils\\audio_player.py'> does not have the attribute 'open_playback_device'
+________________________ TestCloudOpenAIAPI.test_init _________________________
+tests\core\test_core_with_mocks.py:49: in test_init
+    from src.adapters.cloud_openai_api import CloudOpenAIAPI
+src\adapters\cloud_openai_api.py:2: in <module>
+    import openai
+E   ModuleNotFoundError: No module named 'openai'
+______________________ TestDisplayEPaper.test_init_clear ______________________
+..\..\..\miniconda3\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\..\miniconda3\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.adapters.display_epaper' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\adapters\\display_epaper.py'> does not have the attribute 'Display'
+__________________ TestLLMAdapter.test_interface_type_exists __________________
+tests\core\test_core_with_mocks.py:74: in test_interface_type_exists
+    from src.interfaces.llm import LLMService
+E   ModuleNotFoundError: No module named 'src.interfaces.llm'
+___________________________ TestVoiceTTS.test_init ____________________________
+..\..\..\miniconda3\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\..\miniconda3\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\__init__.py'> does not have the attribute 'text_to_speech_text_to_speech'
+________________________ TestWakeWordService.test_init ________________________
+..\..\..\miniconda3\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\..\miniconda3\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services.wake_word_service' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\wake_word_service.py'> does not have the attribute 'VoskWakeWordDetector'
+___________________________ TestAppRunner.test_init ___________________________
+..\..\..\miniconda3\Lib\unittest\mock.py:1423: in patched
+    with self.decoration_helper(patched,
+..\..\..\miniconda3\Lib\contextlib.py:141: in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1405: in decoration_helper
+    arg = exit_stack.enter_context(patching)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\contextlib.py:530: in enter_context
+    result = _enter(cm)
+             ^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.core.app_runner' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\core\\app_runner.py'> does not have the attribute 'AppFactory'
+______________________ TestConversationHandler.test_init ______________________
+tests\core\test_core_with_mocks.py:124: in test_init
+    handler = ConversationHandler()
+              ^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ConversationHandler.__init__() missing 2 required positional arguments: 'conversation_service' and 'llm_service'
+____________________ TestExceptions.test_exceptions_exist _____________________
+tests\core\test_core_with_mocks.py:132: in test_exceptions_exist
+    from src.core.exceptions import (
+E   ImportError: cannot import name 'AssistantStateError' from 'src.core.exceptions' (C:\Users\johns\Documents\GitHub\Mario\src\core\exceptions.py)
+____ TestFullPipelineIntegration.test_full_transcribe_generate_speak_flow _____
+tests\integration\test_integration_e2e.py:62: in test_full_transcribe_generate_speak_flow
+    result = pipeline.process_audio(None)
+             ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'AudioPipeline' object has no attribute 'process_audio'
+_______ TestFullPipelineIntegration.test_conversation_flow_with_context _______
+tests\integration\test_integration_e2e.py:89: in test_conversation_flow_with_context
+    with patch.object(pipeline, "_conversation_state") as mock_state:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <src.core.audio_pipeline.AudioPipeline object at 0x000001B77EECB790> does not have the attribute '_conversation_state'
+_____________ TestSystemIntegration.test_system_stats_collection ______________
+tests\integration\test_integration_e2e.py:115: in test_system_stats_collection
+    monitor = SystemMonitor(mock_system)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: SystemMonitor.__init__() takes 1 positional argument but 2 were given
+_____________ TestSystemIntegration.test_system_alerts_generation _____________
+tests\integration\test_integration_e2e.py:127: in test_system_alerts_generation
+    monitor = SystemMonitor(mock_system)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: SystemMonitor.__init__() takes 1 positional argument but 2 were given
+_____ TestLLMPipelineIntegration.test_llm_generation_with_system_message ______
+tests\integration\test_integration_e2e.py:165: in test_llm_generation_with_system_message
+    assert "response" in result
+           ^^^^^^^^^^^^^^^^^^^^
+E   TypeError: argument of type 'Mock' is not iterable
+---------------------------- Captured stderr call -----------------------------
+2026-03-08 09:54:49,447 - INFO - LLMService initialisé avec adaptateur
+------------------------------ Captured log call ------------------------------
+INFO     AssistantVocal:llm_service.py:151 LLMService initialisé avec adaptateur
+_________ TestAudioPipelineIntegration.test_audio_pipeline_buffering __________
+tests\integration\test_integration_e2e.py:195: in test_audio_pipeline_buffering
+    pipeline.add_chunk(b"audio_data")
+    ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'AudioPipeline' object has no attribute 'add_chunk'
+___ TestConversationStateIntegration.test_conversation_with_multiple_turns ____
+tests\integration\test_integration_e2e.py:210: in test_conversation_with_multiple_turns
+    state.add_user_message("Hello")
+    ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ConversationState' object has no attribute 'add_user_message'. Did you mean: 'add_message'?
+__________ TestPerformanceIntegration.test_audio_processing_latency ___________
+tests\integration\test_integration_e2e.py:283: in test_audio_processing_latency
+    assert "transcription_avg" in latency_stats or "tts_avg" in latency_stats
+E   AssertionError: assert ('transcription_avg' in {} or 'tts_avg' in {})
+________________ TestEventBusIntegration.test_event_publishing ________________
+tests\integration\test_integration_e2e.py:291: in test_event_publishing
+    from src.events.events import events
+E   ImportError: cannot import name 'events' from 'src.events.events' (C:\Users\johns\Documents\GitHub\Mario\src\events\events.py)
+_______________ TestEventBusIntegration.test_event_subscription _______________
+tests\integration\test_integration_e2e.py:309: in test_event_subscription
+    assert bus.subscribers is not None
+           ^^^^^^^^^^^^^^^
+E   AttributeError: 'EventBus' object has no attribute 'subscribers'. Did you mean: 'subscribe'?
+_______ TestIntegrationCompleteAssistant.test_assistant_initialization ________
+tests\integration\test_integration_e2e.py:334: in test_assistant_initialization
+    from src.core.app_factory import AppFactory
+E   ImportError: cannot import name 'AppFactory' from 'src.core.app_factory' (C:\Users\johns\Documents\GitHub\Mario\src\core\app_factory.py)
+_____________ TestInterfaceIntegration.test_web_interface_startup _____________
+tests\integration\test_integration_e2e.py:384: in test_web_interface_startup
+    interface_manager = InterfaceManager(mock_app, configs)
+                                                   ^^^^^^^
+E   NameError: name 'configs' is not defined
+___________ TestAudioOutputSpeakerAdapter.test_speaker_adapter_init ___________
+tests\unit\adapters\test_adapter_interfaces.py:160: in test_speaker_adapter_init
+    from src.adapters.audio_output_speaker import AudioOutputAdapter
+src\adapters\audio_output_speaker.py:4: in <module>
+    from ..core.text_to_speech import TextToSpeech  # Votre classe existante
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ModuleNotFoundError: No module named 'src.core.text_to_speech'
+_________________ TestCloudOpenAIAPI.test_openai_adapter_init _________________
+tests\unit\adapters\test_adapter_interfaces.py:190: in test_openai_adapter_init
+    from src.adapters.cloud_openai_api import OpenAIAdapter
+src\adapters\cloud_openai_api.py:2: in <module>
+    import openai
+E   ModuleNotFoundError: No module named 'openai'
+______________ TestDisplayEpaperAdapter.test_epaper_adapter_init ______________
+tests\unit\adapters\test_adapter_interfaces.py:205: in test_epaper_adapter_init
+    from src.adapters.display_epaper import EpaperDisplay
+E   ImportError: cannot import name 'EpaperDisplay' from 'src.adapters.display_epaper' (C:\Users\johns\Documents\GitHub\Mario\src\adapters\display_epaper.py)
+______________________ test_create_assistant_happy_path _______________________
+tests\unit\services\test_app_factory.py:9: in test_create_assistant_happy_path
+    with patch('src.services.TTSService') as mock_tts, \
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\__init__.py'> does not have the attribute 'TTSService'
+____________________ test_create_assistant_with_simulation ____________________
+..\..\..\miniconda3\Lib\site-packages\_pytest\monkeypatch.py:90: in annotated_getattr
+    obj = getattr(obj, name)
+          ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'src.services' has no attribute 'LLMService'. Did you mean: 'llm_service'?
+
+The above exception was the direct cause of the following exception:
+tests\unit\services\test_app_factory.py:60: in test_create_assistant_with_simulation
+    mp.setattr('src.services.LLMService', lambda: mock_llm_adapter)
+..\..\..\miniconda3\Lib\site-packages\_pytest\monkeypatch.py:104: in derive_importpath
+    annotated_getattr(target, attr, ann=module)
+..\..\..\miniconda3\Lib\site-packages\_pytest\monkeypatch.py:92: in annotated_getattr
+    raise AttributeError(
+E   AttributeError: 'module' object at src.services has no attribute 'LLMService'
+__________________ test_create_assistant_without_microphone ___________________
+tests\unit\services\test_app_factory.py:78: in test_create_assistant_without_microphone
+    with patch('src.core.app_factory.config', {}, raising=False):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1602: in __enter__
+    raise TypeError("Can't pass kwargs to a mock we aren't creating")
+E   TypeError: Can't pass kwargs to a mock we aren't creating
+________________________ test_create_minimal_assistant ________________________
+tests\unit\services\test_app_factory.py:87: in test_create_minimal_assistant
+    with patch('src.services.TTSService') as mock_tts, \
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.services' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\services\\__init__.py'> does not have the attribute 'TTSService'
+______________ TestCoreExceptions.test_exception_initialization _______________
+tests\unit\test_adapters_fixed.py:174: in test_exception_initialization
+    assert "test" in str(mock_base_exception)
+E   AssertionError: assert 'test' in 'MockException'
+E    +  where 'MockException' = str(MockException('test'))
+____________________ TestSettings.test_settings_llm_models ____________________
+tests\unit\test_config.py:90: in test_settings_llm_models
+    assert "qwen3-coder" in settings.llm_model
+E   AssertionError: assert 'qwen3-coder' in ['qwen3-coder:latest', 'mistral']
+E    +  where ['qwen3-coder:latest', 'mistral'] = <Mock id='1887620937584'>.llm_model
+_________________ TestConfigParser.test_parse_audio_settings __________________
+tests\unit\test_config.py:102: in test_parse_audio_settings
+    assert cfg.default_microphone_index == 0
+E   AssertionError: assert 1 == 0
+E    +  where 1 = <Mock id='1887620377840'>.default_microphone_index
+__________ TestPerformanceConfig.test_performance_auto_optimize_true __________
+tests\unit\test_config.py:218: in test_performance_auto_optimize_true
+    assert cfg.performance.auto_optimize is True
+           ^^^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'performance'
+____________ TestPerformanceConfig.test_performance_thresholds_cpu ____________
+tests\unit\test_config.py:237: in test_performance_thresholds_cpu
+    assert cfg.performance.alert_thresholds.cpu_max == 75.0
+           ^^^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'performance'
+____________________ TestConfigLogging.test_logging_levels ____________________
+tests\unit\test_config.py:260: in test_logging_levels
+    assert cfg.log_level == level
+           ^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'log_level'
+________________ TestConfigLogging.test_logging_level_default _________________
+tests\unit\test_config.py:275: in test_logging_level_default
+    assert cfg.log_level == "INFO"
+           ^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'log_level'
+______________________ TestOllamaClient.test_set_timeout ______________________
+tests\unit\test_models.py:53: in test_set_timeout
+    assert client.timeout == 60
+E   AssertionError: assert 120 == 60
+E    +  where 120 = <Mock id='1887620936576'>.timeout
+____________________ TestOllamaClient.test_generate_stream ____________________
+tests\unit\test_models.py:93: in test_generate_stream
+    assert hasattr(gen, "__iter__")
+E   AssertionError: assert False
+E    +  where False = hasattr(<Mock name='mock()' id='1887620924144'>, '__iter__')
+___________________ TestConversationState.test_add_message ____________________
+tests\unit\test_models.py:133: in test_add_message
+    assert len(state.messages) == 1
+E   AssertionError: assert 0 == 1
+E    +  where 0 = len([])
+E    +    where [] = <Mock id='1887618960080'>.messages
+_________________ TestConversationState.test_add_user_message _________________
+tests\unit\test_models.py:142: in test_add_user_message
+    assert state.messages[-1]["role"] == "user"
+           ^^^^^^^^^^^^^^^^^^
+E   IndexError: list index out of range
+______________ TestConversationState.test_add_assistant_response ______________
+tests\unit\test_models.py:151: in test_add_assistant_response
+    assert state.messages[-1]["role"] == "assistant"
+           ^^^^^^^^^^^^^^^^^^
+E   IndexError: list index out of range
+____________ TestConfigSettingsTest.test_settings_set_sample_rate _____________
+tests\unit\test_models.py:291: in test_settings_set_sample_rate
+    assert settings.get_sample_rate() == 22050
+E   AssertionError: assert 16000 == 22050
+E    +  where 16000 = <Mock name='mock.get_sample_rate' id='1887624780096'>()
+E    +    where <Mock name='mock.get_sample_rate' id='1887624780096'> = <Mock id='1887624779760'>.get_sample_rate
+________ TestConversationStatePersistence.test_save_history_with_data _________
+tests\unit\test_models.py:346: in test_save_history_with_data
+    assert len(state.messages) == 2
+E   AssertionError: assert 0 == 2
+E    +  where 0 = len([])
+E    +    where [] = <Mock id='1887625358912'>.messages
+________ TestConversationStatePersistence.test_delete_last_n_messages _________
+tests\unit\test_models.py:362: in test_delete_last_n_messages
+    assert len(state.messages) == 5
+E   AssertionError: assert 0 == 5
+E    +  where 0 = len([])
+E    +    where [] = <Mock id='1887625362944'>.messages
+____________________ TestErrorGuard.test_get_error_handler ____________________
+tests\unit\test_uncovered_modules.py:77: in test_get_error_handler
+    assert isinstance(handler, ErrorHandler)
+                               ^^^^^^^^^^^^
+E   NameError: name 'ErrorHandler' is not defined
+______________ TestErrorGuard.test_retry_decorator_max_attempts _______________
+tests\unit\test_uncovered_modules.py:127: in test_retry_decorator_max_attempts
+    result = always_fail()
+             ^^^^^^^^^^^^^
+src\utils\error_guard.py:77: in wrapper
+    raise last_exception
+src\utils\error_guard.py:68: in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+tests\unit\test_uncovered_modules.py:125: in always_fail
+    raise ValueError("Always fails")
+E   ValueError: Always fails
+---------------------------- Captured stderr call -----------------------------
+2026-03-08 09:54:59,087 - WARNING - [Retry] always_fail échoué (attempt 1/3): Always fails
+2026-03-08 09:54:59,098 - WARNING - [Retry] always_fail échoué (attempt 2/3): Always fails
+2026-03-08 09:54:59,108 - ERROR - [Retry] always_fail a échoué après 3 tentatives
+------------------------------ Captured log call ------------------------------
+WARNING  AssistantVocal:error_guard.py:72 [Retry] always_fail échoué (attempt 1/3): Always fails
+WARNING  AssistantVocal:error_guard.py:72 [Retry] always_fail échoué (attempt 2/3): Always fails
+ERROR    AssistantVocal:error_guard.py:75 [Retry] always_fail a échoué après 3 tentatives
+_________________ TestLogger.test_safe_run_catches_exception __________________
+tests\unit\test_uncovered_modules.py:186: in test_safe_run_catches_exception
+    @safe_run(module_name="Test", return_value=None)
+     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: safe_run() got an unexpected keyword argument 'return_value'
+______________________ TestEventBus.test_event_bus_init _______________________
+tests\unit\test_uncovered_modules.py:204: in test_event_bus_init
+    assert hasattr(bus, '_subscribers')
+E   AssertionError: assert False
+E    +  where False = hasattr(<src.events.event_bus.EventBus object at 0x000001B7720EA490>, '_subscribers')
+____________________ TestEventBus.test_event_bus_subscribe ____________________
+tests\unit\test_uncovered_modules.py:215: in test_event_bus_subscribe
+    assert "test_event" in bus._subscribers
+                           ^^^^^^^^^^^^^^^^
+E   AttributeError: 'EventBus' object has no attribute '_subscribers'. Did you mean: 'subscribe'?
+___________________ TestEventBus.test_event_bus_unsubscribe ___________________
+tests\unit\test_uncovered_modules.py:226: in test_event_bus_unsubscribe
+    bus.unsubscribe("test_event", callback)
+    ^^^^^^^^^^^^^^^
+E   AttributeError: 'EventBus' object has no attribute 'unsubscribe'. Did you mean: 'subscribe'?
+_____________________ TestEventBus.test_event_bus_publish _____________________
+tests\unit\test_uncovered_modules.py:238: in test_event_bus_publish
+    bus.publish("test_event", data={"key": "value"})
+E   TypeError: EventBus.publish() got an unexpected keyword argument 'data'
+_____________ TestEventBus.test_event_bus_publish_no_subscribers ______________
+tests\unit\test_uncovered_modules.py:249: in test_event_bus_publish_no_subscribers
+    bus.publish("nonexistent_event", data={})
+E   TypeError: EventBus.publish() got an unexpected keyword argument 'data'
+______________________ TestEventBus.test_event_bus_clear ______________________
+tests\unit\test_uncovered_modules.py:261: in test_event_bus_clear
+    bus.clear()
+    ^^^^^^^^^
+E   AttributeError: 'EventBus' object has no attribute 'clear'
+______________________ TestEvents.test_event_types_exist ______________________
+tests\unit\test_uncovered_modules.py:271: in test_event_types_exist
+    from src.events.events import Event, EventType
+E   ImportError: cannot import name 'Event' from 'src.events.events' (C:\Users\johns\Documents\GitHub\Mario\src\events\events.py). Did you mean: 'events'?
+_______________________ TestEvents.test_event_creation ________________________
+tests\unit\test_uncovered_modules.py:278: in test_event_creation
+    from src.events.events import Event, EventType
+E   ImportError: cannot import name 'Event' from 'src.events.events' (C:\Users\johns\Documents\GitHub\Mario\src\events\events.py). Did you mean: 'events'?
+___________________ TestAudioPlayer.test_audio_player_init ____________________
+tests\unit\test_uncovered_modules.py:301: in test_audio_player_init
+    player = AudioPlayer(config)
+             ^^^^^^^^^^^^^^^^^^^
+E   TypeError: AudioPlayer.__init__() takes 1 positional argument but 2 were given
+___________________ TestAudioPlayer.test_audio_player_play ____________________
+tests\unit\test_uncovered_modules.py:314: in test_audio_player_play
+    player = AudioPlayer(config)
+             ^^^^^^^^^^^^^^^^^^^
+E   TypeError: AudioPlayer.__init__() takes 1 positional argument but 2 were given
+_____________ TestIntentRouter.test_intent_router_register_intent _____________
+tests\unit\test_uncovered_modules.py:342: in test_intent_router_register_intent
+    router.register_intent("test_intent", handler)
+    ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'IntentRouter' object has no attribute 'register_intent'. Did you mean: 'route_intent'?
+__________________ TestIntentRouter.test_intent_router_route __________________
+tests\unit\test_uncovered_modules.py:353: in test_intent_router_route
+    router.register_intent("test_intent", handler)
+    ^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'IntentRouter' object has no attribute 'register_intent'. Did you mean: 'route_intent'?
+______________ TestIntentRouter.test_intent_router_route_unknown ______________
+tests\unit\test_uncovered_modules.py:365: in test_intent_router_route_unknown
+    result = router.route("unknown_intent", {})
+             ^^^^^^^^^^^^
+E   AttributeError: 'IntentRouter' object has no attribute 'route'
+__________________ TestInterfaceHelpers.test_format_message ___________________
+tests\unit\test_uncovered_modules.py:375: in test_format_message
+    from src.views.interface_helpers import InterfaceHelpers
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+___________________ TestInterfaceHelpers.test_format_prompt ___________________
+tests\unit\test_uncovered_modules.py:386: in test_format_prompt
+    from src.views.interface_helpers import InterfaceHelpers
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+___________ TestConversationHandler.test_conversation_handler_init ____________
+tests\unit\test_uncovered_modules.py:430: in test_conversation_handler_init
+    handler = ConversationHandler(llm_service, tts_service, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ConversationHandler.__init__() takes 3 positional arguments but 4 were given
+_________________ TestConversationHandler.test_process_prompt _________________
+tests\unit\test_uncovered_modules.py:445: in test_process_prompt
+    handler = ConversationHandler(llm_service, tts_service, config)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: ConversationHandler.__init__() takes 3 positional arguments but 4 were given
+_____________________ TestAudioUtils.test_normalize_audio _____________________
+tests\unit\test_uncovered_modules.py:463: in test_normalize_audio
+    from src.utils.audio_utils import normalize_audio
+E   ImportError: cannot import name 'normalize_audio' from 'src.utils.audio_utils' (C:\Users\johns\Documents\GitHub\Mario\src\utils\audio_utils.py)
+________________ TestConfigManager.test_config_get_sample_rate ________________
+tests\unit\test_uncovered_modules.py:500: in test_config_get_sample_rate
+    assert config.sample_rate == 22050
+           ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'sample_rate'
+_____________ TestConfigManager.test_config_get_microphone_index ______________
+tests\unit\test_uncovered_modules.py:511: in test_config_get_microphone_index
+    assert config.default_microphone_index == 2
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ConfigManager' object has no attribute 'default_microphone_index'
+____________ TestMicrophoneChecker.test_check_microphone_available ____________
+tests\unit\test_uncovered_modules.py:534: in test_check_microphone_available
+    with patch('src.interfaces.microphone_checker.PvRecorder') as mock_recorder:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.interfaces.microphone_checker' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\interfaces\\microphone_checker.py'> does not have the attribute 'PvRecorder'
+_____________ TestWakeWordInterface.test_wake_word_interface_init _____________
+tests\unit\test_uncovered_modules.py:549: in test_wake_word_interface_init
+    from src.interfaces.wake_word import WakeWordInterface
+E   ImportError: cannot import name 'WakeWordInterface' from 'src.interfaces.wake_word' (C:\Users\johns\Documents\GitHub\Mario\src\interfaces\wake_word.py)
+___________________ TestWakeWordInterface.test_set_callback ___________________
+tests\unit\test_uncovered_modules.py:560: in test_set_callback
+    from src.interfaces.wake_word import WakeWordInterface
+E   ImportError: cannot import name 'WakeWordInterface' from 'src.interfaces.wake_word' (C:\Users\johns\Documents\GitHub\Mario\src\interfaces\wake_word.py)
+____ TestSpeechRecognitionInterface.test_speech_recognition_interface_init ____
+tests\unit\test_uncovered_modules.py:577: in test_speech_recognition_interface_init
+    from src.interfaces.speech_recognition import SpeechRecognitionInterface
+E   ImportError: cannot import name 'SpeechRecognitionInterface' from 'src.interfaces.speech_recognition' (C:\Users\johns\Documents\GitHub\Mario\src\interfaces\speech_recognition.py)
+__________ TestPerformanceOptimizer.test_performance_optimizer_init ___________
+tests\unit\test_uncovered_modules.py:596: in test_performance_optimizer_init
+    optimizer = PerformanceOptimizer(config)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: PerformanceOptimizer.__init__() takes 1 positional argument but 2 were given
+______________ TestPerformanceOptimizer.test_get_recommendations ______________
+tests\unit\test_uncovered_modules.py:607: in test_get_recommendations
+    optimizer = PerformanceOptimizer(config)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: PerformanceOptimizer.__init__() takes 1 positional argument but 2 were given
+___________ TestSelfImprovement.test_self_improvement_analyzer_init ___________
+tests\unit\test_uncovered_modules.py:621: in test_self_improvement_analyzer_init
+    from src.core.self_improvement.analyzer import SelfImprovementAnalyzer
+E   ImportError: cannot import name 'SelfImprovementAnalyzer' from 'src.core.self_improvement.analyzer' (C:\Users\johns\Documents\GitHub\Mario\src\core\self_improvement\analyzer.py)
+__________ TestSelfImprovement.test_self_improvement_generator_init ___________
+tests\unit\test_uncovered_modules.py:632: in test_self_improvement_generator_init
+    from src.core.self_improvement.generator import CodeGenerator
+src\core\self_improvement\generator.py:11: in <module>
+    generated_code = generate_code(improvement_plan)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src\core\self_improvement\generator.py:7: in generate_code
+    return response.json()["response"]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   KeyError: 'response'
+____________________ TestFileAnalyzer.test_get_file_types _____________________
+tests\unit\test_uncovered_modules.py:657: in test_get_file_types
+    types = analyzer.get_file_types()
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'FileAnalyzer' object has no attribute 'get_file_types'
+_________________ TestWelcomeScreen.test_show_welcome_screen __________________
+tests\unit\test_views.py:55: in test_show_welcome_screen
+    with patch('src.views.welcome_screen.console') as mock_console:
+         ^^^^^
+E   NameError: name 'patch' is not defined
+____________________ TestWelcomeScreen.test_show_main_menu ____________________
+tests\unit\test_views.py:64: in test_show_main_menu
+    with patch('src.views.welcome_screen.console') as mock_console:
+         ^^^^^
+E   NameError: name 'patch' is not defined
+______________ TestAnalysisManager.test_analysis_manager_import _______________
+tests\unit\test_views.py:75: in test_analysis_manager_import
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+_______________ TestAnalysisManager.test_analysis_manager_init ________________
+tests\unit\test_views.py:81: in test_analysis_manager_init
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+____________________ TestAnalysisManager.test_analyze_file ____________________
+tests\unit\test_views.py:89: in test_analyze_file
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+___________________ TestEpaperview.test_epaper_view_import ____________________
+tests\unit\test_views.py:107: in test_epaper_view_import
+    from src.views.epaper_view import EpaperView
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\views\epaper_view.py", line 2
+E       ```
+E       ^
+E   SyntaxError: invalid syntax
+____________________ TestEpaperview.test_epaper_view_init _____________________
+tests\unit\test_views.py:113: in test_epaper_view_init
+    from src.views.epaper_view import EpaperView
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\views\epaper_view.py", line 2
+E       ```
+E       ^
+E   SyntaxError: invalid syntax
+_____________ TestInterfaceHelpers.test_interface_helpers_import ______________
+tests\unit\test_views.py:125: in test_interface_helpers_import
+    from src.views.interface_helpers import InterfaceHelpers
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+__________________ TestInterfaceHelpers.test_format_message ___________________
+tests\unit\test_views.py:133: in test_format_message
+    from src.views.interface_helpers import InterfaceHelpers
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+________________ TestAppInitialization.test_app_factory_import ________________
+tests\unit\test_views.py:161: in test_app_factory_import
+    from src.core.app_factory import AppFactory
+E   ImportError: cannot import name 'AppFactory' from 'src.core.app_factory' (C:\Users\johns\Documents\GitHub\Mario\src\core\app_factory.py)
+___________________ TestConsoleView.test_console_view_init ____________________
+tests\unit\test_views_and_models.py:26: in test_console_view_init
+    assert view.assistant is not None
+           ^^^^^^^^^^^^^^
+E   AttributeError: 'ConsoleView' object has no attribute 'assistant'
+---------------------------- Captured stderr call -----------------------------
+2026-03-08 09:54:59,609 - INFO - ConsoleView initialisée
+------------------------------ Captured log call ------------------------------
+INFO     AssistantVocal:console_view.py:32 ConsoleView initialisée
+______________ TestConsoleView.test_console_view_display_message ______________
+tests\unit\test_views_and_models.py:35: in test_console_view_display_message
+    with patch('src.views.console_view.console') as mock_console:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.views.console_view' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\views\\console_view.py'> does not have the attribute 'console'
+_______________ TestConsoleView.test_console_view_display_error _______________
+tests\unit\test_views_and_models.py:50: in test_console_view_display_error
+    with patch('src.views.console_view.console') as mock_console:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.views.console_view' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\views\\console_view.py'> does not have the attribute 'console'
+_________________ TestWelcomeScreen.test_welcome_screen_init __________________
+tests\unit\test_views_and_models.py:67: in test_welcome_screen_init
+    with patch('src.views.welcome_screen.console') as mock_console:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.views.welcome_screen' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\views\\welcome_screen.py'> does not have the attribute 'console'
+____________________ TestEpaperView.test_epaper_view_init _____________________
+tests\unit\test_views_and_models.py:80: in test_epaper_view_init
+    from src.views.epaper_view import EpaperView
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\views\epaper_view.py", line 2
+E       ```
+E       ^
+E   SyntaxError: invalid syntax
+___________________ TestEpaperView.test_epaper_view_update ____________________
+tests\unit\test_views_and_models.py:91: in test_epaper_view_update
+    from src.views.epaper_view import EpaperView
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\views\epaper_view.py", line 2
+E       ```
+E       ^
+E   SyntaxError: invalid syntax
+_______________ TestAnalysisManager.test_analysis_manager_init ________________
+tests\unit\test_views_and_models.py:108: in test_analysis_manager_init
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+___________ TestAnalysisManager.test_analysis_manager_analyze_file ____________
+tests\unit\test_views_and_models.py:119: in test_analysis_manager_analyze_file
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+_____________ TestAnalysisManager.test_analysis_manager_get_stats _____________
+tests\unit\test_views_and_models.py:134: in test_analysis_manager_get_stats
+    from src.views.analysis_manager import AnalysisManager
+src\views\analysis_manager.py:5: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+_______________ TestGradioInterface.test_gradio_interface_init ________________
+tests\unit\test_views_and_models.py:153: in test_gradio_interface_init
+    from src.views.web_interface_gradio import GradioInterface
+E   ImportError: cannot import name 'GradioInterface' from 'src.views.web_interface_gradio' (C:\Users\johns\Documents\GitHub\Mario\src\views\web_interface_gradio.py)
+______________ TestGradioInterface.test_gradio_interface_launch _______________
+tests\unit\test_views_and_models.py:166: in test_gradio_interface_launch
+    from src.views.web_interface_gradio import GradioInterface
+E   ImportError: cannot import name 'GradioInterface' from 'src.views.web_interface_gradio' (C:\Users\johns\Documents\GitHub\Mario\src\views\web_interface_gradio.py)
+__________________ TestInterfaceHelpers.test_format_message ___________________
+tests\unit\test_views_and_models.py:185: in test_format_message
+    from src.views.interface_helpers import format_message
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+___________________ TestInterfaceHelpers.test_format_prompt ___________________
+tests\unit\test_views_and_models.py:194: in test_format_prompt
+    from src.views.interface_helpers import format_prompt
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+__________________ TestInterfaceHelpers.test_format_analysis __________________
+tests\unit\test_views_and_models.py:202: in test_format_analysis
+    from src.views.interface_helpers import format_analysis
+src\views\interface_helpers.py:6: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+_______________ TestModelConfigManager.test_config_manager_init _______________
+tests\unit\test_views_and_models.py:214: in test_config_manager_init
+    from src.models.config_manager import ConfigManager
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\models\config_manager.py", line 48
+E       for folder in [self.VOICES_FOLDER, self.CONVERSATION_HISTORY_FOLDER, 
+E                     ^
+E   SyntaxError: '[' was never closed
+_______________ TestModelConfigManager.test_config_manager_load _______________
+tests\unit\test_views_and_models.py:222: in test_config_manager_load
+    from src.models.config_manager import ConfigManager
+E     File "C:\Users\johns\Documents\GitHub\Mario\src\models\config_manager.py", line 48
+E       for folder in [self.VOICES_FOLDER, self.CONVERSATION_HISTORY_FOLDER, 
+E                     ^
+E   SyntaxError: '[' was never closed
+_______________________ TestTextToSpeech.test_tts_init ________________________
+tests\unit\test_views_and_models.py:243: in test_tts_init
+    tts = TextToSpeech(config)
+          ^^^^^^^^^^^^^^^^^^^^
+src\models\text_to_speech.py:46: in __init__
+    self.load_voice(default_voice)
+src\models\text_to_speech.py:56: in load_voice
+    model_path = os.path.join(config.VOICES_FOLDER, voice_name, f"{voice_name}.onnx")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen ntpath>:139: in join
+    ???
+<frozen genericpath>:188: in _check_arg_types
+    ???
+E   TypeError: join() argument must be str, bytes, or os.PathLike object, not 'Mock'
+---------------------------- Captured stderr call -----------------------------
+2026-03-08 09:54:59,980 - INFO - [OK] Bibliothèque Piper Python disponible
+2026-03-08 09:54:59,980 - INFO - Tentative de chargement de la voix: <Mock id='1887620379520'>
+------------------------------ Captured log call ------------------------------
+INFO     AssistantVocal:text_to_speech.py:37 [OK] Bibliothèque Piper Python disponible
+INFO     AssistantVocal:text_to_speech.py:50 Tentative de chargement de la voix: <Mock id='1887620379520'>
+___________________ TestTextToSpeech.test_tts_get_speakers ____________________
+tests\unit\test_views_and_models.py:254: in test_tts_get_speakers
+    with patch('src.models.text_to_speech.piper_tts'):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1497: in __enter__
+    original, local = self.get_original()
+                      ^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1467: in get_original
+    raise AttributeError(
+E   AttributeError: <module 'src.models.text_to_speech' from 'C:\\Users\\johns\\Documents\\GitHub\\Mario\\src\\models\\text_to_speech.py'> does not have the attribute 'piper_tts'
+____________ TestOllamaClientModel.test_ollama_client_set_base_url ____________
+tests\unit\test_views_and_models.py:279: in test_ollama_client_set_base_url
+    client.set_base_url("http://custom:11434")
+    ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'OllamaClient' object has no attribute 'set_base_url'
+____________ TestOllamaClientModel.test_ollama_client_set_timeout _____________
+tests\unit\test_views_and_models.py:289: in test_ollama_client_set_timeout
+    client.set_timeout(60)
+    ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'OllamaClient' object has no attribute 'set_timeout'
+______________ TestOllamaClientModel.test_ollama_client_generate ______________
+tests\unit\test_views_and_models.py:300: in test_ollama_client_generate
+    with patch('src.models.ollama_client.ollama.chat') as mock:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\unittest\mock.py:1481: in __enter__
+    self.target = self.getter()
+                  ^^^^^^^^^^^^^
+..\..\..\miniconda3\Lib\pkgutil.py:528: in resolve_name
+    result = getattr(result, p)
+             ^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'src.models.ollama_client' has no attribute 'ollama'
+________________ TestConversationStateModel.test_clear_history ________________
+tests\unit\test_views_and_models.py:350: in test_clear_history
+    state.clear_history()
+    ^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'ConversationState' object has no attribute 'clear_history'
+________________ TestAudioDeviceManagerModel.test_get_cpu_info ________________
+tests\unit\test_views_and_models.py:372: in test_get_cpu_info
+    info = manager.get_cpu_info()
+           ^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'AudioDeviceManager' object has no attribute 'get_cpu_info'
+______________ TestAudioDeviceManagerModel.test_get_memory_info _______________
+tests\unit\test_views_and_models.py:382: in test_get_memory_info
+    info = manager.get_memory_info()
+           ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'AudioDeviceManager' object has no attribute 'get_memory_info'
+_______________ TestAudioDeviceManagerModel.test_get_disk_info ________________
+tests\unit\test_views_and_models.py:392: in test_get_disk_info
+    info = manager.get_disk_info()
+           ^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'AudioDeviceManager' object has no attribute 'get_disk_info'
+__________________ TestFileAnalyzerModel.test_get_file_types __________________
+tests\unit\test_views_and_models.py:426: in test_get_file_types
+    types = analyzer.get_file_types()
+            ^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'FileAnalyzer' object has no attribute 'get_file_types'
+___________________ TestMonitorUtils.test_monitor_base_init ___________________
+tests\unit\test_views_and_models.py:437: in test_monitor_base_init
+    from src.utils.monitor.base import MonitorBase
+E   ImportError: cannot import name 'MonitorBase' from 'src.utils.monitor.base' (C:\Users\johns\Documents\GitHub\Mario\src\utils\monitor\base.py)
+________________ TestMonitorUtils.test_monitor_collectors_init ________________
+tests\unit\test_views_and_models.py:445: in test_monitor_collectors_init
+    from src.utils.monitor.collectors import SystemCollector
+E   ImportError: cannot import name 'SystemCollector' from 'src.utils.monitor.collectors' (C:\Users\johns\Documents\GitHub\Mario\src\utils\monitor\collectors.py)
+________________ TestMonitorUtils.test_monitor_aggregator_init ________________
+tests\unit\test_views_and_models.py:453: in test_monitor_aggregator_init
+    from src.utils.monitor.aggregator import MetricsAggregator
+E   ImportError: cannot import name 'MetricsAggregator' from 'src.utils.monitor.aggregator' (C:\Users\johns\Documents\GitHub\Mario\src\utils\monitor\aggregator.py)
+_________________ TestMonitorUtils.test_monitor_display_init __________________
+tests\unit\test_views_and_models.py:461: in test_monitor_display_init
+    from src.utils.monitor.display import MetricsDisplay
+src\utils\monitor\display.py:6: in <module>
+    from .aggregator import SystemMonitor
+E   ImportError: cannot import name 'SystemMonitor' from 'src.utils.monitor.aggregator' (C:\Users\johns\Documents\GitHub\Mario\src\utils\monitor\aggregator.py)
+____________________ TestSetupUtils.test_setup_utils_init _____________________
+tests\unit\test_views_and_models.py:473: in test_setup_utils_init
+    from src.utils.setup import Setup
+E   ImportError: cannot import name 'Setup' from 'src.utils.setup' (C:\Users\johns\Documents\GitHub\Mario\src\utils\setup.py)
+________________ TestSetupUtils.test_setup_check_dependencies _________________
+tests\unit\test_views_and_models.py:481: in test_setup_check_dependencies
+    from src.utils.setup import Setup
+E   ImportError: cannot import name 'Setup' from 'src.utils.setup' (C:\Users\johns\Documents\GitHub\Mario\src\utils\setup.py)
+________________ TestSelfImproverUtils.test_self_improver_init ________________
+tests\unit\test_views_and_models.py:499: in test_self_improver_init
+    from src.utils.self_improver import SelfImprover
+src\utils\self_improver.py:8: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+______________ TestSelfImproverUtils.test_self_improver_analyze _______________
+tests\unit\test_views_and_models.py:507: in test_self_improver_analyze
+    from src.utils.self_improver import SelfImprover
+src\utils\self_improver.py:8: in <module>
+    from ..core.llm_client import LLMClient
+E   ModuleNotFoundError: No module named 'src.core.llm_client'
+============================== warnings summary ===============================
+..\..\..\miniconda3\Lib\site-packages\coverage\config.py:346
+  C:\Users\johns\miniconda3\Lib\site-packages\coverage\config.py:346: CoverageWarning: Unrecognized option '[tool.coverage.report] missing_cover=' in config file pyproject.toml
+    warn(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=============================== tests coverage ================================
+_______________ coverage: platform win32, python 3.13.5-final-0 _______________
+
+Name                                                   Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------------------------
+src\adapters\audio_input_microphone.py                    67     40     12      0    34%   22, 30-51, 55-67, 71-89, 96-98
+src\adapters\audio_output_speaker.py                      50     46      8      0     7%   5-61
+src\adapters\cloud_openai_api.py                          44     42     12      0     4%   3-72
+src\adapters\display_epaper.py                            18     10      4      0    36%   5, 9-12, 15-18, 22, 25, 28
+src\adapters\dummy_audio_input.py                          4      0      0      0   100%
+src\adapters\dummy_audio_output.py                         5      0      0      0   100%
+src\adapters\interfaces.py                                 3      0      0      0   100%
+src\adapters\llm_adapter.py                              103     79     28      0    18%   19-24, 31-32, 36-49, 62-94, 107-149, 153-154, 158-161, 165, 169-180
+src\adapters\speech_recognition_simulated_adapter.py      28     15      0      0    46%   13-14, 18-19, 23, 27-30, 34-40, 44
+src\adapters\speech_recognition_whisper_adapter.py        66     22     10      2    63%   29-41, 54, 71-73, 79, 96-98, 102
+src\adapters\vosk_wake_word_adapter.py                   129     96     30      0    21%   40-42, 65-100, 104-125, 129-137, 147-149, 153-181, 185-204
+src\controllers\self_improvement_controller.py             8      8      0      0     0%   2-11
+src\core\app_factory.py                                   75     33      2      1    56%   50-51, 95-135, 145-182, 194-195
+src\core\app_runner.py                                   102     85     16      0    14%   22-39, 43, 50-74, 80-121, 128-166
+src\core\audio_pipeline.py                                99     53     20      0    42%   47-53, 73-86, 89-91, 95-103, 106-123, 127-141
+src\core\conversation_handler.py                          32      8      2      1    74%   21, 36, 39-43, 56
+src\core\exceptions.py                                     3      0      0      0   100%
+src\core\intent_router.py                                 10      1      2      1    83%   12
+src\core\interface_manager.py                             47     33      2      0    29%   21-31, 35-59, 63-69
+src\core\llm_service.py                                   17      1      4      0    95%   23
+src\core\performance_optimizer.py                        356    109    176     40    64%   39-40, 49-52, 59->exit, 72-82, 106-107, 117-118, 127-128, 132-134, 145-147, 152, 165, 172, 187->191, 192-193, 195-196, 200-201, 226, 237-239, 246-252, 267->272, 270, 275-277, 289->288, 297-298, 309, 332-334, 339, 364, 372-373, 377-382, 389-391, 398, 401-404, 411, 418, 426, 432-436, 440-441, 443-444, 448-449, 482->490, 492-496, 500-502, 510-515, 524-527, 551-554, 557, 560, 564-566, 571->570, 588->590, 590->592
+src\core\prompt_manager.py                                72     43     12      2    37%   40-45, 54-58, 67, 116, 128-131, 140, 149, 161, 174-181, 193-202, 222-223, 226-228
+src\core\self_improvement\analyzer.py                     10      7      0      0    30%   5-23
+src\core\self_improvement\generator.py                     9      1      0      0    89%   12
+src\core\speech_recognition_service.py                     1      0      0      0   100%
+src\core\tts_service.py                                    2      0      0      0   100%
+src\core\wake_word_service.py                              2      0      0      0   100%
+src\events\event_bus.py                                    9      2      2      0    64%   13-14
+src\events\events.py                                       2      0      0      0   100%
+src\factory.py                                             7      7      2      0     0%   2-11
+src\interfaces\microphone_checker.py                      48     25      6      0    43%   30-43, 58-60, 82-100, 104, 107, 110
+src\interfaces\microphone_status.py                        2      2      0      0     0%   2-4
+src\interfaces\speech_recognition.py                      13      5      0      0    62%   10, 14, 18, 22, 26
+src\interfaces\wake_word.py                                3      0      0      0   100%
+src\main.py                                              194    122     30      0    32%   87-88, 92-96, 102-108, 112-115, 119, 126, 129, 132, 135, 138-148, 151, 154, 158-218, 221-236, 239, 242, 245, 248, 251-267, 270-280
+src\models\audio_device_manager.py                       110     92     32      0    13%   19-47, 54-65, 69-90, 94-112, 116-134, 138-143, 147-151, 155-160, 165-169, 173-177, 181, 188-200
+src\models\conversation_state.py                          20      0      0      0   100%
+src\models\file_analyzer.py                               58     43     18      1    21%   15-51, 65-80, 84-98, 102-121
+src\models\ollama_client.py                              105     86     32      0    14%   20-25, 29-35, 39-49, 53-114, 118-129, 133-145, 149
+src\models\settings.py                                    18      0      0      0   100%
+src\models\text_to_speech.py                             290    184     60     13    35%   38-42, 53-54, 62-63, 91-115, 124-131, 134-135, 138-139, 148, 152, 158, 162-167, 171-190, 194-226, 243-244, 258-260, 265-323, 327-343, 347-385, 394-396, 411-416, 436-438, 444-445, 449-452, 461-474, 478-481
+src\services\audio_controller.py                          69     34      2      0    49%   64, 88-93, 97-99, 103, 107, 114-118, 122-126, 133-137, 141, 145, 149, 153, 157, 165-169, 173
+src\services\conversation_service.py                      33      6      2      1    80%   48, 56-60
+src\services\llm_service.py                              127     27     24      7    77%   17-18, 22, 42, 51, 59->73, 64-65, 68->73, 91, 111->110, 160-161, 188-190, 196-201, 207-214
+src\services\project_analyzer_service.py                 221     90     62     12    56%   47-48, 66, 89, 122-124, 139->137, 142-146, 159-161, 172, 181-182, 194, 198-200, 217-219, 223-247, 261->270, 266-267, 272-283, 287-289, 318-320, 338-340, 349-351, 366-368, 385-387, 391, 399-411, 415-432, 436-455
+src\services\simulated_speech_recognition.py              10      2      0      0    80%   9, 13
+src\services\simulated_wake_word_adapter.py               27     12      4      0    48%   29-33, 36-37, 40, 44-45, 48-49
+src\services\speech_recognition_service.py                69     17      2      0    76%   59-61, 65-69, 77-79, 86-88, 98-100
+src\services\tts_service.py                              121     33     18      4    72%   13, 18, 56->64, 61-63, 75-79, 87-89, 93-101, 105-110, 153-155, 179-181
+src\services\wake_word_service.py                         42      4      4      2    87%   11-12, 70-71
+src\utils\audio_player.py                                 89     61     10      0    28%   29-31, 35-43, 48-63, 71, 77-96, 104-125, 128, 131
+src\utils\audio_utils.py                                  25     15      0      0    40%   13-35, 39, 43
+src\utils\error_guard.py                                  69      2     10      2    95%   53, 78
+src\utils\file_analyzer.py                                58     46     18      0    16%   15-51, 59-80, 84-98, 102-121
+src\utils\logger.py                                       43      7      2      0    80%   56-59, 80-82
+src\utils\monitor\aggregator.py                           11      5      0      0    55%   12-14, 18, 26
+src\utils\monitor\base.py                                 11      4      0      0    64%   12-13, 22, 26
+src\utils\monitor\collectors.py                           20     11      0      0    45%   13-19, 27-35, 43-51
+src\utils\monitor\display.py                              23     19      0      0    17%   9-36
+src\utils\self_improver.py                               185    177     54      0     3%   10-427
+src\utils\setup.py                                        19     15      4      0    17%   6-36
+src\utils\system_monitor.py                              415    336    128      4    15%   33-37, 45-55, 59-71, 75-85, 93-112, 119-121, 125-146, 150-161, 165-177, 181-193, 197-211, 218-242, 244->247, 259-261, 273-275, 279-305, 309-316, 320-338, 342-355, 359-381, 385, 394, 423-425, 430-564, 568-599, 603-642, 646-666, 670-693
+--------------------------------------------------------------------------------------------------
+TOTAL                                                   3928   2223    866     93    40%
+Coverage HTML written to dir htmlcov
+Coverage JSON written to file coverage.json
+=========================== short test summary info ===========================
+FAILED tests/core/test_core_comprehensive.py::TestCloudOpenAIAPI::test_init
+FAILED tests/core/test_core_comprehensive.py::TestCloudOpenAIAPI::test_init_with_different_models
+FAILED tests/core/test_core_comprehensive.py::TestDisplayEPaper::test_init - ...
+FAILED tests/core/test_core_comprehensive.py::TestDisplayEPaper::test_clear_method
+FAILED tests/core/test_core_comprehensive.py::TestLLMAdapter::test_llm_service_interface_exists
+FAILED tests/core/test_core_comprehensive.py::TestVoiceTTS::test_init - Attri...
+FAILED tests/core/test_core_comprehensive.py::TestWakeWordService::test_init
+FAILED tests/core/test_core_comprehensive.py::TestWakeWordService::test_start_method_signature
+FAILED tests/core/test_core_comprehensive.py::TestAppRunner::test_init - Attr...
+FAILED tests/core/test_core_comprehensive.py::TestConversationHandler::test_init
+FAILED tests/core/test_core_comprehensive.py::TestConversationHandler::test_handle_message_exists
+FAILED tests/core/test_core_comprehensive.py::TestExceptions::test_all_exceptions_exist_and_are_classes
+FAILED tests/core/test_core_comprehensive.py::TestExceptions::test_exception_inheritance
+FAILED tests/core/test_core_comprehensive.py::TestInterfaceManager::test_init
+FAILED tests/core/test_core_comprehensive.py::TestInterfaceManager::test_interface_types
+FAILED tests/core/test_core_modules.py::TestInterfaceManager::test_init_creates_interfaces
+FAILED tests/core/test_core_modules.py::TestInterfaceManager::test_interface_types_exist
+FAILED tests/core/test_core_modules.py::TestPromptManager::test_generate_system_prompt
+FAILED tests/core/test_core_modules.py::TestAudioPlayer::test_init - ModuleNo...
+FAILED tests/core/test_core_modules.py::TestAudioPlayer::test_play - ModuleNo...
+FAILED tests/core/test_core_modules.py::TestRouter::test_init - ModuleNotFoun...
+FAILED tests/core/test_core_with_mocks.py::TestAudioPlayer::test_init_and_play
+FAILED tests/core/test_core_with_mocks.py::TestAudioPlayer::test_methods_exist
+FAILED tests/core/test_core_with_mocks.py::TestCloudOpenAIAPI::test_init - Mo...
+FAILED tests/core/test_core_with_mocks.py::TestDisplayEPaper::test_init_clear
+FAILED tests/core/test_core_with_mocks.py::TestLLMAdapter::test_interface_type_exists
+FAILED tests/core/test_core_with_mocks.py::TestVoiceTTS::test_init - Attribut...
+FAILED tests/core/test_core_with_mocks.py::TestWakeWordService::test_init - A...
+FAILED tests/core/test_core_with_mocks.py::TestAppRunner::test_init - Attribu...
+FAILED tests/core/test_core_with_mocks.py::TestConversationHandler::test_init
+FAILED tests/core/test_core_with_mocks.py::TestExceptions::test_exceptions_exist
+FAILED tests/integration/test_integration_e2e.py::TestFullPipelineIntegration::test_full_transcribe_generate_speak_flow
+FAILED tests/integration/test_integration_e2e.py::TestFullPipelineIntegration::test_conversation_flow_with_context
+FAILED tests/integration/test_integration_e2e.py::TestSystemIntegration::test_system_stats_collection
+FAILED tests/integration/test_integration_e2e.py::TestSystemIntegration::test_system_alerts_generation
+FAILED tests/integration/test_integration_e2e.py::TestLLMPipelineIntegration::test_llm_generation_with_system_message
+FAILED tests/integration/test_integration_e2e.py::TestAudioPipelineIntegration::test_audio_pipeline_buffering
+FAILED tests/integration/test_integration_e2e.py::TestConversationStateIntegration::test_conversation_with_multiple_turns
+FAILED tests/integration/test_integration_e2e.py::TestPerformanceIntegration::test_audio_processing_latency
+FAILED tests/integration/test_integration_e2e.py::TestEventBusIntegration::test_event_publishing
+FAILED tests/integration/test_integration_e2e.py::TestEventBusIntegration::test_event_subscription
+FAILED tests/integration/test_integration_e2e.py::TestIntegrationCompleteAssistant::test_assistant_initialization
+FAILED tests/integration/test_integration_e2e.py::TestInterfaceIntegration::test_web_interface_startup
+FAILED tests/unit/adapters/test_adapter_interfaces.py::TestAudioOutputSpeakerAdapter::test_speaker_adapter_init
+FAILED tests/unit/adapters/test_adapter_interfaces.py::TestCloudOpenAIAPI::test_openai_adapter_init
+FAILED tests/unit/adapters/test_adapter_interfaces.py::TestDisplayEpaperAdapter::test_epaper_adapter_init
+FAILED tests/unit/services/test_app_factory.py::test_create_assistant_happy_path
+FAILED tests/unit/services/test_app_factory.py::test_create_assistant_with_simulation
+FAILED tests/unit/services/test_app_factory.py::test_create_assistant_without_microphone
+FAILED tests/unit/services/test_app_factory.py::test_create_minimal_assistant
+FAILED tests/unit/test_adapters_fixed.py::TestCoreExceptions::test_exception_initialization
+FAILED tests/unit/test_config.py::TestSettings::test_settings_llm_models - As...
+FAILED tests/unit/test_config.py::TestConfigParser::test_parse_audio_settings
+FAILED tests/unit/test_config.py::TestPerformanceConfig::test_performance_auto_optimize_true
+FAILED tests/unit/test_config.py::TestPerformanceConfig::test_performance_thresholds_cpu
+FAILED tests/unit/test_config.py::TestConfigLogging::test_logging_levels - At...
+FAILED tests/unit/test_config.py::TestConfigLogging::test_logging_level_default
+FAILED tests/unit/test_models.py::TestOllamaClient::test_set_timeout - Assert...
+FAILED tests/unit/test_models.py::TestOllamaClient::test_generate_stream - As...
+FAILED tests/unit/test_models.py::TestConversationState::test_add_message - A...
+FAILED tests/unit/test_models.py::TestConversationState::test_add_user_message
+FAILED tests/unit/test_models.py::TestConversationState::test_add_assistant_response
+FAILED tests/unit/test_models.py::TestConfigSettingsTest::test_settings_set_sample_rate
+FAILED tests/unit/test_models.py::TestConversationStatePersistence::test_save_history_with_data
+FAILED tests/unit/test_models.py::TestConversationStatePersistence::test_delete_last_n_messages
+FAILED tests/unit/test_uncovered_modules.py::TestErrorGuard::test_get_error_handler
+FAILED tests/unit/test_uncovered_modules.py::TestErrorGuard::test_retry_decorator_max_attempts
+FAILED tests/unit/test_uncovered_modules.py::TestLogger::test_safe_run_catches_exception
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_init
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_subscribe
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_unsubscribe
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_publish
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_publish_no_subscribers
+FAILED tests/unit/test_uncovered_modules.py::TestEventBus::test_event_bus_clear
+FAILED tests/unit/test_uncovered_modules.py::TestEvents::test_event_types_exist
+FAILED tests/unit/test_uncovered_modules.py::TestEvents::test_event_creation
+FAILED tests/unit/test_uncovered_modules.py::TestAudioPlayer::test_audio_player_init
+FAILED tests/unit/test_uncovered_modules.py::TestAudioPlayer::test_audio_player_play
+FAILED tests/unit/test_uncovered_modules.py::TestIntentRouter::test_intent_router_register_intent
+FAILED tests/unit/test_uncovered_modules.py::TestIntentRouter::test_intent_router_route
+FAILED tests/unit/test_uncovered_modules.py::TestIntentRouter::test_intent_router_route_unknown
+FAILED tests/unit/test_uncovered_modules.py::TestInterfaceHelpers::test_format_message
+FAILED tests/unit/test_uncovered_modules.py::TestInterfaceHelpers::test_format_prompt
+FAILED tests/unit/test_uncovered_modules.py::TestConversationHandler::test_conversation_handler_init
+FAILED tests/unit/test_uncovered_modules.py::TestConversationHandler::test_process_prompt
+FAILED tests/unit/test_uncovered_modules.py::TestAudioUtils::test_normalize_audio
+FAILED tests/unit/test_uncovered_modules.py::TestConfigManager::test_config_get_sample_rate
+FAILED tests/unit/test_uncovered_modules.py::TestConfigManager::test_config_get_microphone_index
+FAILED tests/unit/test_uncovered_modules.py::TestMicrophoneChecker::test_check_microphone_available
+FAILED tests/unit/test_uncovered_modules.py::TestWakeWordInterface::test_wake_word_interface_init
+FAILED tests/unit/test_uncovered_modules.py::TestWakeWordInterface::test_set_callback
+FAILED tests/unit/test_uncovered_modules.py::TestSpeechRecognitionInterface::test_speech_recognition_interface_init
+FAILED tests/unit/test_uncovered_modules.py::TestPerformanceOptimizer::test_performance_optimizer_init
+FAILED tests/unit/test_uncovered_modules.py::TestPerformanceOptimizer::test_get_recommendations
+FAILED tests/unit/test_uncovered_modules.py::TestSelfImprovement::test_self_improvement_analyzer_init
+FAILED tests/unit/test_uncovered_modules.py::TestSelfImprovement::test_self_improvement_generator_init
+FAILED tests/unit/test_uncovered_modules.py::TestFileAnalyzer::test_get_file_types
+FAILED tests/unit/test_views.py::TestWelcomeScreen::test_show_welcome_screen
+FAILED tests/unit/test_views.py::TestWelcomeScreen::test_show_main_menu - Nam...
+FAILED tests/unit/test_views.py::TestAnalysisManager::test_analysis_manager_import
+FAILED tests/unit/test_views.py::TestAnalysisManager::test_analysis_manager_init
+FAILED tests/unit/test_views.py::TestAnalysisManager::test_analyze_file - Mod...
+FAILED tests/unit/test_views.py::TestEpaperview::test_epaper_view_import -   ...
+FAILED tests/unit/test_views.py::TestEpaperview::test_epaper_view_init -   Fi...
+FAILED tests/unit/test_views.py::TestInterfaceHelpers::test_interface_helpers_import
+FAILED tests/unit/test_views.py::TestInterfaceHelpers::test_format_message - ...
+FAILED tests/unit/test_views.py::TestAppInitialization::test_app_factory_import
+FAILED tests/unit/test_views_and_models.py::TestConsoleView::test_console_view_init
+FAILED tests/unit/test_views_and_models.py::TestConsoleView::test_console_view_display_message
+FAILED tests/unit/test_views_and_models.py::TestConsoleView::test_console_view_display_error
+FAILED tests/unit/test_views_and_models.py::TestWelcomeScreen::test_welcome_screen_init
+FAILED tests/unit/test_views_and_models.py::TestEpaperView::test_epaper_view_init
+FAILED tests/unit/test_views_and_models.py::TestEpaperView::test_epaper_view_update
+FAILED tests/unit/test_views_and_models.py::TestAnalysisManager::test_analysis_manager_init
+FAILED tests/unit/test_views_and_models.py::TestAnalysisManager::test_analysis_manager_analyze_file
+FAILED tests/unit/test_views_and_models.py::TestAnalysisManager::test_analysis_manager_get_stats
+FAILED tests/unit/test_views_and_models.py::TestGradioInterface::test_gradio_interface_init
+FAILED tests/unit/test_views_and_models.py::TestGradioInterface::test_gradio_interface_launch
+FAILED tests/unit/test_views_and_models.py::TestInterfaceHelpers::test_format_message
+FAILED tests/unit/test_views_and_models.py::TestInterfaceHelpers::test_format_prompt
+FAILED tests/unit/test_views_and_models.py::TestInterfaceHelpers::test_format_analysis
+FAILED tests/unit/test_views_and_models.py::TestModelConfigManager::test_config_manager_init
+FAILED tests/unit/test_views_and_models.py::TestModelConfigManager::test_config_manager_load
+FAILED tests/unit/test_views_and_models.py::TestTextToSpeech::test_tts_init
+FAILED tests/unit/test_views_and_models.py::TestTextToSpeech::test_tts_get_speakers
+FAILED tests/unit/test_views_and_models.py::TestOllamaClientModel::test_ollama_client_set_base_url
+FAILED tests/unit/test_views_and_models.py::TestOllamaClientModel::test_ollama_client_set_timeout
+FAILED tests/unit/test_views_and_models.py::TestOllamaClientModel::test_ollama_client_generate
+FAILED tests/unit/test_views_and_models.py::TestConversationStateModel::test_clear_history
+FAILED tests/unit/test_views_and_models.py::TestAudioDeviceManagerModel::test_get_cpu_info
+FAILED tests/unit/test_views_and_models.py::TestAudioDeviceManagerModel::test_get_memory_info
+FAILED tests/unit/test_views_and_models.py::TestAudioDeviceManagerModel::test_get_disk_info
+FAILED tests/unit/test_views_and_models.py::TestFileAnalyzerModel::test_get_file_types
+FAILED tests/unit/test_views_and_models.py::TestMonitorUtils::test_monitor_base_init
+FAILED tests/unit/test_views_and_models.py::TestMonitorUtils::test_monitor_collectors_init
+FAILED tests/unit/test_views_and_models.py::TestMonitorUtils::test_monitor_aggregator_init
+FAILED tests/unit/test_views_and_models.py::TestMonitorUtils::test_monitor_display_init
+FAILED tests/unit/test_views_and_models.py::TestSetupUtils::test_setup_utils_init
+FAILED tests/unit/test_views_and_models.py::TestSetupUtils::test_setup_check_dependencies
+FAILED tests/unit/test_views_and_models.py::TestSelfImproverUtils::test_self_improver_init
+FAILED tests/unit/test_views_and_models.py::TestSelfImproverUtils::test_self_improver_analyze
+ERROR tests/unit/test_views.py::TestConsoleView::test_console_view_init - Nam...
+ERROR tests/unit/test_views.py::TestConsoleView::test_display_message - NameE...
+ERROR tests/unit/test_views.py::TestAppInitialization::test_app_factory_create
+======= 141 failed, 300 passed, 1 warning, 3 errors in 74.51s (0:01:14) =======

@@ -1,5 +1,4 @@
 # src/events/event_bus.py
-```
 """Simple synchronous event bus for in‑process events."""
 from collections import defaultdict
 

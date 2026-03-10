@@ -1713,18 +1713,13 @@ Structurez le résumé en:
             
             generated_prompt = self._preview_prompt(template, input_text, variables, custom_vars)
             
-            simulated_response = f"""[TEST] Réponse simulée pour le prompt:
+            messages = [{"role": "user", "content": generated_prompt}]
+            if system_message:
+                messages.insert(0, {"role": "system", "content": system_message})
             
-Prompt utilisé:
-{generated_prompt[:200]}...
-
-Paramètres:
-- Température: {temperature}
-- Max tokens: {max_tokens}
-
-Cette fonctionnalité sera pleinement opérationnelle avec le système d'IA intégré."""
-
-            return generated_prompt, simulated_response, "✅ Test effectué (simulation)"
+            response = self.assistant.llm_service.generate_response(messages, temperature=temperature)
+            
+            return generated_prompt, response, "✅ Test effectué"
             
         except Exception as e:
             logger.error(f"Erreur test prompt: {e}")

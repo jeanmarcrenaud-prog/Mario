@@ -100,13 +100,6 @@ class SpeechRecognitionService:
             return False
 
     @classmethod
-    def create_with_simulation(cls):
-        """Factory method pour une instance de service simulé."""
-        from .simulated_speech_recognition import SimpleSimulationSpeechAdapter
-        adapter = SimpleSimulationSpeechAdapter()
-        return cls(adapter)
-
-    @classmethod
     def create_with_whisper(cls, model_size: str = "base"):
         """Factory method pour une instance de service avec Whisper."""
         from ..adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter

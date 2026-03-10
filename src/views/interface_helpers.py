@@ -3,10 +3,10 @@ import threading
 from typing import List, Dict, Optional
 import gradio as gr
 from ..config import config
-from ..core.llm_client import LLMClient
-from ..core.text_to_speech import TextToSpeech
-from ..core.speech_recognition import SpeechRecognizer
-from ..core.wake_word_detector import WakeWordDetector
+from ..services.llm_service import LLMService
+from ..models.text_to_speech import TextToSpeech
+from ..services.speech_recognition_service import SpeechRecognitionService
+from ..services.wake_word_service import WakeWordService
 from ..utils.audio_player import AudioPlayer
 from ..utils.logger import logger
 from pathlib import Path
@@ -92,7 +92,7 @@ class InterfaceHelpers:
         models = self.get_ollama_models()
         return models[0] if models else None
 
-    def transcribe_audio(self, speech_recognizer: SpeechRecognizer, audio_data) -> str:
+    def transcribe_audio(self, speech_recognizer, audio_data) -> str:
         """Transcrit l'audio en texte."""
         try:
             result = speech_recognizer.transcribe(audio_data, "fr")
@@ -105,7 +105,7 @@ class InterfaceHelpers:
             logger.error(f"Erreur transcription: {e}")
             return ""
 
-    def generate_llm_response(self, llm_client: LLMClient, model: str, messages: List[Dict]) -> str:
+    def generate_llm_response(self, llm_client, model: str, messages: List[Dict]) -> str:
         """Génère une réponse LLM."""
         try:
             llm_client.set_model(model)
@@ -174,11 +174,11 @@ class InterfaceHelpers:
             logger.error(f"Erreur démarrage automatique: {e}")
             return f"[ERREUR] Erreur: {str(e)}"
 
-    def start_listening_internal(self, wake_detector: WakeWordDetector, mic_index: int):
+    def start_listening_internal(self, wake_detector, mic_index: int):
         """Démarrage interne de l'écoute."""
         wake_detector.start_listening(mic_index)
 
-    def stop_listening(self, wake_detector: WakeWordDetector) -> str:
+    def stop_listening(self, wake_detector) -> str:
         """Arrêt de l'écoute."""
         wake_detector.stop_listening()
         return "Écoute arrêtée"

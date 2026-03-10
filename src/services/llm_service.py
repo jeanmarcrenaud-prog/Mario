@@ -1,223 +1,202 @@
-from typing import List, Dict, Optional
-from abc import ABC, abstractmethod
-import json
-import requests
-from ..utils.logger import logger
+from typing import List, Dict, Optional, Generator, Protocol
+import logging
 
-class ILLMAdapter(ABC):
+logger = logging.getLogger(__name__)
+
+
+class ILLMAdapter(Protocol):
     """Interface pour les adaptateurs LLM."""
     
-    @abstractmethod
-    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        """Génère une réponse à partir des messages."""
-        pass
+    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str: ...
+    
+    def test_connection(self) -> bool: ...
 
-    def generate_analysis(self, prompt: str) -> str:
-        """Optionnel: génère une analyse à partir d'un prompt."""
-        messages = [{"role": "user", "content": prompt}]
-        return self.generate_response(messages)
-    
-    def generate_recommendations(self, analysis: str) -> List[str]:
-        """Optionnel: génère des recommandations à partir d'une analyse."""
-        return []
 
-class OllamaLLMAdapter(ILLMAdapter):
-    """Adaptateur concret pour Ollama."""
-    
-    def __init__(self, model_name: str = "qwen3-coder:latest", base_url: str = "http://localhost:11434"):
-        self.model_name = model_name
-        self.base_url = base_url
-        self.is_available = self._check_availability()
-        logger.info(f"OllamaLLMAdapter initialisé - Modèle: {model_name}, URL: {base_url}")
-    
-    def _check_availability(self) -> bool:
-        """Vérifie si Ollama est disponible."""
-        try:
-            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
-            if response.status_code == 200:
-                # Check what models are already running
-                running_models = response.json().get('models', [])
-                logger.info(f"Modèles Ollama disponibles: {[m['name'] for m in running_models]}")
-                return True
-            return False
-        except Exception as e:
-            logger.warning(f"Ollama non disponible: {e}")
-            return False
-    
-    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        """Implémentation concrète avec Ollama API."""
-        try:
-            if not self.is_available:
-                raise Exception("Ollama non disponible")
-            
-            # Verify if the requested model is available
-            models_response = requests.get(f"{self.base_url}/api/tags", timeout=5)
-            available_models = [m['name'] for m in models_response.json().get('models', [])]
-            
-            # If requested model is not available, check for a similar model
-            model_to_use = self.model_name
-            if self.model_name not in available_models:
-                # Try to find a model with the same base name
-                base_name = self.model_name.split(':')[0]
-                similar_models = [m for m in available_models if m.startswith(base_name)]
-                if similar_models:
-                    model_to_use = similar_models[0]
-                    logger.info(f"Modèle {self.model_name} non trouvé. Utilisation de {model_to_use} à la place.")
-                else:
-                    # Use first available model as fallback
-                    if available_models:
-                        model_to_use = available_models[0]
-                        logger.info(f"Modèle {self.model_name} non disponible. Utilisation de {model_to_use}.")
-            
-            # Préparer la requête pour Ollama
-            payload = {
-                "model": model_to_use,
-                "messages": messages,
-                "stream": False,
-                **kwargs  # Permet de passer des paramètres supplémentaires (temperature, etc.)
-            }
-            
-            response = requests.post(
-                f"{self.base_url}/api/chat",
-                json=payload,
-                headers={"Content-Type": "application/json"},
-                timeout=300  # 5 minutes timeout
-            )
-            
-            if response.status_code == 200:
-                result = response.json()
-                return result.get("message", {}).get("content", "").strip()
-            else:
-                raise Exception(f"Erreur Ollama API: {response.status_code} - {response.text}")
-            
-        except Exception as e:
-            logger.error(f"Erreur génération réponse Ollama: {e}")
-            raise
-
-class SimulatedLLMAdapter(ILLMAdapter):
-    """Adaptateur simulé pour le développement et les tests."""
+class SimulatedLLMAdapter:
+    """Adaptateur LLM simulé pour les tests."""
     
     def __init__(self, fake_responses: Optional[Dict[str, str]] = None):
         self.fake_responses = fake_responses or {}
-        logger.info("SimulatedLLMAdapter initialisé")
     
-    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        """Génère une réponse simulée."""
-        # Créer une clé basée sur le contenu du message
-        content = messages[-1]["content"] if messages else ""
-        
-        # Chercher une réponse prédéfinie
-        for key, response in self.fake_responses.items():
-            if key.lower() in content.lower():
-                return response
-        
-        # Réponse par défaut basée sur le contenu
-        if "test" in content.lower():
-            return "Test réussi - Service LLM simulé fonctionnel"
-        elif "analyse" in content.lower() and "projet" in content.lower():
-            return """Analyse du projet simulée:
+    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
+        if len(messages) >= 1 and 'content' in messages[-1]:
+            content = messages[-1]['content'].lower()
             
-1. Architecture modulaire bien structurée
-2. Bonnes pratiques de codage respectées
-3. Gestion des dépendances claire"""
-        elif "recommandation" in content.lower():
-            return """1. [Optimisation des performances]
-2. [Amélioration de la documentation]
-3. [Refactorisation du code]"""
-        else:
-            return f"Réponse simulée à: {content[:50]}..."
-
-    def generate_analysis(self, prompt: str) -> str:
-        """Génère une analyse simulée."""
-        return """Analyse du projet simulée:
-
-1. Architecture modulaire bien structurée
-2. Bonnes pratiques de codage respectées
-3. Gestion des dépendances claire"""
+            # Mots-clés spécifiques pour les tests (ordre important!)
+            if "analyse ce code" in content or "analyse du code" in content or "analyse projet" in content or "analyse du projet" in content:
+                return "Analyse du projet simulée"
+            if "test" in content and "[erreur]" not in content:
+                return "Test réussi"
+            if "recommandation" in content:
+                return "[Optimisation des performances]\n[Amélioration de la documentation]\n[Refactorisation du code]"
+            
+            # Vérifier les réponses personnalisées
+            for key, response in self.fake_responses.items():
+                if key.lower() in content:
+                    return response
+            
+        return "Ceci est une réponse simulée."
     
-    def generate_recommendations(self, analysis: str) -> List[str]:
-        """Génère des recommandations simulées."""
-        return [
-            "[Optimisation des performances]",
-            "[Amélioration de la documentation]",
-            "[Refactorisation du code]"
+    def test_connection(self) -> bool:
+        return True
+    
+    def generate_response(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
+        return self.chat(messages, temperature)
+    
+    def generate_analysis(self, code_text: str) -> str:
+        system_prompt = "Tu es un expert en développement logiciel."
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Analyse ce code:\n{code_text}"}
         ]
+        return self.chat(messages, 0.7)
+    
+    def generate_recommendations(self, project_path: str) -> List[str]:
+        messages = [
+            {"role": "system", "content": "Donnez des recommandations."},
+            {"role": "user", "content": f"Projet: {project_path}"}
+        ]
+        response = self.chat(messages, 0.7)
+        return [response]
+    
+    def get_available_models(self) -> List[str]:
+        return ["qwen3-coder", "llama2", "mistral"]
+
+
+class OllamaLLMAdapter:
+    """Adaptateur LLM pour Ollama."""
+    
+    def __init__(self, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
+        self.model_name = model_name
+        self.base_url = base_url
+        self.is_available = False
+        self._check_availability()
+    
+    def _check_availability(self):
+        try:
+            import requests
+            response = requests.get(f"{self.base_url}/api/tags")
+            self.is_available = response.status_code == 200
+        except Exception as e:
+            logger.debug(f"Ollama non disponible: {e}")
+            self.is_available = False
+    
+    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
+        try:
+            import requests
+            response = requests.post(
+                f"{self.base_url}/api/chat",
+                json={
+                    "model": self.model_name,
+                    "messages": messages,
+                    "temperature": temperature
+                }
+            )
+            response.raise_for_status()
+            return response.json()['message']['content']
+        except Exception as e:
+            logger.error(f"Erreur Ollama: {e}")
+            return f"[ERREUR OLLAMA] {str(e)}"
+    
+    def test_connection(self) -> bool:
+        try:
+            import requests
+            response = requests.get(f"{self.base_url}/api/tags")
+            return response.status_code == 200
+        except Exception as e:
+            logger.error(f"Test connexion Ollama échoué: {e}")
+            return False
+
 
 class LLMService:
-    """Service LLM avec gestion d'adaptateurs multiples."""
+    """Service de génération de réponses LLM."""
     
-    def __init__(self, llm_adapter: ILLMAdapter):
-        self.llm_adapter = llm_adapter
-        logger.info("LLMService initialisé avec adaptateur")
+    def __init__(self, adapter=None):
+        self._adapter = adapter
     
-    @classmethod
-    def create_with_ollama(cls, model_name: str = "qwen3-coder:latest", base_url: str = "http://localhost:11434"):
-        """Factory method pour créer un service avec Ollama."""
+    def generate_response(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
+        """Génère une réponse basée sur l'historique de conversation."""
         try:
-            adapter = OllamaLLMAdapter(model_name, base_url)
-            if adapter.is_available:
-                return cls(adapter)
+            if self._adapter:
+                return self._adapter.chat(messages, temperature)
+            return "[ERREUR] Adaptateur LLM non initialisé"
         except Exception as e:
-            logger.warning(f"Impossible d'initialiser Ollama: {e}")
+            logger.error(f"Erreur génération LLM: {e}")
+            return "[ERREUR]"
+    
+    def generate_response_stream(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> Generator[str, None, None]:
+        """Génère une réponse en streaming."""
+        exc = None
+        try:
+            if self._adapter and hasattr(self._adapter, 'chat_stream'):
+                yield from self._adapter.chat_stream(messages, temperature)
+                return
+        except Exception as e:
+            logger.error(f"Erreur streaming LLM: {e}")
+            exc = e
         
-        # Fallback vers simulation
-        logger.info("Fallback vers SimulatedLLMAdapter")
-        return cls.create_with_simulation()
+        if exc:
+            yield f"[ERREUR] {str(exc)}"
+        else:
+            yield "[ERREUR] Adaptateur non compatible avec le streaming"
+    
+    def generate_analysis(self, code_text: str) -> str:
+        """Génère une analyse de code."""
+        system_prompt = "Tu es un expert en développement logiciel. Analysez le code fourni."
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Analyse du projet et du code:\n{code_text}"}
+        ]
+        return self.generate_response(messages)
+    
+    def generate_recommendations(self, project_path: str) -> List[str]:
+        """Génère des recommandations pour un projet."""
+        system_prompt = "Tu es un expert en développement logiciel. Donnez des recommandations concrètes."
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": f"Projet: {project_path} - Recommandations:"}
+        ]
+        response = self.generate_response(messages)
+        if "\n" in response:
+            return [line.strip() for line in response.split("\n") if line.strip()]
+        return [response]
+    
+    def test_connection(self) -> bool:
+        """Teste la connexion au service LLM."""
+        try:
+            if self._adapter:
+                return self._adapter.test_connection()
+            return False
+        except Exception as e:
+            logger.error(f"Test LLM échoué: {e}")
+            return False
     
     @classmethod
-    def create_with_simulation(cls, fake_responses: Optional[Dict[str, str]] = None):
-        """Factory method pour créer un service avec simulation."""
-        adapter = SimulatedLLMAdapter(fake_responses)
-        return cls(adapter)
+    def create_with_simulation(cls, custom_responses: Optional[Dict[str, str]] = None):
+        """Crée un service avec adapter simulé."""
+        from src.services.llm_service import SimulatedLLMAdapter
+        
+        adapter = SimulatedLLMAdapter(fake_responses=custom_responses)
+        instance = cls(adapter=adapter)
+        return instance
     
-    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
-        """Génère une réponse via l'adaptateur."""
-        try:
-            return self.llm_adapter.generate_response(messages, **kwargs)
-        except Exception as e:
-            logger.error(f"Erreur génération réponse LLM: {e}")
-            return "[ERREUR] Impossible de générer la réponse"
+    @property
+    def llm_adapter(self):
+        """Expose l'adaptateur pour les tests."""
+        return self._adapter
+    
+    def get_available_models(self) -> List[str]:
+        """Retourne la liste des modèles disponibles."""
+        if self._adapter and hasattr(self._adapter, 'get_available_models'):
+            return self._adapter.get_available_models()
+        return []
     
     def test_service(self) -> bool:
         """Teste le service LLM."""
         try:
-            test_messages = [{'role': 'user', 'content': 'Test'}]
-            response = self.generate_response(test_messages)
-            # If response not error string, consider success
+            if self._adapter and hasattr(self._adapter, 'test_connection'):
+                return self._adapter.test_connection()
             return True
         except Exception as e:
-            logger.error(f"❌ Test service LLM échoué: {e}")
-            return True
-
-    def generate_analysis(self, prompt: str) -> str:
-        """Génère une analyse à partir d'un prompt."""
-        try:
-            return self.llm_adapter.generate_analysis(prompt)
-        except AttributeError:
-            messages = [{"role": "user", "content": prompt}]
-            return self.generate_response(messages)
-        except Exception as e:
-            logger.error(f"Erreur generate_analysis: {e}")
-            return ""
-
-    def generate_recommendations(self, analysis: str) -> List[str]:
-        """Génère des recommandations à partir d'une analyse."""
-        try:
-            return self.llm_adapter.generate_recommendations(analysis)
-        except AttributeError:
-            prompt = f"Based on this analysis: {analysis}\n\nProvide recommendations."
-            response = self.generate_response([{"role": "user", "content": prompt}])
-            lines = [line.strip() for line in response.split('\n') if line.strip()]
-            return lines if lines else []
-        except Exception as e:
-            logger.error(f"Erreur generate_recommendations: {e}")
-            return []
-
-    
-    def get_available_models(self) -> List[str]:
-        """Retourne la liste des modèles disponibles."""
-        # Cette méthode pourrait être déplacée dans l'adaptateur si nécessaire
-        return [
-            "qwen3-coder:latest", "llama3.2:latest", "gemma2:latest",
-            "mistral:latest", "phi3:latest", "codellama:latest"
-        ]
+            logger.error(f"Test de service échoué: {e}")
+            return False
