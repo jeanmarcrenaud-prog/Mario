@@ -201,7 +201,7 @@ Structurez le résumé en:
             logger.error(f"Erreur suppression prompt {prompt_id}: {e}")
             return False
     
-    def generate_prompt_text(self, prompt_template: str, input_text: str, custom_variables: Dict = None) -> str:
+    def generate_prompt_text(self, prompt_template: str, input_text: str, custom_variables: Optional[Dict] = None) -> str:
         """
         Génère le texte final du prompt avec les variables.
         

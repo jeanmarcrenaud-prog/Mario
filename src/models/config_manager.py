@@ -46,6 +46,7 @@ class ConfigManager:
     def __post_init__(self):
         # Création des dossiers nécessaires
         for folder in [self.VOICES_FOLDER, self.CONVERSATION_HISTORY_FOLDER, 
+                       self.LOG_FOLDER]:
             os.makedirs(folder, exist_ok=True)
         
         # Vérification des fichiers nécessaires
@@ -64,4 +65,4 @@ class ConfigManager:
             if not os.path.exists(file_path):
                 logging.warning(f"Fichier requis manquant : {file_path}")
 
-ConfigManager = ConfigManager()
+config_manager_instance: ConfigManager = ConfigManager()

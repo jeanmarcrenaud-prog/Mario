@@ -2,7 +2,7 @@ import os
 import json
 import ast
 import re
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict, Tuple, Optional, Any
 from pathlib import Path
 from abc import ABC, abstractmethod
 from ..utils.logger import logger
@@ -72,7 +72,7 @@ class ProjectAnalyzerService:
         self.llm_adapter = llm_adapter
         logger.info("ProjectAnalyzerService initialisé avec adaptateur")
     
-    def analyze_project(self, project_path: str, depth: int = 2) -> Dict[str, any]:
+    def analyze_project(self, project_path: Path, depth: int = 2) -> Dict[str, Any]:
         """
         Analyse complète d'un projet.
         
@@ -84,7 +84,6 @@ class ProjectAnalyzerService:
             Rapport d'analyse complet
         """
         try:
-            project_path = Path(project_path)
             if not project_path.exists():
                 raise FileNotFoundError(f"Projet non trouvé: {project_path}")
             
