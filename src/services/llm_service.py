@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Generator, Protocol
+from typing import List, Dict, Optional, Generator, Protocol, Any
 import logging
 
 logger = logging.getLogger(__name__)
@@ -7,21 +7,23 @@ logger = logging.getLogger(__name__)
 class ILLMAdapter(Protocol):
     """Interface pour les adaptateurs LLM."""
     
-    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str: ...
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str: ...
     
     def test_connection(self) -> bool: ...
+    
+    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str: ...
 
 
 class SimulatedLLMAdapter:
     """Adaptateur LLM simulé pour les tests."""
-    
+
     def __init__(self, fake_responses: Optional[Dict[str, str]] = None):
         self.fake_responses = fake_responses or {}
-    
+
     def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
         if len(messages) >= 1 and 'content' in messages[-1]:
             content = messages[-1]['content'].lower()
-            
+
             # Mots-clés spécifiques pour les tests (ordre important!)
             if "analyse ce code" in content or "analyse du code" in content or "analyse projet" in content or "analyse du projet" in content:
                 return "Analyse du projet simulée"
@@ -29,20 +31,21 @@ class SimulatedLLMAdapter:
                 return "Test réussi"
             if "recommandation" in content:
                 return "[Optimisation des performances]\n[Amélioration de la documentation]\n[Refactorisation du code]"
-            
+
             # Vérifier les réponses personnalisées
             for key, response in self.fake_responses.items():
                 if key.lower() in content:
                     return response
-            
+
         return "Ceci est une réponse simulée."
-    
+
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse pour ProjectAnalyzerService."""
+        return self.chat(messages, kwargs.get('temperature', 0.7))
+
     def test_connection(self) -> bool:
         return True
-    
-    def generate_response(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
-        return self.chat(messages, temperature)
-    
+
     def generate_analysis(self, code_text: str) -> str:
         system_prompt = "Tu es un expert en développement logiciel."
         messages = [
@@ -50,7 +53,7 @@ class SimulatedLLMAdapter:
             {"role": "user", "content": f"Analyse ce code:\n{code_text}"}
         ]
         return self.chat(messages, 0.7)
-    
+
     def generate_recommendations(self, project_path: str) -> List[str]:
         messages = [
             {"role": "system", "content": "Donnez des recommandations."},
@@ -58,20 +61,72 @@ class SimulatedLLMAdapter:
         ]
         response = self.chat(messages, 0.7)
         return [response]
-    
+
     def get_available_models(self) -> List[str]:
         return ["qwen3-coder", "llama2", "mistral"]
 
 
+class LMStudioLLMAdapter:
+    """Adaptateur LLM pour LM Studio."""
+
+    def __init__(self, model_name: str = "qwen3-coder", base_url: str = "http://localhost:1234"):
+        self.model_name = model_name
+        self.base_url = base_url
+        self.is_available = False
+        self._check_availability()
+
+    def _check_availability(self):
+        try:
+            import requests
+            # LM Studio API v1
+            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            self.is_available = response.status_code == 200
+        except Exception as e:
+            logger.debug(f"LM Studio non disponible: {e}")
+            self.is_available = False
+
+    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
+        try:
+            import requests
+            response = requests.post(
+                f"{self.base_url}/v1/chat/completions",
+                json={
+                    "model": self.model_name,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": 2048,
+                    "stream": False
+                }
+            )
+            response.raise_for_status()
+            return response.json()['choices'][0]['message']['content']
+        except Exception as e:
+            logger.error(f"Erreur LM Studio: {e}")
+            return f"[ERREUR LM STUDIO] {str(e)}"
+
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse pour ProjectAnalyzerService."""
+        return self.chat(messages, kwargs.get('temperature', 0.7))
+
+    def test_connection(self) -> bool:
+        try:
+            import requests
+            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            return response.status_code == 200
+        except Exception as e:
+            logger.error(f"Test connexion LM Studio échoué: {e}")
+            return False
+
+
 class OllamaLLMAdapter:
     """Adaptateur LLM pour Ollama."""
-    
+
     def __init__(self, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
         self.model_name = model_name
         self.base_url = base_url
         self.is_available = False
         self._check_availability()
-    
+
     def _check_availability(self):
         try:
             import requests
@@ -80,24 +135,45 @@ class OllamaLLMAdapter:
         except Exception as e:
             logger.debug(f"Ollama non disponible: {e}")
             self.is_available = False
-    
+
     def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
         try:
             import requests
+            # Format compatible avec ollama_client.py qui utilise /api/generate
+            prompt = self._format_messages_for_ollama(messages)
             response = requests.post(
-                f"{self.base_url}/api/chat",
+                f"{self.base_url}/api/generate",
                 json={
                     "model": self.model_name,
-                    "messages": messages,
-                    "temperature": temperature
+                    "prompt": prompt,
+                    "stream": False
                 }
             )
             response.raise_for_status()
-            return response.json()['message']['content']
+            return response.json()['response']
         except Exception as e:
             logger.error(f"Erreur Ollama: {e}")
             return f"[ERREUR OLLAMA] {str(e)}"
-    
+
+    def _format_messages_for_ollama(self, messages: List[Dict[str, str]]) -> str:
+        """Convertit les messages en prompt simple pour Ollama."""
+        formatted = ""
+        for msg in messages:
+            role = msg.get("role", "")
+            content = msg.get("content", "")
+            if role == "system":
+                formatted += f"System: {content}\n\n"
+            elif role == "user":
+                formatted += f"User: {content}\n\n"
+            elif role == "assistant":
+                formatted += f"Assistant: {content}\n\n"
+        formatted += "Assistant:"
+        return formatted
+
+    def generate_response(self, messages: List[Dict[str, str]], **kwargs) -> str:
+        """Génère une réponse pour ProjectAnalyzerService."""
+        return self.chat(messages, kwargs.get('temperature', 0.7))
+
     def test_connection(self) -> bool:
         try:
             import requests
@@ -109,10 +185,63 @@ class OllamaLLMAdapter:
 
 
 class LLMService:
-    """Service de génération de réponses LLM."""
-    
+    """Service de génération de réponses LLM avec support Ollama et LM Studio."""
+
     def __init__(self, adapter=None):
         self._adapter = adapter
+        self.service_type = self._detect_service_type()
+
+    def _detect_service_type(self) -> str:
+        """Détecte automatiquement quel service LLM est disponible."""
+        if isinstance(self._adapter, OllamaLLMAdapter):
+            return "ollama"
+        elif isinstance(self._adapter, LMStudioLLMAdapter):
+            return "lm_studio"
+        elif isinstance(self._adapter, SimulatedLLMAdapter):
+            return "simulation"
+        return "unknown"
+
+    @classmethod
+    def detect_and_create(cls, preferred_model: Optional[str] = None):
+        """Détecte automatiquement le service LLM disponible et utilise celui déjà chargé."""
+        # Détection automatique (ordre de priorité)
+        # Utilise le modèle déjà chargé par défaut
+        services = [
+            ("ollama", "http://localhost:11434", "minimax-m2:cloud"),
+            ("lm_studio", "http://localhost:1234", "qwen/qwen3.5-9b"),
+            ("simulation", None, None)
+        ]
+
+        for service_type, base_url, default_model in services:
+            try:
+                if service_type == "ollama":
+                    model_name = preferred_model if preferred_model is not None else default_model
+                    adapter = OllamaLLMAdapter(model_name=model_name, base_url=base_url)
+                elif service_type == "lm_studio":
+                    model_name = preferred_model if preferred_model is not None else default_model
+                    adapter = LMStudioLLMAdapter(model_name=model_name, base_url=base_url)
+                else:
+                    adapter = SimulatedLLMAdapter()
+
+                if adapter.test_connection():
+                    logger.info(f"Service LLM détecté: {service_type}")
+                    return cls(adapter=adapter)
+            except Exception as e:
+                logger.debug(f"Service {service_type} non disponible: {e}")
+                continue
+
+        # Fallback: Simulation
+        logger.warning("Aucun service LLM détecté, utilisation du mode simulation")
+        return cls.create_with_simulation()
+
+    def get_service_info(self) -> Dict[str, Any]:
+        """Retourne les informations du service LLM actif."""
+        return {
+            "service_type": self.service_type,
+            "available": self._adapter is not None,
+            "model": getattr(self._adapter, 'model_name', None) if self._adapter else None,
+            "connection_test": bool(self.test_connection()) if self._adapter else False
+        }
     
     def generate_response(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
         """Génère une réponse basée sur l'historique de conversation."""
@@ -177,6 +306,15 @@ class LLMService:
         from src.services.llm_service import SimulatedLLMAdapter
         
         adapter = SimulatedLLMAdapter(fake_responses=custom_responses)
+        instance = cls(adapter=adapter)
+        return instance
+    
+    @classmethod
+    def create_with_ollama(cls, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
+        """Crée un service avec adapter Ollama."""
+        from src.services.llm_service import OllamaLLMAdapter
+        
+        adapter = OllamaLLMAdapter(model_name=model_name, base_url=base_url)
         instance = cls(adapter=adapter)
         return instance
     

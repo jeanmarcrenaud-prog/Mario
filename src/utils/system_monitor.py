@@ -7,6 +7,7 @@ import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Any
 from io import StringIO
+import os
 
 from rich.console import Console as RichConsole
 from rich.table import Table
@@ -389,6 +390,122 @@ class SystemMonitor:
             "timestamp": datetime.now().isoformat()
         }
 
+    def get_llm_info(self) -> Dict[str, Any]:
+        """Récupère les informations LLM (modèles disponibles, service actif)."""
+        # Méthode simplifiée sans import de LLMService
+        # pour éviter les problèmes de dépendances circulaires
+        
+        try:
+            # Détecter le service LLM disponible
+            service_type = self._detect_llm_service()
+            
+            # Obtenir la liste des modèles disponibles
+            available_models = []
+            active_model = None
+            
+            if service_type == "ollama":
+                available_models = self._get_ollama_models()
+                if available_models:
+                    active_model = available_models[0]  # Premier modèle = actif
+            elif service_type == "lm_studio":
+                available_models = self._get_lm_studio_models()
+                if available_models:
+                    active_model = available_models[0]  # Premier modèle = actif
+            
+            return {
+                "service_type": service_type,
+                "active_model": active_model,
+                "available_models": available_models,
+                "connection_test": len(available_models) > 0,
+                "total_models": len(available_models),
+                "timestamp": datetime.now().isoformat()
+            }
+        except Exception as e:
+            logger.debug(f"Erreur récupération info LLM: {e}")
+            return {
+                "service_type": "error",
+                "active_model": None,
+                "available_models": [],
+                "connection_test": False,
+                "total_models": 0,
+                "error": str(e),
+                "timestamp": datetime.now().isoformat()
+            }
+
+    def _detect_llm_service(self) -> str:
+        """Détecte quel service LLM est disponible."""
+        # Test Ollama
+        try:
+            import requests
+            response = requests.get("http://localhost:11434/api/tags", timeout=3)
+            if response.status_code == 200 and response.json().get('models'):
+                return "ollama"
+        except Exception:
+            pass
+        
+        # Test LM Studio
+        try:
+            import requests
+            response = requests.get("http://localhost:1234/v1/models", timeout=3)
+            if response.status_code == 200 and response.json().get('data'):
+                return "lm_studio"
+        except Exception:
+            pass
+        
+        return "none"
+
+    def _get_ollama_models(self) -> List[str]:
+        """Récupère les modèles Ollama disponibles."""
+        try:
+            import requests
+            response = requests.get("http://localhost:11434/api/tags", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get('models', [])
+                return [model['name'] for model in models]
+        except Exception:
+            pass
+        return []
+
+    def _get_lm_studio_models(self) -> List[str]:
+        """Récupère les modèles LM Studio disponibles."""
+        try:
+            import requests
+            response = requests.get("http://localhost:1234/v1/models", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get('data', [])
+                return [model['id'] for model in models]
+        except Exception:
+            pass
+        return []
+
+    def refresh_llm_models(self) -> Dict[str, Any]:
+        """Rafraîchit les modèles LLM et retourne les informations mises à jour."""
+        logger.info("Rafraîchissement des modèles LLM...")
+        
+        llm_info = self.get_llm_info()
+        
+        # Log des informations
+        if llm_info.get("service_type") != "error" and llm_info.get("service_type") != "none":
+            logger.info(f"Service LLM actif: {llm_info['service_type']}")
+            logger.info(f"Modèle actif: {llm_info['active_model']}")
+            logger.info(f"Modèles disponibles: {llm_info['total_models']}")
+            
+            # Afficher les modèles disponibles
+            if llm_info.get("available_models"):
+                logger.info("Modèles LLM disponibles:")
+                for i, model in enumerate(llm_info["available_models"], 1):
+                    is_active = model == llm_info.get("active_model")
+                    status = " [ACTIF]" if is_active else ""
+                    logger.info(f"  {i}. {model}{status}")
+        else:
+            service_type = llm_info.get("service_type", "inconnu")
+            if service_type == "none":
+                logger.warning("Aucun service LLM détecté")
+            else:
+                logger.warning(f"Erreur récupération modèles LLM: {llm_info.get('error', 'inconnu')}")
+        
+        return llm_info
+
     def get_detailed_system_info(self) -> Dict:
         """Récupère des informations système détaillées."""
         return {
@@ -403,6 +520,7 @@ class SystemMonitor:
             "top_processes": self.get_top_processes(),
             "battery": self.get_battery_status(),
             "audio": self.get_audio_devices(),
+            "llm": self.get_llm_info(),
             "timestamp": datetime.now().isoformat()
         }
 

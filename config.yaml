@@ -5,7 +5,7 @@ default_microphone_index: 0
 
 # Modèles par défaut
 default_voice: "fr_FR-siwis-medium"
-default_model: "qwen3-coder:latest"
+default_model: "minimax-m2:cloud"
 
 # Interface
 web_port: 7860

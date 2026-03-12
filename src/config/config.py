@@ -32,6 +32,9 @@ class ConfigManager:
     # Logging
     LOG_LEVEL: str = "INFO"
     
+    # Ollama settings
+    OLLAMA_TIMEOUT: int = 600
+    
     def __post_init__(self):
         """Charge la configuration depuis le fichier YAML."""
         self._load_from_file()
