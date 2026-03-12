@@ -9,7 +9,13 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond e
 
 	🧠 Détection mot-clé ("Hey Mario", vosk)
 
-	💬 Interfaces graphiques : Gradio (web), Console, ePaper
+	🤖 **Intelligence Artificielle Intégrée**
+		- Détection automatique Ollama/LM Studio
+		- Rafraîchissement automatique des modèles LLM
+		- Monitoring des services en temps réel
+		- Support multi-modèles avec fallback
+
+	💬 Interfaces graphiques : Gradio (web), Console, ePaper
 
 	🧩 Architecture MVC modulaire — tous les modules sont extensibles et interchangeables
 
@@ -104,6 +110,25 @@ Astuce : Installe PyTorch avec CUDA pour booster Whisper si tu as un GPU (Inst
 	2.📁 Fichiers - Analyse de fichiers et projets
 	3.🎯 Prompts - Création de prompts personnalisés
 	4.🔧 Paramètres - Configuration système et performance
+	5.🧠 **LLM Monitor** - Surveillance des modèles IA (nouveau!)
+
+🤖 Configuration Intelligence Artificielle
+
+	Services Supportés:
+	- **Ollama** (http://localhost:11434) - Recommandé pour l'IA locale
+	- **LM Studio** (http://localhost:1234) - Alternative robuste
+	- **Mode Simulation** - Fallback sans service IA
+
+	Configuration automatique:
+	- Détection des services en cours d'exécution
+	- Sélection intelligente du modèle actif
+	- Rafraîchissement automatique au démarrage
+	- Monitoring temps réel dans l'interface
+
+	Modèles par défaut:
+	- Ollama: "minimax-m2:cloud"
+	- LM Studio: "qwen/qwen3.5-9b"
+	- Configuration dans config.yaml
 
 
 🧰 Technologies principales
