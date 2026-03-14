@@ -9,11 +9,13 @@ Un assistant vocal local modulaire/MVC en Python : écoute, transcrit, répond e
 
 	🧠 Détection mot-clé ("Hey Mario", vosk)
 
-	🤖 **Intelligence Artificielle Intégrée**
-		- Détection automatique Ollama/LM Studio
-		- Rafraîchissement automatique des modèles LLM
-		- Monitoring des services en temps réel
-		- Support multi-modèles avec fallback
+	🤖 **Intelligence Artificielle Complète**
+		- **Auto-détection** Ollama → LM Studio → Simulation
+		- **5+ modèles** LM Studio vs 1 Ollama disponibles
+		- **Interface Gradio** avec contrôles LLM complets
+		- **Changement dynamique** de modèle sans redémarrage
+		- **Monitoring temps réel** : statut service, modèles, connexion
+		- **Tests intégrés** de santé des services LLM
 
 	💬 Interfaces graphiques : Gradio (web), Console, ePaper
 
@@ -110,24 +112,35 @@ Astuce : Installe PyTorch avec CUDA pour booster Whisper si tu as un GPU (Inst
 	2.📁 Fichiers - Analyse de fichiers et projets
 	3.🎯 Prompts - Création de prompts personnalisés
 	4.🔧 Paramètres - Configuration système et performance
-	5.🧠 **LLM Monitor** - Surveillance des modèles IA (nouveau!)
+	5.🤖 **Intelligence** - Contrôles LLM complets (nouveau!)
+		- Selection service (Ollama/LM Studio/Auto/Simulation)
+		- Choix modèle dynamique avec refresh
+		- Tests de connexion temps réel
+		- Configuration créative (temperature, tokens)
 
 🤖 Configuration Intelligence Artificielle
 
 	Services Supportés:
-	- **Ollama** (http://localhost:11434) - Recommandé pour l'IA locale
-	- **LM Studio** (http://localhost:1234) - Alternative robuste
-	- **Mode Simulation** - Fallback sans service IA
+	- **Ollama** (http://localhost:11434) - Service local prioritaire
+	- **LM Studio** (http://localhost:1234) - Plus de modèles disponibles (5+ vs 1 Ollama)
+	- **Mode Simulation** - Fallback intelligent sans service IA
 
-	Configuration automatique:
-	- Détection des services en cours d'exécution
-	- Sélection intelligente du modèle actif
-	- Rafraîchissement automatique au démarrage
-	- Monitoring temps réel dans l'interface
+	Auto-Détection Intelligente:
+	- **Priorité** : Ollama (11434) → LM Studio (1234) → Simulation
+	- **Sélection automatique** du premier service disponible
+	- **Changement dynamique** de modèle sans redémarrage
+	- **Monitoring temps réel** : statut, modèles, tests de santé
 
-	Modèles par défaut:
-	- Ollama: "minimax-m2:cloud"
-	- LM Studio: "qwen/qwen3.5-9b"
+	Interface Gradio LLM (Onglet "🤖 Intelligence"):
+	- Affichage service actif : Ollama/LM Studio/Simulation
+	- Forçage service : Auto/Ollama/LM Studio/Simulation  
+	- Liste modèles dynamique avec bouton refresh (🔄)
+	- Tests connexion LLM (🧪) avec feedback temps réel
+	- Configuration avancée : Créativité (temperature) + Tokens max
+
+	Modèles Actifs:
+	- **Ollama** : 1 modèle (minimax-m2:cloud)
+	- **LM Studio** : 5 modèles (qwen3.5-9b, text-embedding-nomic, etc.)
 	- Configuration dans config.yaml
 
 

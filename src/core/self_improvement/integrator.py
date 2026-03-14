@@ -10,5 +10,4 @@ def integrate_code(module_name: str, code: str, module_type: str = "adapter"):
 
     return f"Module {module_name} intégré dans {module_path}."
 
-# Exemple d'utilisation
-integrate_code("weather_adapter", generated_code, "adapter")
+

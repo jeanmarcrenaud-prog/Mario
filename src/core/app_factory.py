@@ -168,3 +168,108 @@ def create_speech_recognition_service(model_name: str = "base") -> SpeechRecogni
     """Factory pour créer un service STT avec Whisper."""
     adapter = WhisperSpeechRecognitionAdapter(model_name=model_name)
     return SpeechRecognitionService(speech_recognition_adapter=adapter)
+
+
+def create_assistant_with_simulation() -> AssistantVocal:
+    """
+    Factory method pour créer un AssistantVocal avec simulation LLM.
+    
+    Returns:
+        AssistantVocal: Instance configurée avec simulation
+    """
+    logger.info("🔧 Création de l'assistant avec simulation...")
+    
+    settings = Settings.from_config(config)
+    conversation_service = ConversationService()
+    prompt_manager = PromptManager()
+    
+    mic_checker = MicrophoneChecker()
+    if not mic_checker.is_microphone_available():
+        logger.error("❌ Aucun microphone détecté.")
+        raise RuntimeError("Microphone non disponible")
+        
+    tts_service = TTSService.create_with_piper(settings.voice_name)
+    wake_word_service = WakeWordService.create_with_vosk()
+    speech_recognition_service = create_speech_recognition_service()
+    
+    llm_service = LLMService.detect_and_create()
+    if not llm_service:
+        from src.services.llm_service import SimulatedLLMAdapter
+        llm_adapter = SimulatedLLMAdapter()
+    else:
+        llm_adapter = llm_service.llm_adapter if llm_service and llm_service.llm_adapter else None
+        if not llm_adapter:
+            from src.services.llm_service import SimulatedLLMAdapter
+            llm_adapter = SimulatedLLMAdapter()
+    
+    project_analyzer_service = ProjectAnalyzerService(llm_adapter)
+    system_monitor = SystemMonitor()
+    performance_optimizer = PerformanceOptimizer()
+    performance_optimizer.start_monitoring()
+    
+    assistant = AssistantVocal(
+        settings=settings,
+        conversation_service=conversation_service,
+        prompt_manager=prompt_manager,
+        tts_service=tts_service,
+        wake_word_service=wake_word_service,
+        speech_recognition_service=speech_recognition_service,
+        llm_service=llm_service,
+        project_analyzer_service=project_analyzer_service,
+        system_monitor=system_monitor,
+        performance_optimizer=performance_optimizer
+    )
+    
+    logger.info("✅ Assistant avec simulation créé")
+    return assistant
+
+
+def create_minimal_assistant() -> AssistantVocal:
+    """
+    Factory method pour créer un AssistantVocal minimaliste.
+    
+    Returns:
+        AssistantVocal: Instance minimale configurée
+    """
+    logger.info("🔧 Création de l'assistant minimal...")
+    
+    settings = Settings.from_config(config)
+    conversation_service = ConversationService()
+    prompt_manager = PromptManager()
+    
+    mic_checker = MicrophoneChecker()
+    if not mic_checker.is_microphone_available():
+        logger.error("❌ Aucun microphone détecté.")
+        raise RuntimeError("Microphone non disponible")
+        
+    tts_service = TTSService.create_with_piper(settings.voice_name)
+    speech_recognition_service = create_speech_recognition_service()
+    
+    llm_service = LLMService.detect_and_create()
+    if not llm_service:
+        from src.services.llm_service import SimulatedLLMAdapter
+        llm_adapter = SimulatedLLMAdapter()
+    else:
+        llm_adapter = llm_service.llm_adapter if llm_service and llm_service.llm_adapter else None
+        if not llm_adapter:
+            from src.services.llm_service import SimulatedLLMAdapter
+            llm_adapter = SimulatedLLMAdapter()
+    
+    project_analyzer_service = ProjectAnalyzerService(llm_adapter)
+    system_monitor = SystemMonitor()
+    
+    assistant = AssistantVocal(
+        settings=settings,
+        conversation_service=conversation_service,
+        prompt_manager=prompt_manager,
+        tts_service=tts_service,
+        wake_word_service=None,
+        speech_recognition_service=speech_recognition_service,
+        llm_service=llm_service,
+        project_analyzer_service=project_analyzer_service,
+        system_monitor=system_monitor,
+        performance_optimizer=None
+    )
+    
+    logger.info("✅ Assistant minimal créé")
+    return assistant

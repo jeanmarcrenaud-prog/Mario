@@ -71,16 +71,16 @@ python test_llm_detection.py
 
 ### Services Supportés
 ```python
-# Ollama - Recommandé pour IA locale
+# Ollama - Service local prioritaire
 OllamaLLMAdapter(model_name="minimax-m2:cloud", base_url="http://localhost:11434")
 
-# LM Studio - Alternative robuste  
+# LM Studio - Plus de modèles disponibles
 LMStudioLLMAdapter(model_name="qwen/qwen3.5-9b", base_url="http://localhost:1234")
 ```
 
-### Détection Automatique
+### Auto-Détection et Priorité
 ```python
-# Détection et création automatique du service LLM
+# Détection automatique avec ordre de priorité
 from services.llm_service import LLMService
 
 llm_service = LLMService.detect_and_create()
@@ -88,23 +88,59 @@ info = llm_service.get_service_info()
 print(f"Service: {info['service_type']}, Model: {info['model']}")
 ```
 
-### Monitoring Intégré
+**Ordre de détection :**
+1. **Ollama** (localhost:11434) - Priorité 1
+2. **LM Studio** (localhost:1234) - Priorité 2  
+3. **Simulation** - Fallback si aucun service disponible
+
+### Gestion des Modèles
 ```python
-# Dans SystemMonitor
+# Lister tous les modèles disponibles
+models = llm_service.get_available_models()
+print(f"Modèles: {models}")
+
+# Changer de modèle dynamiquement
+llm_service.set_model("nouveau-modele")
+
+# Info service complet
+info = llm_service.get_service_info()
+print(f"Service: {info['service_type']}, Connection: {info['connection_test']}")
+```
+
+### Interface Gradio - Contrôles LLM
+```python
+# Dans l'interface web, section "🤖 Intelligence" :
+- Status service LLM (Ollama/LM Studio/Simulation)
+- Forcer le service (Auto/Ollama/LM Studio/Simulation) 
+- Sélection modèle dynamique
+- Boutons d'action (🔄 Rafraîchir, 🧪 Tester)
+- Configuration avancée (Créativité, Tokens max)
+```
+
+### Monitoring SystemMonitor
+```python
+# Détection système avec monitoring complet
 from utils.system_monitor import SystemMonitor
 
 monitor = SystemMonitor()
-llm_info = monitor.refresh_llm_models()
-print(f"LLM Service: {llm_info['service_type']}")
+llm_info = monitor.get_llm_info()
+print(f"Service: {llm_info['service_type']}")
 print(f"Active Model: {llm_info['active_model']}")
 print(f"Available Models: {llm_info['available_models']}")
+print(f"Total Models: {llm_info['total_models']}")
+
+# Rafraîchissement manuel
+refreshed_info = monitor.refresh_llm_models()
 ```
 
-### Rafraîchissement Automatique
-- ✅ **Au démarrage** : AppFactory appelle `system_monitor.refresh_llm_models()`
-- ✅ **Logs informatifs** : État visible dans les logs d'application
-- ✅ **Interface web** : Section LLM dans les informations système
-- ✅ **Fallback intelligent** : Simulation si aucun service détecté
+### Fonctionnalités Avancées
+- ✅ **Auto-détection** : Service détecté automatiquement au démarrage
+- ✅ **Changement dynamique** : Modèle modifiable sans redémarrage
+- ✅ **Interface intuitive** : Contrôles LLM dans l'interface Gradio
+- ✅ **Monitoring temps réel** : Status et modèles visibles dans l'interface
+- ✅ **Tests de connexion** : Vérification santé des services
+- ✅ **Fallback intelligent** : Simulation si services indisponibles
+- ✅ **Logs détaillés** : Informations complètes dans les logs d'application
 
 ## Code Style Guidelines
 

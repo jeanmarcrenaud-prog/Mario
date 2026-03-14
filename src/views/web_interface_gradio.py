@@ -31,7 +31,34 @@ class GradioWebInterface:
         self.system_stats = None
         self.chatbot = None
         self.user_input = None
-        # ... autres composants
+        
+        # Contrôles LLM
+        self.llm_service_status = None
+        self.llm_service_force = None
+        self.model_dropdown = None
+        self.refresh_models_btn = None
+        self.test_llm_btn = None
+        self.llm_test_result = None
+        self.temperature_slider = None
+        self.max_tokens_slider = None
+        
+        # Contrôles audio
+        self.mic_dropdown = None
+        self.voice_dropdown = None
+        self.speed_slider = None
+        
+        # Boutons de contrôle
+        self.start_btn = None
+        self.stop_btn = None
+        self.send_btn = None
+        self.clear_btn = None
+        
+        # Autres composants (fichiers, prompts, etc.)
+        self.file_upload = None
+        self.file_result = None
+        self.project_path = None
+        self.project_result = None
+        # ... autres composants selon besoins
     
     def create_interface(self) -> gr.Blocks:
         """Crée l'interface Gradio complète."""
@@ -173,6 +200,22 @@ class GradioWebInterface:
     def _create_ai_controls(self):
         """Crée les contrôles d'intelligence artificielle."""
         with gr.Accordion("🤖 Intelligence", open=True):
+            # Affichage du service LLM actuel
+            self.llm_service_status = gr.Textbox(
+                label="Service LLM",
+                value="🔍 Détection en cours...",
+                interactive=False
+            )
+            
+            # Sélection forcée du service (optionnel)
+            self.llm_service_force = gr.Dropdown(
+                label="Forcer le service LLM",
+                choices=["Auto-détection", "Ollama (localhost:11434)", "LM Studio (localhost:1234)", "Simulation"],
+                value="Auto-détection",
+                interactive=True
+            )
+            
+            # Sélection de modèle
             self.model_dropdown = gr.Dropdown(
                 label="Modèle IA",
                 choices=self._get_model_choices(),
@@ -180,12 +223,32 @@ class GradioWebInterface:
                 interactive=True
             )
             
+            # Boutons d'action pour LLM
+            with gr.Row():
+                self.refresh_models_btn = gr.Button("🔄 Rafraîchir modèles", size="sm")
+                self.test_llm_btn = gr.Button("🧪 Tester LLM", size="sm")
+            
+            self.llm_test_result = gr.Textbox(
+                label="Résultat test LLM",
+                value="Cliquez pour tester la connexion",
+                interactive=False
+            )
+            
+            # Sliders de configuration
             self.temperature_slider = gr.Slider(
                 label="🌡️ Créativité",
                 minimum=0.0,
                 maximum=1.0,
                 value=0.7,
                 step=0.1
+            )
+            
+            self.max_tokens_slider = gr.Slider(
+                label="Tokens max",
+                minimum=128,
+                maximum=4096,
+                value=1024,
+                step=128
             )
     
     def _create_system_stats(self):
@@ -770,6 +833,24 @@ Fournissez:
         self.stop_btn.click(
             self._stop_assistant,
             outputs=[self.status_text]
+        )
+        
+        # Événements LLM
+        self.refresh_models_btn.click(
+            self._refresh_model_choices,
+            outputs=[self.model_dropdown, self.llm_service_status]
+        )
+        
+        self.test_llm_btn.click(
+            self._test_llm_connection,
+            outputs=[self.llm_test_result]
+        )
+        
+        # Changer le service LLM force la refresh des modèles
+        self.llm_service_force.change(
+            self._force_llm_service,
+            inputs=[self.llm_service_force],
+            outputs=[self.model_dropdown, self.llm_service_status]
         )
     
     def _setup_chat_events(self):
@@ -1856,6 +1937,86 @@ Structurez le résumé en:
     def _get_default_model(self) -> str:
         """Retourne le modèle par défaut."""
         return "qwen3-coder:latest"
+    
+    # === Méthodes LLM ===
+    
+    def _refresh_model_choices(self) -> Tuple[List[str], str]:
+        """Rafraîchit les modèles disponibles et affiche le statut."""
+        try:
+            # Rafraîchir les modèles
+            models = self._get_model_choices()
+            
+            # Obtenir le statut LLM
+            if hasattr(self.assistant, 'llm_service') and hasattr(self.assistant.llm_service, 'get_service_info'):
+                service_info = self.assistant.llm_service.get_service_info()
+                status_text = f"🤖 Service: {service_info.get('service_type', 'Inconnu')} | 📊 Modèles: {len(models)}"
+            else:
+                status_text = "🤖 Service non détecté"
+            
+            return models, status_text
+        except Exception as e:
+            logger.error(f"Erreur refresh modèles: {e}")
+            return [], f"❌ Erreur: {str(e)}"
+    
+    def _test_llm_connection(self) -> str:
+        """Teste la connexion LLM."""
+        try:
+            if hasattr(self.assistant, 'llm_service'):
+                result = self.assistant.llm_service.test_service()
+                if result:
+                    return "✅ Connexion LLM OK - Service opérationnel"
+                else:
+                    return "❌ Connexion LLM échouée - Vérifiez la configuration"
+            return "❌ Service LLM non disponible"
+        except Exception as e:
+            return f"❌ Erreur test LLM: {str(e)}"
+    
+    def _force_llm_service(self, service_choice: str) -> Tuple[List[str], str]:
+        """Force un service LLM spécifique."""
+        try:
+            from src.services.llm_service import LLMService
+            
+            if service_choice == "Auto-détection":
+                # Recréer le service avec auto-détection
+                self.assistant.llm_service = LLMService.detect_and_create()
+                models = self._get_model_choices()
+                status = "🔄 Auto-détection active"
+                
+            elif service_choice == "Ollama (localhost:11434)":
+                from src.services.llm_service import OllamaLLMAdapter
+                adapter = OllamaLLMAdapter(model_name="qwen3-coder", base_url="http://localhost:11434")
+                if adapter.test_connection():
+                    self.assistant.llm_service = LLMService(adapter=adapter)
+                    models = self._get_model_choices()
+                    status = "🤖 Ollama forcé"
+                else:
+                    models = self._get_default_local_models()
+                    status = "❌ Ollama non disponible"
+                    
+            elif service_choice == "LM Studio (localhost:1234)":
+                from src.services.llm_service import LMStudioLLMAdapter
+                adapter = LMStudioLLMAdapter(model_name="qwen3.5-coder", base_url="http://localhost:1234")
+                if adapter.test_connection():
+                    self.assistant.llm_service = LLMService(adapter=adapter)
+                    models = self._get_model_choices()
+                    status = "🧠 LM Studio forcé"
+                else:
+                    models = self._get_default_local_models()
+                    status = "❌ LM Studio non disponible"
+                    
+            elif service_choice == "Simulation":
+                self.assistant.llm_service = LLMService.create_with_simulation()
+                models = ["Simulation", "Test-Response", "Mock-Model"]
+                status = "🧪 Mode simulation"
+            else:
+                models = self._get_default_local_models()
+                status = "⚠️ Choix non reconnu"
+            
+            return models, status
+            
+        except Exception as e:
+            logger.error(f"Erreur changement service LLM: {e}")
+            return self._get_default_local_models(), f"❌ Erreur: {str(e)}"
     
     # === Méthodes de lancement ===
     

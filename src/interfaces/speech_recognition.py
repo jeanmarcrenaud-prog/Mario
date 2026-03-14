@@ -24,3 +24,7 @@ class ISpeechRecognitionAdapter(Protocol):
     def get_available_models(self) -> list[str]:
         """Return the list of available models."""
         ...
+
+    def optimize_cache(self) -> bool:
+        """Optimize model cache."""
+        ...

@@ -64,6 +64,10 @@ class SimulatedLLMAdapter:
 
     def get_available_models(self) -> List[str]:
         return ["qwen3-coder", "llama2", "mistral"]
+    
+    def set_model(self, model_name: str) -> bool:
+        """Change le modèle simulé."""
+        return True  # Simulation ignore les changements
 
 
 class LMStudioLLMAdapter:
@@ -115,6 +119,28 @@ class LMStudioLLMAdapter:
             return response.status_code == 200
         except Exception as e:
             logger.error(f"Test connexion LM Studio échoué: {e}")
+            return False
+    
+    def get_available_models(self) -> List[str]:
+        """Retourne la liste des modèles LM Studio disponibles."""
+        try:
+            import requests
+            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get('data', [])
+                return [model['id'] for model in models]
+            return []
+        except Exception as e:
+            logger.debug(f"Erreur récupération modèles LM Studio: {e}")
+            return []
+    
+    def set_model(self, model_name: str) -> bool:
+        """Change le modèle actif."""
+        try:
+            self.model_name = model_name
+            return True
+        except Exception as e:
+            logger.error(f"Erreur changement modèle LM Studio: {e}")
             return False
 
 
@@ -182,6 +208,28 @@ class OllamaLLMAdapter:
         except Exception as e:
             logger.error(f"Test connexion Ollama échoué: {e}")
             return False
+    
+    def get_available_models(self) -> List[str]:
+        """Retourne la liste des modèles Ollama disponibles."""
+        try:
+            import requests
+            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
+            if response.status_code == 200:
+                models = response.json().get('models', [])
+                return [model['name'] for model in models]
+            return []
+        except Exception as e:
+            logger.debug(f"Erreur récupération modèles Ollama: {e}")
+            return []
+    
+    def set_model(self, model_name: str) -> bool:
+        """Change le modèle actif."""
+        try:
+            self.model_name = model_name
+            return True
+        except Exception as e:
+            logger.error(f"Erreur changement modèle Ollama: {e}")
+            return False
 
 
 class LLMService:
@@ -242,6 +290,17 @@ class LLMService:
             "model": getattr(self._adapter, 'model_name', None) if self._adapter else None,
             "connection_test": bool(self.test_connection()) if self._adapter else False
         }
+    
+    def set_model(self, model_name: str) -> bool:
+        """Change le modèle actif."""
+        try:
+            if self._adapter and hasattr(self._adapter, 'model_name'):
+                self._adapter.model_name = model_name
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Erreur changement modèle: {e}")
+            return False
     
     def generate_response(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> str:
         """Génère une réponse basée sur l'historique de conversation."""

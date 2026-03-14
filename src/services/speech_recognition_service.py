@@ -78,15 +78,6 @@ class SpeechRecognitionService:
             logger.debug(f"Erreur optimisation cache: {e}")
             return False
 
-
-    def get_available_models(self) -> list[str]:
-        """Retourne la liste des modèles disponibles."""
-        try:
-            return self.speech_recognition_adapter.get_available_models()
-        except Exception as e:
-            logger.debug(f"Erreur récupération modèles: {e}")
-            return []
-
     def test_transcription(self) -> bool:
         """Teste la transcription."""
         try:
@@ -104,4 +95,11 @@ class SpeechRecognitionService:
         """Factory method pour une instance de service avec Whisper."""
         from ..adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter
         adapter = WhisperSpeechRecognitionAdapter(model_size)
+        return cls(adapter)
+
+    @classmethod
+    def create_with_simulation(cls):
+        """Crée un service avec adaptateur simulé pour les tests."""
+        from ..adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
+        adapter = SimulatedSpeechRecognitionAdapter()
         return cls(adapter)

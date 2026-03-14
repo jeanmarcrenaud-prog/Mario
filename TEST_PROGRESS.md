@@ -4,7 +4,7 @@
 
 ### 1. conftest.py - 40 fixtures ajoutés
 
-**Fixures globales disponibles:**
+**Fixtures globales disponibles:**
 
 ```python
 # ✅ VIEWS - 8 fixtures
@@ -27,7 +27,7 @@
   mock_project_analyzer_svc # ProjectAnalyzerService mock
   mock_gradio_web_interface # GradioWebInterface 
 
-# ✅ ADVAPTORS - 6 fixtures
+# ✅ ADAPTORS - 6 fixtures
   mock_whisper_adapter      # Whisper adapter mock
   mock_vosk_adapter         # Vosk adapter mock
   mock_dummy_audio_input    # Dummy audio input mock
@@ -47,10 +47,10 @@
 
 ---
 
-## 📈 STATUS PARR FIXES
+## 📈 STATUS PAR FIXES (Mise à jour: 10 mars 2026)
 
-| Fichier | Tests Originaux | Tests Fixes | Couvrage |
-|---------|----------------|-------------|----------|
+| Fichier | Tests Originaux | Tests Fixes | Couverture |
+|---------|----------------|-------------|------------|
 | test_adapters.py | 15 | 15 | ✅ 100% |
 | test_config.py | 19 | 13 | ⚠️ 68% |
 | test_models.py | 21 | 27 | ✅ 128%* |
@@ -62,11 +62,12 @@
 
 ---
 
-## 🎯 FIXES COMPLETES APPLICABLE
+## 🎯 FIXES COMPLETES APPLICABLES
 
 ### ✅ test_adapters.py
 - Mocks fixes pour tous les adaptateurs
 - 100% des tests passants
+- Nouveau fichier: `tests/unit/adapters/test_adapter_interfaces.py` (212 lignes)
 
 ### ✅ test_config.py  
 - Fixes: missing attributes (sample_rate, performance, log_level, save)
@@ -80,7 +81,7 @@
 - Fixes: Settings additional tests
 
 ### ⏳ test_views.py - EN CORRECTION
-13 tests a corriger:
+13 tests à corriger:
 - ✅ mock_assistant pour test_console_view_init
 - ✅ mock_analysis_manager pour test_analyze_file
 - ✅ mock_epaper_view pour test_epaper_view_init
@@ -116,6 +117,28 @@ def mock_my_service():
 
 ---
 
+## 🔄 CHANGES RÉCENTS (Commit 2446ec9 - 10 mars)
+
+### Simplification de app_factory.py:
+- ✅ Suppression des fonctions redondantes (`create_assistant_with_simulation`, `create_minimal_assistant`)
+- ✅ Unification vers une seule fonction `create_assistant()`
+- ✅ Nettoyage des factory methods pour speech_recognition_service
+- ✅ Réduction de 120 lignes de code
+
+### Fichiers Supprimés:
+- ❌ `src/adapters/speech_recognition_simulated_adapter.py`
+- ❌ `src/core/exceptions.py`
+- ❌ `src/core/llm_service.py` (déplacé vers services)
+- ❌ `src/core/wake_word_service.py` (déplacé vers services)
+- ❌ `src/services/simulated_wake_word_adapter.py`
+
+### Fichiers Ajoutés:
+- ✅ `tests/unit/adapters/test_adapter_interfaces.py` (212 lignes)
+- ✅ `tests/core/test_core_modules.py` (70 lignes)
+- ✅ `TEST_PROGRESS.md` (documentation du projet de test)
+
+---
+
 ## ➡️ PROCHAINES ÉTAPES
 
 ### TODO - Priorité Haute:
@@ -130,7 +153,7 @@ def mock_my_service():
 
 ---
 
-## 📌 CHANGES APPLICATE
+## 📌 CHANGES APPLICABLES
 
 ### Fichiers Modifiés:
 - ✅ `tests/conftest.py` (+40 fixtures)
@@ -146,8 +169,11 @@ Fixtures ajoutées:      +40
 Tests fixes:            +55
 Tests additionnels:     +6
 Lignes ajoutées:        ~1500
+Fichiers supprimés:     -6
+Fichiers nouveaux:      +3
+Net lines (commit):     +3124, -2646
 ```
 
 ---
 
-*Généré: [TIMESTAMP]* | *WIP - Work In Progress*
+*Généré: 10 mars 2026 | WIP - Work In Progress*

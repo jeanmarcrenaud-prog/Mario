@@ -2,19 +2,19 @@ import ast
 import os
 import re
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 from datetime import datetime
 from ..utils.logger import logger
-from ..core.llm_client import LLMClient
+from ..services.llm_service import LLMService
 
 class SelfImprover:
     """Classe pour l'auto-amélioration des fichiers du projet."""
     
-    def __init__(self, llm_client: LLMClient):
-        self.llm_client = llm_client
+    def __init__(self, llm_service: LLMService):
+        self.llm_service = llm_service
         self.project_root = Path(__file__).parent.parent.parent
-        self.last_sent_content = {}  # Stocker le dernier contenu envoyé à Ollama
-        self.analysis_history = {}   # Historique complet des analyses
+        self.last_sent_content: Dict[str, Any] = {}  # Stocker le dernier contenu envoyé à Ollama
+        self.analysis_history: Dict[str, Dict[str, Any]] = {}   # Historique complet des analyses
     
     def analyze_project_structure(self) -> Dict:
         """Analyse la structure du projet."""
