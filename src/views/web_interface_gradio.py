@@ -1464,12 +1464,25 @@ Résumé:
             return ["0: Haut-parleurs par défaut", "1: Casque audio"]
 
     def _get_default_microphone(self) -> str:
-        mic = self.audio_controller.get_default_microphone()
-        if mic is None:
-            return ""
-        if isinstance(mic, str):
-            return mic
-        return f"{mic.index}: {mic.name}"
+        """Retourne le microphone par défaut avec validation."""
+        try:
+            mic = self.audio_controller.get_default_microphone()
+            if mic is None:
+                return "0: Microphone par défaut"
+            
+            if isinstance(mic, str):
+                # Valider que la valeur est dans la liste des choix
+                choices = self._get_microphone_choices()
+                if mic in choices:
+                    return mic
+                else:
+                    # Retourner le premier choix disponible
+                    return choices[0] if choices else "0: Microphone par défaut"
+            
+            return f"{mic.index}: {mic.name}"
+        except Exception as e:
+            logger.debug(f"Erreur microphone par défaut: {e}")
+            return "0: Microphone par défaut"
 
     def _get_default_audio_output(self) -> str:
         """Return the default audio output as a string.
@@ -1891,8 +1904,16 @@ Structurez le résumé en:
             return ["fr_FR-siwis-medium"]
     
     def _get_default_voice(self) -> str:
-        """Retourne la voix par défaut."""
-        return "fr_FR-siwis-medium"
+        """Retourne la voix par défaut avec validation."""
+        try:
+            voices = self._get_voice_choices()
+            if voices and "fr_FR-siwis-medium" in voices:
+                return "fr_FR-siwis-medium"
+            # Fallback: retourner la première voix disponible
+            return voices[0] if voices else "fr_FR-siwis-medium"
+        except Exception as e:
+            logger.debug(f"Erreur voix par défaut: {e}")
+            return "fr_FR-siwis-medium"
     
     def _get_model_choices(self) -> List[str]:
         """Retourne la liste des modèles disponibles."""
@@ -1936,7 +1957,15 @@ Structurez le résumé en:
     
     def _get_default_model(self) -> str:
         """Retourne le modèle par défaut."""
-        return "qwen3-coder:latest"
+        try:
+            models = self._get_model_choices()
+            if models:
+                # Retourner le premier modèle disponible
+                return models[0]
+            # Fallback si aucun modèle détecté
+            return "minimax-m2:cloud"
+        except Exception:
+            return "minimax-m2:cloud"
     
     # === Méthodes LLM ===
     

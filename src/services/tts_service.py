@@ -141,6 +141,15 @@ class TTSService:
             _get_logger().error(f"Erreur speak: {e}")
             return False
     
+    def say(self, text: str, speed: float = 1.0) -> bool:
+        """Alias pour speak() avec vitesse optionnelle"""
+        try:
+            # Utiliser speak() pour la compatibilité, ignorer speed pour l'instant
+            return self.speak(text)
+        except Exception as e:
+            _get_logger().error(f"Erreur say: {e}")
+            return False
+    
     def test_synthesis(self, text: str = "Bonjour, ceci est un test") -> bool:
         """Teste la synthèse vocale"""
         try:
