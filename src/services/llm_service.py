@@ -92,6 +92,10 @@ class LMStudioLLMAdapter:
     def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
         try:
             import requests
+            
+            # Debug: log le format des messages
+            logger.debug(f"LM Studio - Messages envoyés: {messages}")
+            
             response = requests.post(
                 f"{self.base_url}/v1/chat/completions",
                 json={
@@ -100,8 +104,14 @@ class LMStudioLLMAdapter:
                     "temperature": temperature,
                     "max_tokens": 2048,
                     "stream": False
-                }
+                },
+                headers={"Content-Type": "application/json"}
             )
+            
+            # Debug: log la réponse complète
+            logger.debug(f"LM Studio - Status code: {response.status_code}")
+            logger.debug(f"LM Studio - Response body: {response.text[:500]}")
+            
             response.raise_for_status()
             return response.json()['choices'][0]['message']['content']
         except Exception as e:
@@ -115,7 +125,9 @@ class LMStudioLLMAdapter:
     def test_connection(self) -> bool:
         try:
             import requests
+            logger.debug(f"Test connexion LM Studio à {self.base_url}/v1/models")
             response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            logger.debug(f"LM Studio - Status code: {response.status_code}")
             return response.status_code == 200
         except Exception as e:
             logger.error(f"Test connexion LM Studio échoué: {e}")
@@ -125,10 +137,17 @@ class LMStudioLLMAdapter:
         """Retourne la liste des modèles LM Studio disponibles."""
         try:
             import requests
+            logger.debug(f"Récupération modèles LM Studio depuis {self.base_url}/v1/models")
             response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            logger.debug(f"LM Studio - Status code: {response.status_code}")
             if response.status_code == 200:
-                models = response.json().get('data', [])
-                return [model['id'] for model in models]
+                models_data = response.json()
+                logger.debug(f"LM Studio - Models data: {models_data}")
+                # LM Studio retourne souvent une liste directe
+                if isinstance(models_data, list):
+                    return [model.get('id', model.get('name', '')) for model in models_data]
+                elif isinstance(models_data, dict):
+                    return [model.get('id', model.get('name', '')) for model in models_data.get('data', [])]
             return []
         except Exception as e:
             logger.debug(f"Erreur récupération modèles LM Studio: {e}")
@@ -252,11 +271,11 @@ class LLMService:
     @classmethod
     def detect_and_create(cls, preferred_model: Optional[str] = None):
         """Détecte automatiquement le service LLM disponible et utilise celui déjà chargé."""
-        # Détection automatique (ordre de priorité)
+        # Détection automatique (ordre de priorité) - LM Studio prioritaire
         # Utilise le modèle déjà chargé par défaut
         services = [
-            ("ollama", "http://localhost:11434", "minimax-m2:cloud"),
             ("lm_studio", "http://localhost:1234", "qwen/qwen3.5-9b"),
+            ("ollama", "http://localhost:11434", "minimax-m2:cloud"),
             ("simulation", None, None)
         ]
 

@@ -54,7 +54,7 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
                 audio_float = audio.astype(np.float32)
 
             language = kwargs.get("language", "fr")
-            logger.info(f"📝 Transcription de {len(audio_float)} échantillons...")
+            logger.debug(f"📝 Transcription de {len(audio_float)} échantillons...")
 
             # Transcrire avec Whisper
             result = self.model.transcribe(
@@ -64,7 +64,10 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
             )
 
             text = result.get("text", "").strip()
-            logger.info(f"✅ Transcription réussie: {text}")
+            if text:  # Only log successful transcriptions
+                logger.info(f"✅ Transcription réussie: {text}")
+            else:
+                logger.debug("🔇 Transcription vide")
 
             return text
 

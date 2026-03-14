@@ -268,7 +268,8 @@ class AudioPipeline:
         """Callback appelé quand des données audio sont reçues du microphone."""
         try:
             start_time = time.time()
-            logger.info(f"Données audio reçues ({len(audio_data)} octets)")
+            # Réduire la verbosité : log en DEBUG au lieu d'INFO
+            logger.debug(f"Données audio reçues ({len(audio_data)} octets)")
 
             # Convertir les données audio brutes en tableau float32 normalisé
             audio_np = self._convert_audio_to_float(audio_data)
@@ -323,7 +324,8 @@ class AudioPipeline:
 
         # Vérifier que le texte n'est pas vide
         if not text or not text.strip():
-            logger.warning("Aucun texte transcrit")
+            # Réduire la verbosité : log en DEBUG au lieu d'WARNING
+            logger.debug("Aucun texte transcrit")
             return
 
         logger.info(f"Texte transcrit: {text}")

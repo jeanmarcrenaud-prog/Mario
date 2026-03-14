@@ -140,7 +140,7 @@ refreshed_info = monitor.refresh_llm_models()
 - ✅ **Monitoring temps réel** : Status et modèles visibles dans l'interface
 - ✅ **Tests de connexion** : Vérification santé des services
 - ✅ **Fallback intelligent** : Simulation si services indisponibles
-- ✅ **Logs détaillés** : Informations complètes dans les logs d'application
+- ✅ **Logs détaillés** : Debug logging pour diagnostic API (messages envoyés, réponses serveur)
 
 ## Code Style Guidelines
 
