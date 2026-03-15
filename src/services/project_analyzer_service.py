@@ -72,18 +72,20 @@ class ProjectAnalyzerService:
         self.llm_adapter = llm_adapter
         logger.info("ProjectAnalyzerService initialisé avec adaptateur")
     
-    def analyze_project(self, project_path: Path, depth: int = 2) -> Dict[str, Any]:
+    def analyze_project(self, project_path: Path | str, depth: int = 2) -> Dict[str, Any]:
         """
         Analyse complète d'un projet.
         
         Args:
-            project_path: Chemin du projet
+            project_path: Chemin du projet (str ou Path)
             depth: Profondeur d'analyse des dossiers
             
         Returns:
             Rapport d'analyse complet
         """
         try:
+            if isinstance(project_path, str):
+                project_path = Path(project_path)
             if not project_path.exists():
                 raise FileNotFoundError(f"Projet non trouvé: {project_path}")
             
@@ -122,9 +124,11 @@ class ProjectAnalyzerService:
             logger.error(f"❌ Erreur analyse projet: {e}")
             return self._get_error_report(str(e))
     
-    def _analyze_structure(self, project_path: Path, depth: int) -> Dict:
+    def _analyze_structure(self, project_path: Path | str, depth: int) -> Dict:
         """Analyse la structure du projet."""
         try:
+            if isinstance(project_path, str):
+                project_path = Path(project_path)
             structure = {
                 "directories": [],
                 "files": [],
@@ -159,9 +163,11 @@ class ProjectAnalyzerService:
             logger.error(f"Erreur analyse structure: {e}")
             return {"error": str(e)}
     
-    def _get_code_files(self, project_path: Path, max_files: int = 3) -> List[Dict]:
+    def _get_code_files(self, project_path: Path | str, max_files: int = 3) -> List[Dict]:
         """Récupère les fichiers de code importants (limités pour réduire la taille)."""
         try:
+            if isinstance(project_path, str):
+                project_path = Path(project_path)
             code_extensions = {'.py', '.js', '.ts', '.java', '.cpp', '.c', '.cs', '.go', '.rs', '.php'}
             code_files = []
             
@@ -245,9 +251,11 @@ class ProjectAnalyzerService:
         except Exception:
             return "[Structure extraite]"
     
-    def _analyze_dependencies(self, project_path: Path) -> Dict:
+    def _analyze_dependencies(self, project_path: Path | str) -> Dict:
         """Analyse les dépendances du projet."""
         try:
+            if isinstance(project_path, str):
+                project_path = Path(project_path)
             dependencies = {
                 "python": [],
                 "npm": [],
@@ -287,9 +295,11 @@ class ProjectAnalyzerService:
             logger.error(f"Erreur analyse dépendances: {e}")
             return {"error": str(e)}
     
-    def _analyze_with_ai(self, project_path: Path, code_files: List[Dict], structure: Dict, dependencies: Dict) -> Dict:
+    def _analyze_with_ai(self, project_path: Path | str, code_files: List[Dict], structure: Dict, dependencies: Dict) -> Dict:
         """Analyse détaillée avec l'IA."""
         try:
+            if isinstance(project_path, str):
+                project_path = Path(project_path)
             # Préparer le prompt pour l'analyse (beaucoup plus concis)
             code_samples = []
             for file_info in code_files[:3]:  # Limiter à 3 fichiers

@@ -131,7 +131,7 @@ def create_assistant() -> AssistantVocal:
         
     # 3. Services
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    wake_word_service = WakeWordService.create_with_vosk()
+    wake_word_service = WakeWordService.create_with_simulation()
     speech_recognition_service = create_speech_recognition_service()
     llm_service = LLMService.create_with_simulation()
     
@@ -189,7 +189,7 @@ def create_assistant_with_simulation() -> AssistantVocal:
         raise RuntimeError("Microphone non disponible")
         
     tts_service = TTSService.create_with_piper(settings.voice_name)
-    wake_word_service = WakeWordService.create_with_vosk()
+    wake_word_service = WakeWordService.create_with_simulation()
     speech_recognition_service = create_speech_recognition_service()
     
     llm_service = LLMService.detect_and_create()

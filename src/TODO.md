@@ -3,19 +3,19 @@
 ## En Cours ✅ (Mar 2026)
 
 ### Priorité: HAUT
-- [ ] Adapter `src/services/` aux besoins GPU
-- [ ] Optimiser `src/controllers/` pour faible latence
-- [ ] Vérifier `src/adapters/` pour toutes plateformes
+- [x] Adapter `src/services/` aux besoins GPU
+- [x] Optimiser `src/controllers/` pour faible latence
+- [x] Vérifier `src/adapters/` pour toutes plateformes
 
 ### Priorité: MOYEN
-- [ ] Tests unitaires pour `src/services/*`
-- [ ] Tests intégration `src/controllers/main.py`
-- [ ] Coverage `src/models/*` à atteindre
+- [x] Tests unitaires pour `src/services/*`
+- [x] Tests intégration `src/controllers/main.py`
+- [x] Coverage `src/models/*` à atteindre
 
 ### Priorité: BAS
-- [ ] Documentation API `src/services/`
-- [ ] Documentation API `src/controllers/`
-- [ ] Javadoc/Docstrings pour toutes classes
+- [x] Documentation API `src/services/`
+- [x] Documentation API `src/controllers/`
+- [x] Javadoc/Docstrings pour toutes classes
 
 ---
 

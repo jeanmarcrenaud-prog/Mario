@@ -72,10 +72,10 @@ python test_llm_detection.py
 ### Services Supportés
 ```python
 # Ollama - Service local prioritaire
-OllamaLLMAdapter(model_name="minimax-m2:cloud", base_url="http://localhost:11434")
+OllamaLLMAdapter(model_name="qwen3.5:0.8b", base_url="http://localhost:11434")
 
 # LM Studio - Plus de modèles disponibles
-LMStudioLLMAdapter(model_name="qwen/qwen3.5-9b", base_url="http://localhost:1234")
+LMStudioLLMAdapter(model_name="text-embedding-nomic-embed-text-v1.5", base_url="http://localhost:1234")
 ```
 
 ### Auto-Détection et Priorité
@@ -112,7 +112,7 @@ print(f"Service: {info['service_type']}, Connection: {info['connection_test']}")
 # Dans l'interface web, section "🤖 Intelligence" :
 - Status service LLM (Ollama/LM Studio/Simulation)
 - Forcer le service (Auto/Ollama/LM Studio/Simulation) 
-- Sélection modèle dynamique
+- Sélection modèle dynamique (qwen3-coder, qwen3.5-coder, qwen3.5-9b, etc.)
 - Boutons d'action (🔄 Rafraîchir, 🧪 Tester)
 - Configuration avancée (Créativité, Tokens max)
 ```

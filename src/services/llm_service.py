@@ -1,5 +1,8 @@
-from typing import List, Dict, Optional, Generator, Protocol, Any
+from typing import List, Dict, Optional, Generator, Protocol, Any, Callable
 import logging
+import time
+from functools import lru_cache
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -11,8 +14,12 @@ class ILLMAdapter(Protocol):
     
     def test_connection(self) -> bool: ...
     
-    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str: ...
-
+    def chat(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float,
+        **kwargs
+    ) -> str: ...
 
 class SimulatedLLMAdapter:
     """Adaptateur LLM simulé pour les tests."""
@@ -73,9 +80,10 @@ class SimulatedLLMAdapter:
 class LMStudioLLMAdapter:
     """Adaptateur LLM pour LM Studio."""
 
-    def __init__(self, model_name: str = "qwen3-coder", base_url: str = "http://localhost:1234"):
+    def __init__(self, model_name: str = "qwen/qwen3.5-9b", base_url: str = "http://localhost:1234", timeout: int = 30):
         self.model_name = model_name
         self.base_url = base_url
+        self.timeout = timeout
         self.is_available = False
         self._check_availability()
 
@@ -83,13 +91,13 @@ class LMStudioLLMAdapter:
         try:
             import requests
             # LM Studio API v1
-            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            response = requests.get(f"{self.base_url}/v1/models", timeout=self.timeout)
             self.is_available = response.status_code == 200
         except Exception as e:
             logger.debug(f"LM Studio non disponible: {e}")
             self.is_available = False
 
-    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
+    def chat(self, messages: List[Dict[str, str]], temperature: float, max_tokens: int = 2048) -> str:
         try:
             import requests
             
@@ -102,10 +110,11 @@ class LMStudioLLMAdapter:
                     "model": self.model_name,
                     "messages": messages,
                     "temperature": temperature,
-                    "max_tokens": 2048,
+                    "max_tokens": max_tokens,
                     "stream": False
                 },
-                headers={"Content-Type": "application/json"}
+                headers={"Content-Type": "application/json"},
+                timeout=self.timeout
             )
             
             # Debug: log la réponse complète
@@ -126,7 +135,7 @@ class LMStudioLLMAdapter:
         try:
             import requests
             logger.debug(f"Test connexion LM Studio à {self.base_url}/v1/models")
-            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            response = requests.get(f"{self.base_url}/v1/models", timeout=self.timeout)
             logger.debug(f"LM Studio - Status code: {response.status_code}")
             return response.status_code == 200
         except Exception as e:
@@ -138,23 +147,26 @@ class LMStudioLLMAdapter:
         try:
             import requests
             logger.debug(f"Récupération modèles LM Studio depuis {self.base_url}/v1/models")
-            response = requests.get(f"{self.base_url}/v1/models", timeout=5)
+            response = requests.get(f"{self.base_url}/v1/models", timeout=self.timeout)
             logger.debug(f"LM Studio - Status code: {response.status_code}")
             if response.status_code == 200:
-                models_data = response.json()
-                logger.debug(f"LM Studio - Models data: {models_data}")
-                # LM Studio retourne souvent une liste directe
-                if isinstance(models_data, list):
-                    return [model.get('id', model.get('name', '')) for model in models_data]
-                elif isinstance(models_data, dict):
-                    return [model.get('id', model.get('name', '')) for model in models_data.get('data', [])]
+                data = response.json()
+                logger.debug(f"LM Studio - Models data: {data}")
+
+                if isinstance(data, dict):
+                    models = data.get("data", [])
+                elif isinstance(data, list):
+                    models = data
+                else:
+                    models = []
+
+                return [m.get("id") or m.get("name") for m in models]
             return []
         except Exception as e:
             logger.debug(f"Erreur récupération modèles LM Studio: {e}")
             return []
-    
+
     def set_model(self, model_name: str) -> bool:
-        """Change le modèle actif."""
         try:
             self.model_name = model_name
             return True
@@ -166,22 +178,23 @@ class LMStudioLLMAdapter:
 class OllamaLLMAdapter:
     """Adaptateur LLM pour Ollama."""
 
-    def __init__(self, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
+    def __init__(self, model_name: str = "qwen/qwen3.5-9b", base_url: str = "http://localhost:11434", timeout: int = 30):
         self.model_name = model_name
         self.base_url = base_url
+        self.timeout = timeout
         self.is_available = False
         self._check_availability()
 
     def _check_availability(self):
         try:
             import requests
-            response = requests.get(f"{self.base_url}/api/tags")
+            response = requests.get(f"{self.base_url}/api/tags", timeout=self.timeout)
             self.is_available = response.status_code == 200
         except Exception as e:
             logger.debug(f"Ollama non disponible: {e}")
             self.is_available = False
 
-    def chat(self, messages: List[Dict[str, str]], temperature: float) -> str:
+    def chat(self, messages: List[Dict[str, str]], temperature: float, max_tokens: int = 2048) -> str:
         try:
             import requests
             # Format compatible avec ollama_client.py qui utilise /api/generate
@@ -191,8 +204,11 @@ class OllamaLLMAdapter:
                 json={
                     "model": self.model_name,
                     "prompt": prompt,
-                    "stream": False
-                }
+                    "stream": False,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens
+                },
+                timeout=self.timeout
             )
             response.raise_for_status()
             return response.json()['response']
@@ -222,17 +238,23 @@ class OllamaLLMAdapter:
     def test_connection(self) -> bool:
         try:
             import requests
-            response = requests.get(f"{self.base_url}/api/tags")
+            response = requests.get(f"{self.base_url}/api/tags", timeout=self.timeout)
             return response.status_code == 200
         except Exception as e:
             logger.error(f"Test connexion Ollama échoué: {e}")
             return False
+
+    def refresh_models(self):
+        if hasattr(self.get_available_models, "cache_clear"):
+            self.get_available_models.cache_clear()
+
+        return self.get_available_models()
     
     def get_available_models(self) -> List[str]:
         """Retourne la liste des modèles Ollama disponibles."""
         try:
             import requests
-            response = requests.get(f"{self.base_url}/api/tags", timeout=5)
+            response = requests.get(f"{self.base_url}/api/tags", timeout=self.timeout)
             if response.status_code == 200:
                 models = response.json().get('models', [])
                 return [model['name'] for model in models]
@@ -259,64 +281,113 @@ class LLMService:
         self.service_type = self._detect_service_type()
 
     def _detect_service_type(self) -> str:
-        """Détecte automatiquement quel service LLM est disponible."""
-        if isinstance(self._adapter, OllamaLLMAdapter):
+        if self._adapter is None:
+            return "none"
+
+        name = self._adapter.__class__.__name__.lower()
+
+        if "ollama" in name:
             return "ollama"
-        elif isinstance(self._adapter, LMStudioLLMAdapter):
+
+        if "lmstudio" in name:
             return "lm_studio"
-        elif isinstance(self._adapter, SimulatedLLMAdapter):
+
+        if "simulated" in name:
             return "simulation"
+
         return "unknown"
 
     @classmethod
     def detect_and_create(cls, preferred_model: Optional[str] = None):
         """Détecte automatiquement le service LLM disponible et utilise celui déjà chargé."""
-        # Détection automatique (ordre de priorité) - LM Studio prioritaire
-        # Utilise le modèle déjà chargé par défaut
-        services = [
-            ("lm_studio", "http://localhost:1234", "qwen/qwen3.5-9b"),
-            ("ollama", "http://localhost:11434", "minimax-m2:cloud"),
-            ("simulation", None, None)
-        ]
+        logger.info("🔎 Détection automatique du service LLM...")
 
-        for service_type, base_url, default_model in services:
+        services = [
+            ("ollama", "http://localhost:11434"),
+            ("lm_studio", "http://localhost:1234")
+        ]
+        
+        for service_type, url in services:
+
             try:
-                if service_type == "ollama":
-                    model_name = preferred_model if preferred_model is not None else default_model
-                    adapter = OllamaLLMAdapter(model_name=model_name, base_url=base_url)
-                elif service_type == "lm_studio":
-                    model_name = preferred_model if preferred_model is not None else default_model
-                    adapter = LMStudioLLMAdapter(model_name=model_name, base_url=base_url)
+
+                if service_type == "lm_studio":
+
+                    adapter = LMStudioLLMAdapter(
+                        model_name=preferred_model or "",
+                        base_url=url
+                    )
+
+                elif service_type == "ollama":
+
+                    adapter = OllamaLLMAdapter(
+                        model_name=preferred_model or "",
+                        base_url=url
+                    )
+
                 else:
-                    adapter = SimulatedLLMAdapter()
+                    continue
 
                 if adapter.test_connection():
-                    logger.info(f"Service LLM détecté: {service_type}")
-                    return cls(adapter=adapter)
-            except Exception as e:
-                logger.debug(f"Service {service_type} non disponible: {e}")
-                continue
 
-        # Fallback: Simulation
-        logger.warning("Aucun service LLM détecté, utilisation du mode simulation")
+                    models = adapter.get_available_models()
+
+                    if models:
+
+                        logger.info(
+                            f"✅ Service détecté : {service_type} | modèles: {len(models)}"
+                        )
+
+                        if preferred_model is None:
+                            adapter.set_model(models[0])
+
+                        return cls(adapter)
+
+            except Exception as e:
+
+                logger.debug(f"Service {service_type} non disponible : {e}")
+
+        logger.warning("⚠ Aucun service LLM détecté -> mode simulation")
+
         return cls.create_with_simulation()
 
+    def refresh_models(self):
+
+        if self._adapter and hasattr(self._adapter, "refresh_models"):
+            return self._adapter.refresh_models()
+
+        if self._adapter and hasattr(self._adapter, "get_available_models"):
+            return self._adapter.get_available_models()
+
+        return []
+
+    # ------------------------------------------------
+    # INFO SERVICE
+    # ------------------------------------------------
+
     def get_service_info(self) -> Dict[str, Any]:
-        """Retourne les informations du service LLM actif."""
+
         return {
-            "service_type": self.service_type,
+            "service_type": self.service_type,            
+            "adapter": self._adapter.__class__.__name__,
+            "model": getattr(self._adapter, "model_name", None),
             "available": self._adapter is not None,
-            "model": getattr(self._adapter, 'model_name', None) if self._adapter else None,
-            "connection_test": bool(self.test_connection()) if self._adapter else False
+            "connection": self.test_connection(),
+            "models": len(self.get_available_models())
         }
     
     def set_model(self, model_name: str) -> bool:
-        """Change le modèle actif."""
         try:
-            if self._adapter and hasattr(self._adapter, 'model_name'):
-                self._adapter.model_name = model_name
-                return True
+            if self._adapter and hasattr(self._adapter, "set_model"):
+                success = self._adapter.set_model(model_name)
+
+                if success:
+                    logger.info(f"🤖 Modèle changé -> {model_name}")
+
+                return success
+
             return False
+
         except Exception as e:
             logger.error(f"Erreur changement modèle: {e}")
             return False
@@ -331,21 +402,20 @@ class LLMService:
             logger.error(f"Erreur génération LLM: {e}")
             return "[ERREUR]"
     
-    def generate_response_stream(self, messages: List[Dict[str, str]], temperature: float = 0.7) -> Generator[str, None, None]:
-        """Génère une réponse en streaming."""
-        exc = None
-        try:
-            if self._adapter and hasattr(self._adapter, 'chat_stream'):
-                yield from self._adapter.chat_stream(messages, temperature)
-                return
-        except Exception as e:
-            logger.error(f"Erreur streaming LLM: {e}")
-            exc = e
-        
-        if exc:
-            yield f"[ERREUR] {str(exc)}"
-        else:
-            yield "[ERREUR] Adaptateur non compatible avec le streaming"
+    def generate_response_stream(
+        self,
+        messages: List[Dict[str, str]],
+        temperature: float = 0.7
+    ) -> Generator[str, None, None]:
+
+        if self._adapter and hasattr(self._adapter, "chat_stream"):
+            yield from self._adapter.chat_stream(messages, temperature)
+            return
+
+        response = self.generate_response(messages, temperature)
+
+        for i in range(0, len(response), 4):
+            yield response[i:i+4]
     
     def generate_analysis(self, code_text: str) -> str:
         """Génère une analyse de code."""
@@ -368,29 +438,31 @@ class LLMService:
             return [line.strip() for line in response.split("\n") if line.strip()]
         return [response]
     
+    # ------------------------------------------------
+    # TEST
+    # ------------------------------------------------
+
     def test_connection(self) -> bool:
-        """Teste la connexion au service LLM."""
         try:
             if self._adapter:
                 return self._adapter.test_connection()
-            return False
         except Exception as e:
-            logger.error(f"Test LLM échoué: {e}")
-            return False
+            logger.error(f"Test connexion échoué: {e}")
+        return False
     
+    # ------------------------------------------------
+    # SIMULATION
+    # ------------------------------------------------
+
     @classmethod
-    def create_with_simulation(cls, custom_responses: Optional[Dict[str, str]] = None):
-        """Crée un service avec adapter simulé."""
-        from src.services.llm_service import SimulatedLLMAdapter
-        
-        adapter = SimulatedLLMAdapter(fake_responses=custom_responses)
-        instance = cls(adapter=adapter)
-        return instance
+    def create_with_simulation(cls):
+
+        adapter = SimulatedLLMAdapter()
+        return cls(adapter)
     
     @classmethod
     def create_with_ollama(cls, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
         """Crée un service avec adapter Ollama."""
-        from src.services.llm_service import OllamaLLMAdapter
         
         adapter = OllamaLLMAdapter(model_name=model_name, base_url=base_url)
         instance = cls(adapter=adapter)
@@ -401,10 +473,16 @@ class LLMService:
         """Expose l'adaptateur pour les tests."""
         return self._adapter
     
+    # ------------------------------------------------
+    # MODELES
+    # ------------------------------------------------
+
     def get_available_models(self) -> List[str]:
-        """Retourne la liste des modèles disponibles."""
-        if self._adapter and hasattr(self._adapter, 'get_available_models'):
-            return self._adapter.get_available_models()
+        try:
+            if self._adapter and hasattr(self._adapter, "get_available_models"):
+                return self._adapter.get_available_models()
+        except Exception as e:
+            logger.error(f"Erreur récupération modèles: {e}")
         return []
     
     def test_service(self) -> bool:

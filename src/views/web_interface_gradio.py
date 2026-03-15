@@ -9,7 +9,7 @@ import time
 import json
 from typing import List, Dict, Any, Optional, Tuple
 from src.utils.logger import logger
-from src.services.audio_controller import AudioController
+from src.controllers.audio_controller import AudioController
 
 class GradioWebInterface:
     """
@@ -974,6 +974,12 @@ Fournissez:
         """Callback au chargement de l'interface."""
         status = "🟢 Interface chargée - Assistant prêt"
         stats = self._get_system_stats_text()
+        
+        # Rafraîchir le dropdown avec les modèles disponibles
+        models = self._get_model_choices()
+        if models:
+            self.model_dropdown.choices = models
+        
         return status, stats
     
     def _start_assistant(self, mic_index: str, voice: str, model: str, speed: float) -> str:
@@ -1922,13 +1928,8 @@ Structurez le résumé en:
                 models = self.assistant.llm_service.get_available_models()
                 
                 if models:
-                    relevant_models = [
-                        model for model in models 
-                        if any(keyword in model.lower() for keyword in [
-                            'qwen', 'llama', 'gemma', 'mistral', 'phi', 'code'
-                        ])
-                    ]
-                    return relevant_models if relevant_models else models
+                    # Retourner tous les modèles disponibles (pas de filtre)
+                    return models
                 else:
                     return self._get_default_local_models()
             else:
@@ -1941,8 +1942,7 @@ Structurez le résumé en:
     def _get_default_local_models(self) -> List[str]:
         """Retourne une liste de modèles locaux par défaut."""
         default_models = [
-            "qwen2.5", "qwen3-coder:latest", "llama3.2:latest",
-            "gemma2:latest", "mistral:latest", "phi3:latest", "codellama:latest"
+            "qwen3.5:0.8b"
         ]
         
         try:
@@ -2001,7 +2001,7 @@ Structurez le résumé en:
             return f"❌ Erreur test LLM: {str(e)}"
     
     def _force_llm_service(self, service_choice: str) -> Tuple[List[str], str]:
-        """Force un service LLM spécifique."""
+        """Force un service LLM spécifique et met à jour le dropdown."""
         try:
             from src.services.llm_service import LLMService
             
@@ -2013,7 +2013,7 @@ Structurez le résumé en:
                 
             elif service_choice == "Ollama (localhost:11434)":
                 from src.services.llm_service import OllamaLLMAdapter
-                adapter = OllamaLLMAdapter(model_name="qwen3-coder", base_url="http://localhost:11434")
+                adapter = OllamaLLMAdapter(model_name="qwen3.5:0.8b", base_url="http://localhost:11434")
                 if adapter.test_connection():
                     self.assistant.llm_service = LLMService(adapter=adapter)
                     models = self._get_model_choices()
@@ -2024,7 +2024,7 @@ Structurez le résumé en:
                     
             elif service_choice == "LM Studio (localhost:1234)":
                 from src.services.llm_service import LMStudioLLMAdapter
-                adapter = LMStudioLLMAdapter(model_name="qwen3.5-coder", base_url="http://localhost:1234")
+                adapter = LMStudioLLMAdapter(model_name="qwen/qwen3.5-9b", base_url="http://localhost:1234")
                 if adapter.test_connection():
                     self.assistant.llm_service = LLMService(adapter=adapter)
                     models = self._get_model_choices()
@@ -2040,6 +2040,9 @@ Structurez le résumé en:
             else:
                 models = self._get_default_local_models()
                 status = "⚠️ Choix non reconnu"
+            
+            # Mettre à jour le dropdown avec les nouveaux choix
+            self.model_dropdown.choices = models
             
             return models, status
             

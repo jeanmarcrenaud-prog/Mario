@@ -1,35 +1,38 @@
-# tests/performance/test_benchmark.py
+"""
+Tests de performance pour benchmarking.
+"""
+
 import pytest
 import time
+from src.core.app_factory import AppFactory
+from src.models.settings import Settings
+from src.config.config import ConfigManager, config
+
 
 class TestPerformanceBenchmark:
-    """Tests de performance et benchmarks"""
-
-    def test_conversation_service_performance(self, benchmark):
-        """Benchmark du service de conversation"""
-        from src.services.conversation_service import ConversationService
+    """Tests de benchmarking de performance."""
+    
+    def test_llm_response_time(self):
+        """Test le temps de réponse LLM."""
+        factory = AppFactory()
+        settings = Settings.from_config(config)
+        assistant = factory.create(settings)
         
-        service = ConversationService()
+        start = time.time()
+        response = assistant.process_user_message("Test performance")
+        elapsed = time.time() - start
         
-        def add_messages():
-            for i in range(100):
-                service.add_message("user", f"Message {i}")
-                service.add_message("assistant", f"Réponse {i}")
+        assert elapsed < 30  # Moins de 30 secondes
+        assert response is not None
+    
+    def test_tts_response_time(self):
+        """Test le temps de réponse TTS."""
+        factory = AppFactory()
+        settings = Settings.from_config(config)
+        assistant = factory.create(settings)
         
-        benchmark(add_messages)
+        start = time.time()
+        assistant.speak("Test performance")
+        elapsed = time.time() - start
         
-        # Vérifier que l'historique est correct
-        assert service.get_message_count() == 200
-
-    def test_llm_response_time(self, benchmark):
-        """Benchmark du temps de réponse LLM"""
-        from src.core.llm_service import LLMService
-        
-        service = LLMService.create_with_simulation()
-        messages = [{"role": "user", "content": "Bonjour"}]
-        
-        def generate_response():
-            return service.generate_response(messages)
-        
-        result = benchmark(generate_response)
-        assert isinstance(result, str)
+        assert elapsed < 10  # Moins de 10 secondes

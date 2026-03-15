@@ -24,7 +24,7 @@ class ConfigManager:
     DEFAULT_WHISPER_MODEL: str = "large-v3-turbo"
     
     # Ollama
-    DEFAULT_MODEL: str = "qwen3-coder"
+    DEFAULT_MODEL: str = "qwen3.5:0.8b"
     
     # Interface
     WEB_PORT: int = 7860

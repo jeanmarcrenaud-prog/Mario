@@ -85,5 +85,16 @@ class WakeWordService(IWakeWordService):
         mic_checker = MicrophoneChecker()
         adapter = VoskWakeWordAdapter(config.VOSK_MODEL_PATH, microphone_checker=mic_checker)
         return WakeWordService(adapter)
+    
+    @staticmethod
+    def create_with_simulation() -> "WakeWordService":
+        """Factory method to instantiate WakeWordService with simulation.
+
+        This method creates a WakeWordService with a simulated adapter
+        for testing purposes when Vosk is not available.
+        """
+        from ..adapters.dummy_wake_word_adapter import DummyWakeWordAdapter
+        adapter = DummyWakeWordAdapter()
+        return WakeWordService(adapter)
 
     # End of file

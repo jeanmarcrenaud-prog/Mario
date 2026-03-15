@@ -1,0 +1,35 @@
+[
+  {
+    "id": "test1",
+    "timestamp": "2026-03-15T17:54:11.421315",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Bonjour"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "test1",
+    "timestamp": "2026-03-15T17:54:31.486857",
+    "messages": [
+      {
+        "role": "user",
+        "content": "Bonjour"
+      }
+    ],
+    "metadata": {}
+  },
+  {
+    "id": "test2",
+    "timestamp": "2026-03-15T17:54:31.490581",
+    "messages": [
+      {
+        "role": "assistant",
+        "content": "Salut"
+      }
+    ],
+    "metadata": {}
+  }
+]

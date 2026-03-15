@@ -53,6 +53,11 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
             else:
                 audio_float = audio.astype(np.float32)
 
+            # Éviter les tableaux vides (problème avec l'audio généré par TTS)
+            if len(audio_float) == 0:
+                logger.debug("🔇 Audio vide - saut de transcription")
+                return ""
+
             language = kwargs.get("language", "fr")
             logger.debug(f"📝 Transcription de {len(audio_float)} échantillons...")
 
@@ -63,7 +68,7 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
                 fp16=False  # Désactiver FP16 pour compatibilité
             )
 
-            text = result.get("text", "").strip()
+            text = str(result.get("text", ""))
             if text:  # Only log successful transcriptions
                 logger.info(f"✅ Transcription réussie: {text}")
             else:
@@ -91,7 +96,7 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
                 fp16=False
             )
 
-            text = result.get("text", "").strip()
+            text = str(result.get("text", ""))
             logger.info(f"✅ Transcription fichier réussie: {text}")
 
             return text
