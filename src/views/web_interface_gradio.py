@@ -200,55 +200,23 @@ class GradioWebInterface:
     def _create_ai_controls(self):
         """Crée les contrôles d'intelligence artificielle."""
         with gr.Accordion("🤖 Intelligence", open=True):
-            # Affichage du service LLM actuel
-            self.llm_service_status = gr.Textbox(
-                label="Service LLM",
-                value="🔍 Détection en cours...",
-                interactive=False
-            )
-            
-            # Sélection forcée du service (optionnel)
-            self.llm_service_force = gr.Dropdown(
-                label="Forcer le service LLM",
-                choices=["Auto-détection", "Ollama (localhost:11434)", "LM Studio (localhost:1234)", "Simulation"],
-                value="Auto-détection",
-                interactive=True
-            )
-            
-            # Sélection de modèle
-            self.model_dropdown = gr.Dropdown(
-                label="Modèle IA",
-                choices=self._get_model_choices(),
-                value=self._get_default_model(),
-                interactive=True
-            )
-            
-            # Boutons d'action pour LLM
             with gr.Row():
-                self.refresh_models_btn = gr.Button("🔄 Rafraîchir modèles", size="sm")
-                self.test_llm_btn = gr.Button("🧪 Tester LLM", size="sm")
-            
-            self.llm_test_result = gr.Textbox(
-                label="Résultat test LLM",
-                value="Cliquez pour tester la connexion",
-                interactive=False
-            )
-            
-            # Sliders de configuration
+                self.model_dropdown = gr.Dropdown(
+                    label="Modèle IA",
+                    choices=self._get_model_choices(),
+                    value=self._get_default_model(),
+                    interactive=True
+                )
+                self.refresh_model_btn = gr.Button(
+                    "🔄", size="sm", scale=1, variant="secondary"
+                )
+
             self.temperature_slider = gr.Slider(
                 label="🌡️ Créativité",
                 minimum=0.0,
                 maximum=1.0,
                 value=0.7,
                 step=0.1
-            )
-            
-            self.max_tokens_slider = gr.Slider(
-                label="Tokens max",
-                minimum=128,
-                maximum=4096,
-                value=1024,
-                step=128
             )
     
     def _create_system_stats(self):
@@ -821,7 +789,7 @@ Fournissez:
         self._setup_audio_events()
         self._setup_settings_events()
         self._setup_performance_events()
-    
+        
     def _setup_main_control_events(self):
         """Configure les événements des contrôles principaux."""
         self.start_btn.click(
@@ -1445,6 +1413,18 @@ Résumé:
         except Exception as e:
             logger.error(f"Erreur refresh microphones: {e}")
             return ["0: Microphone par défaut"]
+
+    def _refresh_model_choices(self):
+        """Rafraîchit la liste des modèles IA (Gradio 6)."""
+        try:
+            choices = self._get_model_choices()
+            value = self._get_default_model()
+            if value not in choices:
+                value = choices[0] if choices else None
+            return gr.update(choices=choices, value=value, interactive=True)
+        except Exception as e:
+            logger.error(f"Erreur refresh modèles IA: {e}")
+            return gr.update(choices=[], value=None, interactive=True)
 
     def _get_audio_output_choices(self) -> List[str]:
         try:

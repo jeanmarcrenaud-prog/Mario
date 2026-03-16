@@ -99,11 +99,9 @@ class LMStudioLLMAdapter:
 
     def chat(self, messages: List[Dict[str, str]], temperature: float, max_tokens: int = 2048) -> str:
         try:
-            import requests
-            
+            import requests            
             # Debug: log le format des messages
-            logger.debug(f"LM Studio - Messages envoyés: {messages}")
-            
+            logger.debug(f"LM Studio - Messages envoyés: {messages}")           
             response = requests.post(
                 f"{self.base_url}/v1/chat/completions",
                 json={
@@ -115,12 +113,10 @@ class LMStudioLLMAdapter:
                 },
                 headers={"Content-Type": "application/json"},
                 timeout=self.timeout
-            )
-            
+            )           
             # Debug: log la réponse complète
             logger.debug(f"LM Studio - Status code: {response.status_code}")
-            logger.debug(f"LM Studio - Response body: {response.text[:500]}")
-            
+            logger.debug(f"LM Studio - Response body: {response.text[:500]}")            
             response.raise_for_status()
             return response.json()['choices'][0]['message']['content']
         except Exception as e:
@@ -152,14 +148,12 @@ class LMStudioLLMAdapter:
             if response.status_code == 200:
                 data = response.json()
                 logger.debug(f"LM Studio - Models data: {data}")
-
                 if isinstance(data, dict):
                     models = data.get("data", [])
                 elif isinstance(data, list):
                     models = data
                 else:
                     models = []
-
                 return [m.get("id") or m.get("name") for m in models]
             return []
         except Exception as e:
@@ -283,82 +277,56 @@ class LLMService:
     def _detect_service_type(self) -> str:
         if self._adapter is None:
             return "none"
-
         name = self._adapter.__class__.__name__.lower()
-
         if "ollama" in name:
             return "ollama"
-
         if "lmstudio" in name:
             return "lm_studio"
-
         if "simulated" in name:
             return "simulation"
-
         return "unknown"
 
     @classmethod
     def detect_and_create(cls, preferred_model: Optional[str] = None):
         """Détecte automatiquement le service LLM disponible et utilise celui déjà chargé."""
         logger.info("🔎 Détection automatique du service LLM...")
-
         services = [
             ("ollama", "http://localhost:11434"),
             ("lm_studio", "http://localhost:1234")
-        ]
-        
+        ]        
         for service_type, url in services:
-
             try:
-
                 if service_type == "lm_studio":
-
                     adapter = LMStudioLLMAdapter(
                         model_name=preferred_model or "",
                         base_url=url
                     )
-
                 elif service_type == "ollama":
-
                     adapter = OllamaLLMAdapter(
                         model_name=preferred_model or "",
                         base_url=url
                     )
-
                 else:
                     continue
-
                 if adapter.test_connection():
-
                     models = adapter.get_available_models()
-
                     if models:
-
                         logger.info(
                             f"✅ Service détecté : {service_type} | modèles: {len(models)}"
                         )
-
                         if preferred_model is None:
                             adapter.set_model(models[0])
-
                         return cls(adapter)
-
             except Exception as e:
-
                 logger.debug(f"Service {service_type} non disponible : {e}")
-
         logger.warning("⚠ Aucun service LLM détecté -> mode simulation")
-
         return cls.create_with_simulation()
 
     def refresh_models(self):
-
         if self._adapter and hasattr(self._adapter, "refresh_models"):
             return self._adapter.refresh_models()
-
         if self._adapter and hasattr(self._adapter, "get_available_models"):
             return self._adapter.get_available_models()
-
         return []
 
     # ------------------------------------------------
@@ -366,7 +334,6 @@ class LLMService:
     # ------------------------------------------------
 
     def get_service_info(self) -> Dict[str, Any]:
-
         return {
             "service_type": self.service_type,            
             "adapter": self._adapter.__class__.__name__,
@@ -380,14 +347,10 @@ class LLMService:
         try:
             if self._adapter and hasattr(self._adapter, "set_model"):
                 success = self._adapter.set_model(model_name)
-
                 if success:
                     logger.info(f"🤖 Modèle changé -> {model_name}")
-
                 return success
-
             return False
-
         except Exception as e:
             logger.error(f"Erreur changement modèle: {e}")
             return False
@@ -411,9 +374,7 @@ class LLMService:
         if self._adapter and hasattr(self._adapter, "chat_stream"):
             yield from self._adapter.chat_stream(messages, temperature)
             return
-
         response = self.generate_response(messages, temperature)
-
         for i in range(0, len(response), 4):
             yield response[i:i+4]
     
@@ -456,14 +417,12 @@ class LLMService:
 
     @classmethod
     def create_with_simulation(cls):
-
         adapter = SimulatedLLMAdapter()
         return cls(adapter)
     
     @classmethod
     def create_with_ollama(cls, model_name: str = "qwen3-coder", base_url: str = "http://localhost:11434"):
-        """Crée un service avec adapter Ollama."""
-        
+        """Crée un service avec adapter Ollama."""        
         adapter = OllamaLLMAdapter(model_name=model_name, base_url=base_url)
         instance = cls(adapter=adapter)
         return instance
