@@ -133,10 +133,13 @@ def create_assistant() -> AssistantVocal:
     tts_service = TTSService.create_with_piper(settings.voice_name)
     wake_word_service = WakeWordService.create_with_simulation()
     speech_recognition_service = create_speech_recognition_service()
-    llm_service = LLMService.create_with_simulation()
+    llm_service = LLMService.detect_and_create()
+    if not llm_service:
+        logger.warning("⚠️ Aucun service LLM détecté - utilisation de la simulation")
+        llm_service = LLMService.create_with_simulation()
     
     # 4. Services dépendants
-    project_analyzer_service = ProjectAnalyzerService(llm_service)
+    project_analyzer_service = ProjectAnalyzerService(llm_service._adapter)
     
     # 5. Services système
     system_monitor = SystemMonitor()

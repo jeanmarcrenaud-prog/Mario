@@ -36,7 +36,7 @@ class GradioWebInterface:
         self.llm_service_status = None
         self.llm_service_force = None
         self.model_dropdown = None
-        self.refresh_models_btn = None
+        self.refresh_model_btn = None
         self.test_llm_btn = None
         self.llm_test_result = None
         self.temperature_slider = None
@@ -200,12 +200,39 @@ class GradioWebInterface:
     def _create_ai_controls(self):
         """Crée les contrôles d'intelligence artificielle."""
         with gr.Accordion("🤖 Intelligence", open=True):
+            # Service LLM status display
+            self.llm_service_status = gr.Textbox(
+                label="📊 Statut LLM",
+                lines=2,
+                value="⏳ Chargement...",
+                interactive=False
+            )
+            
+            with gr.Row():
+                self.llm_service_force = gr.Radio(
+                    choices=["Auto-détection", "Ollama (localhost:11434)", "LM Studio (localhost:1234)", "Simulation"],
+                    value="Auto-détection",
+                    label="Service LLM"
+                )
+                
+                self.test_llm_btn = gr.Button("🧪 Tester", size="sm", variant="secondary")
+            
+            self.llm_test_result = gr.Textbox(
+                label="🧪 Test LLM",
+                lines=3,
+                interactive=False,
+                value="Cliquez sur 'Tester' pour vérifier la connexion"
+            )
+            
             with gr.Row():
                 self.model_dropdown = gr.Dropdown(
                     label="Modèle IA",
                     choices=self._get_model_choices(),
                     value=self._get_default_model(),
-                    interactive=True
+                    interactive=True,
+                    scale=4,
+                    allow_custom_value=True,  # Permettre les modèles personnalisés non dans la liste
+                    container=False
                 )
                 self.refresh_model_btn = gr.Button(
                     "🔄", size="sm", scale=1, variant="secondary"
@@ -217,6 +244,14 @@ class GradioWebInterface:
                 maximum=1.0,
                 value=0.7,
                 step=0.1
+            )
+            
+            self.max_tokens_slider = gr.Slider(
+                label="📝 Tokens max",
+                minimum=100,
+                maximum=4096,
+                value=2048,
+                step=100
             )
     
     def _create_system_stats(self):
@@ -804,7 +839,7 @@ Fournissez:
         )
         
         # Événements LLM
-        self.refresh_models_btn.click(
+        self.refresh_model_btn.click(
             self._refresh_model_choices,
             outputs=[self.model_dropdown, self.llm_service_status]
         )
@@ -943,10 +978,22 @@ Fournissez:
         status = "🟢 Interface chargée - Assistant prêt"
         stats = self._get_system_stats_text()
         
-        # Rafraîchir le dropdown avec les modèles disponibles
-        models = self._get_model_choices()
-        if models:
-            self.model_dropdown.choices = models
+        try:
+            # Rafraîchir le dropdown avec les modèles disponibles
+            models = self._get_model_choices()
+            if models:
+                self.model_dropdown.choices = models
+                logger.debug(f"🔄 Modèles mis à jour: {len(models)} disponibles")
+            
+            # Rafraîchir le statut LLM
+            if hasattr(self.assistant, 'llm_service') and hasattr(self.assistant.llm_service, 'get_service_info'):
+                service_info = self.assistant.llm_service.get_service_info()
+                llm_status = f"🤖 Service: {service_info.get('service_type', 'Inconnu')} | 📊 Modèles: {len(models)}"
+                self.llm_service_status.value = llm_status
+                logger.debug(f"🔄 Statut LLM mis à jour: {llm_status}")
+            
+        except Exception as e:
+            logger.debug(f"Erreur refresh interface: {e}")
         
         return status, stats
     
@@ -1901,35 +1948,63 @@ Structurez le résumé en:
             logger.debug(f"Erreur voix par défaut: {e}")
             return "fr_FR-siwis-medium"
     
-    def _get_model_choices(self) -> List[str]:
-        """Retourne la liste des modèles disponibles."""
+    def _get_model_choices(self) -> List[Tuple[str, str]]:
+        """Retourne la liste des modèles disponibles sous forme de tuples (valeur, libellé) compatible avec Gradio.
+        
+        Gradio Dropdown nécessite spécifiquement des tuples (libellé, valeur) pour le rendu des choix.
+        """
         try:
-            if hasattr(self.assistant, 'llm_service') and hasattr(self.assistant.llm_service, 'get_available_models'):
-                models = self.assistant.llm_service.get_available_models()
+            logger.debug("🔍 Récupération des modèles réels...")
+            
+            if hasattr(self.assistant, 'llm_service'):
+                logger.debug(f"LLM service: {type(self.assistant.llm_service).__name__}")
                 
-                if models:
-                    # Retourner tous les modèles disponibles (pas de filtre)
-                    return models
+                if hasattr(self.assistant.llm_service, 'get_available_models'):
+                    models = self.assistant.llm_service.get_available_models()
+                    logger.debug(f"✅ Modèles réels récupérés: {models}")
+                    
+                    if models:
+                        # Convertir la liste de strings en tuples (libellé, valeur) pour Gradio
+                        model_tuples = [(m, m) for m in models]
+                        
+                        # Vérifier que ce ne sont pas les modèles simulés par défaut
+                        if len(models) == 3 and all(m in ["qwen-coder", "llama2", "mistral"] for m in models):
+                            logger.warning("⚠️ Détection des modèles simulés - Services probablement indisponibles")
+                            return self._get_default_local_models()
+                        else:
+                            logger.info(f"✅ {len(models)} modèles réels trouvés")
+                            return model_tuples
+                    else:
+                        logger.warning("⚠️ Aucun modèle trouvé depuis le service")
+                        return self._get_default_local_models()
                 else:
+                    logger.debug("❌ Méthode get_available_models non disponible")
                     return self._get_default_local_models()
             else:
+                logger.debug("❌ Aucun LLM service disponible")
                 return self._get_default_local_models()
                 
         except Exception as e:
-            logger.debug(f"Erreur récupération modèles locaux: {e}")
+            logger.error(f"❌ Erreur récupération modèles: {e}")
             return self._get_default_local_models()
     
-    def _get_default_local_models(self) -> List[str]:
-        """Retourne une liste de modèles locaux par défaut."""
+    def _get_default_local_models(self) -> List[Tuple[str, str]]:
+        """Retourne une liste de modèles locaux par défaut sous forme de tuples (libellé, valeur) pour Gradio."""
         default_models = [
-            "qwen3.5:0.8b"
+            ("qwen3.5:0.8b", "qwen3.5:0.8b"),
+            ("qwen3.5:1.5b", "qwen3.5:1.5b"),
+            ("qwen2.5:0.5b", "qwen2.5:0.5b"),
+            ("llama3.2:1b", "llama3.2:1b"),
+            ("llama3.1:8b", "llama3.1:8b"),
+            ("mistral:7b", "mistral:7b"),
+            ("phi3:mini", "phi3:mini"),
         ]
         
         try:
             if hasattr(self.assistant, 'llm_service'):
                 available = self.assistant.llm_service.get_available_models()
                 if available:
-                    return [model for model in default_models if model in available] or default_models
+                    return [(model, model) for model in default_models if model in available] or default_models
         except Exception:
             pass
         
