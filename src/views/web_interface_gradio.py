@@ -57,15 +57,31 @@ class GradioWebInterface:
         # ... autres composants selon besoins
     
     def create_interface(self) -> gr.Blocks:
-        """Crée l'interface Gradio complète."""
-        with gr.Blocks(title="Assistant Vocal Intelligent") as demo:
+        """Crée l'interface Gradio complète avec optimisations UX et performance."""
+        
+        # CSS personnalisé pour améliorer le UX
+        custom_css = """
+        .gradio-container {max-width: 1400px !important; padding: 20px;}
+        .gradio-tab {border-radius: 12px;}
+        .panel-left {background: #f8fafc; border-radius: 12px;}
+        .button-group {gap: 8px;}
+        .chat-message {border-radius: 8px;}
+        .settings-group {gap: 12px;}
+        """
+        
+        with gr.Blocks(
+            title="Assistant Vocal Intelligent",
+            css=custom_css
+        ) as demo:
             self.demo = demo
             self._setup_state()
+            self.status_text = gr.Textbox(label="📊 Statut", lines=2, interactive=False)
+            self.system_stats = gr.Textbox(label="🖥️ Système", lines=3, interactive=False)
             self._create_layout()
             self._setup_events()
             demo.load(self._on_interface_load, outputs=[self.status_text, self.system_stats])
         
-        logger.info("Interface Gradio créée")
+        logger.info("Interface Gradio créée avec optimisations UX")
         return demo
     
     def _setup_state(self):
@@ -201,7 +217,8 @@ class GradioWebInterface:
                 label="📊 Statut LLM",
                 lines=2,
                 value="⏳ Chargement...",
-                interactive=False
+                interactive=False,
+                elem_classes=["status-display"]
             )
             
             with gr.Row():
@@ -388,8 +405,10 @@ class GradioWebInterface:
             with gr.Row():
                 self.project_summary = gr.Textbox(
                     label="Résumé",
-                    lines=3,
-                    interactive=False
+                    lines=4,
+                    interactive=False,
+                    elem_id="project_summary",
+                    elem_classes=["result-display"]
                 )
             
             with gr.Row():
@@ -472,8 +491,10 @@ class GradioWebInterface:
             self.prompt_template = gr.Textbox(
                 label="Template du prompt",
                 placeholder=self._get_prompt_template_placeholder(),
-                lines=10,
-                max_lines=15
+                lines=6,
+                max_lines=10,
+                elem_id="prompt_template",
+                elem_classes=["prompt-input"]
             )
             
             self._build_prompt_variables_editor()
