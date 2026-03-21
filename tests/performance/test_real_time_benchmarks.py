@@ -2,11 +2,10 @@
 Tests de benchmarks temps réel.
 """
 
-import pytest
 import time
 from src.core.app_factory import AppFactory
 from src.models.settings import Settings
-from src.config.config import ConfigManager, config
+from src.config.config import config
 
 
 class TestRealTimeBenchmarks:

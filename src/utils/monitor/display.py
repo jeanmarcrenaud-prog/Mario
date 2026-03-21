@@ -2,7 +2,6 @@
 
 from rich.console import Console
 from rich.table import Table
-from typing import Dict, Any
 from .aggregator import SystemMonitor
 
 

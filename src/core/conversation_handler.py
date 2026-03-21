@@ -1,5 +1,5 @@
 # src/core/conversation_handler.py
-from typing import List, Dict, Any, Optional, Callable
+from typing import List, Dict, Optional, Callable
 
 from src.utils.logger import logger
 

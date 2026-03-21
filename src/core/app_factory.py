@@ -3,7 +3,6 @@ Factory pour la création de l'assistant vocal avec injection de dépendances.
 Cette composition root sépare clairement l'assemblage des objets de la logique métier.
 """
 
-from typing import Optional, Any
 from src.config.config import config
 from src.models.settings import Settings
 from src.utils.logger import logger
@@ -21,7 +20,6 @@ from src.core.performance_optimizer import PerformanceOptimizer
 from src.core.prompt_manager import PromptManager
 from src.interfaces.microphone_checker import MicrophoneChecker
 # Vues
-from src.views.web_interface_gradio import GradioWebInterface
 
 # Modèle principal
 from src.main import AssistantVocal

@@ -1,8 +1,6 @@
 """
 Tests pour les views et l'initialisation
 """
-import pytest
-from unittest.mock import Mock, patch, MagicMock
 
 
 class TestConsoleView:

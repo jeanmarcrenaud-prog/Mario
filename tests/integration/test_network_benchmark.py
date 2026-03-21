@@ -1,7 +1,6 @@
 """Tests de benchmarking réseau pour le service LLM."""
 
 import pytest
-from unittest.mock import Mock, patch
 import time
 import statistics
 
@@ -95,7 +94,7 @@ class TestResponseTimeBenchmark:
             max_time = max(response_times)
             min_time = min(response_times)
             
-            print(f"\n📊 Statistiques Ollama:")
+            print("\n📊 Statistiques Ollama:")
             print(f"   Moyenne: {avg_time:.2f}ms")
             print(f"   Min: {min_time:.2f}ms")
             print(f"   Max: {max_time:.2f}ms")
@@ -185,7 +184,7 @@ class TestLLMServiceNetworkBenchmark:
             avg_time = statistics.mean(response_times)
             p95_time = sorted(response_times)[int(len(response_times) * 0.95)]
             
-            print(f"\n📊 Statistiques Service LLM:")
+            print("\n📊 Statistiques Service LLM:")
             print(f"   Moyenne: {avg_time:.2f}ms")
             print(f"   P95: {p95_time:.2f}ms")
 

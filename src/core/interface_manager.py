@@ -60,9 +60,9 @@ class InterfaceManager:
 
     def display_message(self, text: str):
         """Affiche un message dans l'interface console si disponible"""
-        if self.console_view:
+        if self.console_view and hasattr(self.console_view, 'display_message'):
             try:
-                self.console_view.display_message(text)
+                self.console_view.display_message(text)  # type: ignore
             except Exception:
                 logger.info(f"Assistant: {text}")
         else:

@@ -1,18 +1,10 @@
 from ..utils.logger import logger
-try:
-    from rich.console import Console
-    from rich.panel import Panel
-    from rich.markdown import Markdown
-    from rich.table import Table
-    from rich.prompt import Prompt
-    from rich.live import Live
-    from rich.spinner import Spinner
-    from rich.layout import Layout
-    from rich.text import Text
-    RICH_AVAILABLE = True
-except ImportError:
-    RICH_AVAILABLE = False
-    logger.warning("Rich non disponible, utilisation de l'interface basique")
+from rich.console import Console
+from rich.panel import Panel
+from rich.markdown import Markdown
+from rich.table import Table
+from rich.prompt import Prompt
+RICH_AVAILABLE = True
 
 class ConsoleView:
     """Vue console améliorée avec Rich pour l'assistant vocal."""

@@ -1,6 +1,5 @@
 import pytest
 from src.services.llm_service import LLMService, SimulatedLLMAdapter
-import types
 
 # Helper adapter simulating no connectivity
 class DummyAdapter:

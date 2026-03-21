@@ -2,7 +2,6 @@
 Tests unitaires pour ConversationService.
 """
 
-import pytest
 from src.services.conversation_service import ConversationService
 
 

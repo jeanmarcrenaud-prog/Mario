@@ -14,11 +14,10 @@ from src.utils.logger import logger
 from rich.console import Console
 from rich.panel import Panel
 from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich.prompt import Prompt, Confirm
+from rich.prompt import Prompt
 from rich.table import Table
 from rich.text import Text
 from rich import box
-from rich.style import Style
 from datetime import datetime
 
 
@@ -71,7 +70,7 @@ def show_status_bar(console: Console) -> None:
         import psutil
         mem = psutil.virtual_memory()
         status.append(f"{mem.percent:.0f}%", style="yellow" if mem.percent > 70 else "green")
-    except:
+    except Exception:
         pass
     
     console.print(status, justify="center")

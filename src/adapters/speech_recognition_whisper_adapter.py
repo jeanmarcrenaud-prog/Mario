@@ -46,7 +46,6 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
             if self.model is None:
                 return ""
 
-            import whisper
             # Convertir int16 en float32
             if audio.dtype == np.int16:
                 audio_float = audio.astype(np.float32) / 32768.0
@@ -86,7 +85,6 @@ class WhisperSpeechRecognitionAdapter(ISpeechRecognitionAdapter):
             if self.model is None:
                 return ""
 
-            import whisper
             language = kwargs.get("language", "fr")
             logger.info(f"📝 Transcription du fichier: {path}")
 

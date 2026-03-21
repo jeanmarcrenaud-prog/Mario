@@ -6,14 +6,7 @@ import importlib.metadata
 import sys
 from datetime import datetime
 from typing import Dict, List, Optional, Any
-from io import StringIO
-import os
 
-from rich.console import Console as RichConsole
-from rich.table import Table
-from rich.panel import Panel
-from rich.progress import Progress, SpinnerColumn, TextColumn
-from rich import box
 from rich.style import Style
 
 from .logger import logger
@@ -788,7 +781,7 @@ class SystemMonitor:
         try:
             stats = self.get_system_stats()
             summary = [
-                f"📊 Ressources:",
+                "📊 Ressources:",
                 f"   • CPU: {stats.get('cpu_percent', 0):.1f}%",
                 f"   • RAM: {stats.get('memory_percent', 0):.1f}%",
             ]

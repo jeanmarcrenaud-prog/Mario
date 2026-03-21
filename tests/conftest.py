@@ -22,7 +22,6 @@ def sample_audio_2sec():
 @pytest.fixture
 def mock_assistant():
     """Fixture pour un assistant mocké"""
-    from unittest.mock import MagicMock
     assistant = MagicMock()
     assistant.settings = Mock()
     assistant.settings.microphone_index = 1
@@ -33,7 +32,7 @@ def mock_assistant():
 @pytest.fixture
 def mock_assistant_init():
     """Fixture assistant mocké avec initialisation complète"""
-    from unittest.mock import Mock, MagicMock
+    from unittest.mock import Mock
     assistant = MagicMock()
     assistant.settings = Mock()
     assistant.settings.microphone_index = 1
@@ -56,7 +55,7 @@ def conversation_history():
 @pytest.fixture
 def dummy_microphone():
     """Fixture pour microphone faux"""
-    from unittest.mock import MagicMock, Mock
+    from unittest.mock import Mock
     mic = Mock()
     mic.start = Mock(return_value=Mock())
     mic.stop = Mock(return_value=Mock())
@@ -239,7 +238,7 @@ def mock_console_view():
 @pytest.fixture
 def mock_welcome_screen():
     """Mock show_welcome_screen"""
-    from unittest.mock import Mock, patch
+    from unittest.mock import Mock
     console = Mock()
     console.print = Mock(return_value=None)
     console.run = Mock(return_value=None)

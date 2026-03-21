@@ -1,6 +1,4 @@
 import numpy as np
-import pyaudio
-import collections
 import threading
 from typing import Optional, Callable
 from pvrecorder import PvRecorder

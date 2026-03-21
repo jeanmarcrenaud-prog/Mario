@@ -1,4 +1,4 @@
-from typing import List, Dict, Optional, Generator
+from typing import List, Dict, Optional
 from ..models.conversation_state import ConversationState
 from ..utils.logger import logger
 

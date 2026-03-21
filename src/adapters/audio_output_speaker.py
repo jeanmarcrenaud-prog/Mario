@@ -1,5 +1,4 @@
 import numpy as np
-import pyaudio
 from typing import Optional
 from ..core.text_to_speech import TextToSpeech  # Votre classe existante
 from ..utils.logger import logger

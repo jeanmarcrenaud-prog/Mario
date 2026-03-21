@@ -1,8 +1,7 @@
 from functools import wraps
-from typing import Any, Callable, Optional, Type, Union
+from typing import Any, Callable
 from src.utils.logger import logger
 import traceback
-import sys
 
 class ErrorHandler:
     """Gestionnaire d'erreurs centralisé."""

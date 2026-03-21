@@ -1,8 +1,6 @@
 """
 Tests for app_factory module
 """
-import pytest
-from unittest.mock import Mock, patch, MagicMock
 
 
 def test_app_factory_imports():

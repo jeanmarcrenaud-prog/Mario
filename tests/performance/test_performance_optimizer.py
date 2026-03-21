@@ -2,7 +2,6 @@
 Tests pour PerformanceOptimizer.
 """
 
-import pytest
 from src.core.performance_optimizer import PerformanceOptimizer
 
 

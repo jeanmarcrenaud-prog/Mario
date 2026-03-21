@@ -1,8 +1,6 @@
-import ast
-import os
 import re
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple, Any
+from typing import List, Dict, Tuple, Any
 from datetime import datetime
 from ..utils.logger import logger
 from ..services.llm_service import LLMService
@@ -88,7 +86,7 @@ class SelfImprover:
             lines = content.splitlines()
             improvements["metrics"] = {
                 "lines": len(lines),
-                "non_empty_lines": len([l for l in lines if l.strip()]),
+                "non_empty_lines": len([line for line in lines if line.strip()]),
                 "functions": len(re.findall(r'^def\s+\w+', content, re.MULTILINE)),
                 "classes": len(re.findall(r'^class\s+\w+', content, re.MULTILINE)),
                 "imports": len(re.findall(r'^import\s+\w+', content, re.MULTILINE)),
@@ -146,7 +144,7 @@ class SelfImprover:
             # Vérifier les imports
             imports = re.findall(r'^import\s+(\w+)', content, re.MULTILINE)
             imports_from = re.findall(r'^from\s+(\w+)', content, re.MULTILINE)
-            all_imports = imports + imports_from
+            _ = imports + imports_from  # Unused collection
             
         except Exception as e:
             logger.warning(f"Erreur vérification qualité {file_path}: {e}")
@@ -254,13 +252,13 @@ class SelfImprover:
         latest_analysis = file_history[0]
         
         report = [
-            f"📊 RAPPORT DÉTAILLÉ D'ANALYSE",
+            "📊 RAPPORT DÉTAILLÉ D'ANALYSE",
             f"Fichier: {latest_analysis['file_name']}",
             f"Chemin: {file_path}",
             f"Timestamp: {latest_analysis['timestamp']}",
             "=" * 60,
             "",
-            f"📈 MÉTRIQUES:",
+            "📈 MÉTRIQUES:",
             f"• Lignes: {latest_analysis['metrics']['lines']}",
             f"• Fonctions: {latest_analysis['metrics']['functions']}",
             f"• Classes: {latest_analysis['metrics']['classes']}",

@@ -3,14 +3,12 @@
 # AssistantVocal – version optimisée pour AMD Ryzen 9 9800X3D + RTX 5080
 # ────────────────────────────────────────────────────────────────────────
 
-import sys
 import re
 import atexit
 import time
 import torch
 from typing import Dict, Optional
 
-from src.config.config import ConfigManager, config
 from src.utils.logger import logger, safe_run
 from src.utils.system_monitor import SystemMonitor
 from src.models.settings import Settings

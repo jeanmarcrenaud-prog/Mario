@@ -1,8 +1,7 @@
 import os
 import json
-import ast
 import re
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Optional, Any
 from pathlib import Path
 from abc import ABC, abstractmethod
 from ..utils.logger import logger
@@ -356,7 +355,7 @@ class ProjectAnalyzerService:
                 recommendations = self.llm_adapter.generate_recommendations(ai_analysis.get("full_analysis", ""))
                 if recommendations:
                     return recommendations
-            except:
+            except Exception:
                 pass  # Fallback vers l'approche manuelle
             
             analysis_text = ai_analysis.get("full_analysis", "")

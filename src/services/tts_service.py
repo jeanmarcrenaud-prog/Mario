@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List, Type
+from typing import Optional, List
 import os
 import sys
 from ..config.config import config

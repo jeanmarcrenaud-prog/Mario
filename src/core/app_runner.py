@@ -1,7 +1,7 @@
 import sys
 import traceback
 import threading
-from typing import Callable, Optional
+from typing import Callable
 
 from rich.console import Console
 from rich.prompt import Confirm

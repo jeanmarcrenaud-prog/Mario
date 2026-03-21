@@ -2,7 +2,6 @@ import pyaudio
 import numpy as np
 import threading
 import time
-import math
 from contextlib import contextmanager
 from typing import Optional
 from ..config import config

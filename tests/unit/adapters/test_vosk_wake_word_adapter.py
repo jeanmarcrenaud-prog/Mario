@@ -1,7 +1,5 @@
 # tests/unit/adapters/test_vosk_wake_word_adapter.py
-import pytest
-from unittest.mock import MagicMock, patch
-import numpy as np
+from unittest.mock import patch
 from src.adapters.vosk_wake_word_adapter import VoskWakeWordAdapter
 
 class TestVoskWakeWordAdapter:

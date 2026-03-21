@@ -1,8 +1,6 @@
 """
 Tests complets pour les modules core
 """
-import pytest
-from unittest.mock import MagicMock, Mock, patch
 
 
 class TestIntentRouter:

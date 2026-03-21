@@ -2,7 +2,6 @@
 Gestionnaire des périphériques audio selon le modèle MVC
 """
 
-import logging
 from typing import List, Dict, Tuple
 from ..utils.logger import logger
 

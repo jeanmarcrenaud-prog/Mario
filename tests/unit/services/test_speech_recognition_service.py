@@ -2,7 +2,6 @@
 Tests unitaires pour SpeechRecognitionService.
 """
 
-import pytest
 import numpy as np
 from src.services.speech_recognition_service import SpeechRecognitionService
 from src.adapters.speech_recognition_whisper_adapter import WhisperSpeechRecognitionAdapter

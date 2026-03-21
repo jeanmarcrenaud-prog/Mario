@@ -2,8 +2,7 @@
 Tests unitaires pour TTSService.
 """
 
-import pytest
-from src.services.tts_service import TTSService, PiperTTSAdapter
+from src.services.tts_service import TTSService
 
 
 class TestTTSService:

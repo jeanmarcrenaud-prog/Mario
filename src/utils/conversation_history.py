@@ -4,7 +4,6 @@ Stocke et récupère l'historique des interactions utilisateur-LLM.
 """
 
 import json
-import os
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
@@ -56,7 +55,7 @@ class ConversationHistory:
             # Sauvegarder
             self._write_history(history)
             
-            logger.debug(f"Conversation sauvegardée dans l'historique")
+            logger.debug("Conversation sauvegardée dans l'historique")
             
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde de la conversation: {e}")

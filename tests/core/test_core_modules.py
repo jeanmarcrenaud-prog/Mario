@@ -1,8 +1,6 @@
 """
 Tests for core modules - simplified
 """
-import pytest
-from unittest.mock import Mock, patch
 
 
 class TestInterfaceManager:

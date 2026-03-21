@@ -3,10 +3,9 @@ Tests end-to-end pour l'assistant vocal complet.
 """
 
 import pytest
-import time
 from src.core.app_factory import AppFactory
 from src.models.settings import Settings
-from src.config.config import ConfigManager, config
+from src.config.config import config
 
 
 class TestFullAssistantE2E:

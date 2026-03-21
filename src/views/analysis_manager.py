@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict
 from ..utils.file_analyzer import FileAnalyzer
 from ..services.llm_service import LLMService
 from ..utils.logger import logger

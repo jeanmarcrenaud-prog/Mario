@@ -1,6 +1,6 @@
 import requests
 import json
-from typing import List, Dict, Generator, Optional
+from typing import List, Dict, Generator
 from ..utils.logger import logger
 
 class LLMAdapter:

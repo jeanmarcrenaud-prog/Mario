@@ -1,6 +1,5 @@
 from __future__ import annotations
 import numpy as np
-from typing import Any
 from ..interfaces.speech_recognition import ISpeechRecognitionAdapter
 from ..utils.logger import logger
 
@@ -83,7 +82,7 @@ class SpeechRecognitionService:
         try:
             # Créer un court échantillon de test
             test_audio = np.zeros(16000, dtype=np.int16)  # 1 seconde de silence
-            result = self.transcribe(test_audio)
+            _ = self.transcribe(test_audio)  # Unused result for test
             logger.info("✅ Test transcription réussi")
             return True
         except Exception as e:

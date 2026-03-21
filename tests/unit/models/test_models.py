@@ -2,7 +2,6 @@
 Tests unitaires pour les modèles de données.
 """
 
-import pytest
 from src.models.settings import Settings
 from src.models.config_manager import ConfigManager
 from src.models.conversation_state import ConversationState

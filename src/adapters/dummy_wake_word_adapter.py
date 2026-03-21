@@ -2,7 +2,6 @@
 Adaptateur de simulation pour la détection de mot-clé.
 """
 
-from abc import ABC, abstractmethod
 from typing import Callable, List
 import logging
 

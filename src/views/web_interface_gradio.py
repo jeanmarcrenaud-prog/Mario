@@ -3,11 +3,7 @@ Interface Web Gradio pour l'Assistant Vocal Intelligent
 """
 
 import gradio as gr
-from gradio import themes
-import threading
-import time
-import json
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Tuple
 from src.utils.logger import logger
 from src.controllers.audio_controller import AudioController
 
@@ -1087,7 +1083,7 @@ Fournissez:
             return file_info, "✅ Fichier prêt pour analyse"
         except Exception as e:
             logger.error(f"Erreur upload fichier: {e}")
-            return f"❌ Erreur: {str(e)}", f"❌ Erreur upload"
+            return f"❌ Erreur: {str(e)}", "❌ Erreur upload"
     
     def _analyze_files_with_ai(self, file_path: str, model: str) -> Tuple[str, str]:
         """Analyse les fichiers avec l'IA."""
@@ -1121,7 +1117,7 @@ Veuillez fournir:
             
         except Exception as e:
             logger.error(f"Erreur analyse fichier: {e}")
-            return f"❌ Erreur: {str(e)}", f"❌ Erreur analyse"
+            return f"❌ Erreur: {str(e)}", "❌ Erreur analyse"
     
     def _summarize_file(self, file_path: str, model: str) -> Tuple[str, str]:
         """Résume un fichier."""
@@ -1150,7 +1146,7 @@ Résumé:
             
         except Exception as e:
             logger.error(f"Erreur résumé fichier: {e}")
-            return f"❌ Erreur: {str(e)}", f"❌ Erreur résumé"
+            return f"❌ Erreur: {str(e)}", "❌ Erreur résumé"
     
     def _analyze_project(self, project_path: str, depth: int) -> Tuple[str, str, List, str]:
         """Analyse un projet complet."""
@@ -1397,7 +1393,7 @@ Résumé:
             
         except Exception as e:
             logger.error(f"Erreur tests: {e}")
-            return f"❌ Erreur: {str(e)}", f"❌ Erreur tests"
+            return f"❌ Erreur: {str(e)}", "❌ Erreur tests"
     
     def _save_settings(self, auto_start: bool, web_port: int) -> str:
         """Sauvegarde les paramètres."""

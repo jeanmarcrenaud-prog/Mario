@@ -1,12 +1,7 @@
-import logging
-import threading
 from typing import List, Dict, Optional
 import gradio as gr
 from ..config import config
-from ..services.llm_service import LLMService
 from ..models.text_to_speech import TextToSpeech
-from ..services.speech_recognition_service import SpeechRecognitionService
-from ..services.wake_word_service import WakeWordService
 from ..utils.audio_player import AudioPlayer
 from ..utils.logger import logger
 from pathlib import Path
@@ -17,7 +12,7 @@ class InterfaceHelpers:
     def __init__(self):
         pass
 
-    def format_file_size(self, size: int) -> str:
+    def format_file_size(self, size: int | float) -> str:
         """Formate la taille d'un fichier en une chaîne lisible."""
         for unit in ['B', 'KB', 'MB', 'GB']:
             if size < 1024.0:
@@ -72,7 +67,7 @@ class InterfaceHelpers:
                 sub = os.path.join(config.VOICES_FOLDER, d)
                 if os.path.isdir(sub) and any(f.endswith(".onnx") for f in os.listdir(sub)):
                     voices.append(d)
-        return voices or [config.DEFAULT_PIPER_VOICE]
+        return voices or [getattr(config, "DEFAULT_VOICE", "fr_FR-siwis-medium")]
 
     def get_ollama_models(self) -> List[str]:
         """Retourne la liste des modèles Ollama disponibles."""
