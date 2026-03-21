@@ -14,9 +14,9 @@ class SelfImprover:
         self.last_sent_content: Dict[str, Any] = {}  # Stocker le dernier contenu envoyé à Ollama
         self.analysis_history: Dict[str, Dict[str, Any]] = {}   # Historique complet des analyses
     
-    def analyze_project_structure(self) -> Dict:
+    def analyze_project_structure(self) -> Dict[str, Any]:
         """Analyse la structure du projet."""
-        structure = {
+        structure: Dict[str, Any] = {
             "fichiers_python": [],
             "fichiers_documentation": [],
             "fichiers_configuration": [],
@@ -190,11 +190,11 @@ class SelfImprover:
             
             # Appel à LLM
             response = ""
-            for token in self.llm_client.chat_stream([
+            messages = [
                 {"role": "system", "content": "Expert en qualité de code Python. Formatte les suggestions avec des catégories claires comme [PEP8], [DOC], [PERF]."},
                 {"role": "user", "content": prompt}
-            ]):
-                response += token
+            ]
+            response = self.llm_service.generate_response(messages)
             
             analysis_details["llm_response"] = response
             
@@ -385,11 +385,11 @@ class SelfImprover:
             """
             
             improved_content = ""
-            for token in self.llm_client.chat_stream([
+            messages = [
                 {"role": "system", "content": "Expert en refactoring Python. Réécris le code en implémentant les améliorations demandées sans changer les fonctionnalités."},
                 {"role": "user", "content": prompt}
-            ]):
-                improved_content += token
+            ]
+            improved_content = self.llm_service.generate_response(messages)
             
             # Extraire le code du markdown si présent
             code_match = re.search(r'```python\n(.*?)\n```', improved_content, re.DOTALL)

@@ -13,7 +13,7 @@ class TestSpeechRecognitionService:
     
     def test_service_init_with_whisper(self):
         """Test l'initialisation avec Whisper adapter."""
-        adapter = WhisperSpeechRecognitionAdapter(model_size="base")
+        adapter = WhisperSpeechRecognitionAdapter(model_name="base")
         service = SpeechRecognitionService(adapter)
         assert service is not None
         assert service.is_available
@@ -25,11 +25,16 @@ class TestSpeechRecognitionService:
         assert service is not None
         assert service.is_available
     
-    def test_transcribe_returns_string(self, mocker):
+    def test_transcribe_returns_string(self, monkeypatch):
         """Test que transcribe retourne une chaîne."""
-        adapter = mocker.Mock()
-        adapter.transcribe_array.return_value = "Test transcription"
+        from src.adapters.speech_recognition_simulated_adapter import SimulatedSpeechRecognitionAdapter
+        
+        adapter = SimulatedSpeechRecognitionAdapter()
         service = SpeechRecognitionService(adapter)
+        
+        # Patch transcribe_array méthode
+        monkeypatch.setattr(adapter, 'transcribe_array', lambda audio, **kwargs: "Test transcription")
         
         result = service.transcribe(np.zeros(16000, dtype=np.int16))
         assert isinstance(result, str)
+        assert result == "Test transcription"

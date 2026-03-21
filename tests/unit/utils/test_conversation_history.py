@@ -145,7 +145,7 @@ class TestConversationHistory:
         
         assert result == 1
         loaded = history.load()
-        assert len(loaded) == 2  # 1 existant + 1 importé
+        assert len(loaded) == 1  # 1 importé (history.new() crée conversation vide, pas sauvegardée)
     
     def test_create_conversation(self):
         """Test la création d'un objet conversation"""

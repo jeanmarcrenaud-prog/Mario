@@ -35,7 +35,7 @@ without blocking.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Mapping, Any
 
 import pyaudio
 
@@ -60,14 +60,14 @@ class AudioDeviceInfo:
     is_default_output: bool = False
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "AudioDeviceInfo":
+    def from_dict(cls, data: Mapping[str, Any]) -> "AudioDeviceInfo":
         return cls(
-            index=data["index"],
-            name=data["name"],
-            max_input_channels=data["maxInputChannels"],
-            max_output_channels=data["maxOutputChannels"],
-            default_sample_rate=data["defaultSampleRate"],
-            host_api=data["hostApi"],
+            index=int(data["index"]),
+            name=str(data["name"]),
+            max_input_channels=int(data["maxInputChannels"]),
+            max_output_channels=int(data["maxOutputChannels"]),
+            default_sample_rate=float(data["defaultSampleRate"]),
+            host_api=int(data["hostApi"]),
             is_default_input=data.get("defaultInput", False),
             is_default_output=data.get("defaultOutput", False),
         )
@@ -87,7 +87,7 @@ class AudioController:
         """Populate :attr:`_device_cache` with the current device list."""
         device_count = self._pa.get_device_count()
         devices = [
-            AudioDeviceInfo.from_dict(self._pa.get_device_info_by_index(i))
+            AudioDeviceInfo.from_dict(dict(self._pa.get_device_info_by_index(i)))
             for i in range(device_count)
         ]
         self._device_cache = devices

@@ -128,7 +128,7 @@ class ProjectAnalyzerService:
         try:
             if isinstance(project_path, str):
                 project_path = Path(project_path)
-            structure = {
+            structure: Dict[str, Any] = {
                 "directories": [],
                 "files": [],
                 "total_files": 0,
@@ -145,7 +145,7 @@ class ProjectAnalyzerService:
                             "path": rel_path,
                             "files_count": len(files)
                         })
-                        structure["total_dirs"] += 1
+                        structure["total_dirs"] = int(structure["total_dirs"]) + 1
                     
                     for file in files:
                         file_path = os.path.join(rel_path, file) if rel_path != "." else file
@@ -154,7 +154,7 @@ class ProjectAnalyzerService:
                             "size": os.path.getsize(os.path.join(root, file)),
                             "extension": os.path.splitext(file)[1]
                         })
-                        structure["total_files"] += 1
+                        structure["total_files"] = int(structure["total_files"]) + 1
             
             return structure
             
@@ -168,7 +168,7 @@ class ProjectAnalyzerService:
             if isinstance(project_path, str):
                 project_path = Path(project_path)
             code_extensions = {'.py', '.js', '.ts', '.java', '.cpp', '.c', '.cs', '.go', '.rs', '.php'}
-            code_files = []
+            code_files: List[Dict[str, Any]] = []
             
             for root, _, files in os.walk(project_path):
                 for file in files:
@@ -255,7 +255,7 @@ class ProjectAnalyzerService:
         try:
             if isinstance(project_path, str):
                 project_path = Path(project_path)
-            dependencies = {
+            dependencies: Dict[str, Any] = {
                 "python": [],
                 "npm": [],
                 "requirements": [],

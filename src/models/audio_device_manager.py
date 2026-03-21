@@ -27,8 +27,8 @@ class AudioDeviceManager:
             
             for i in range(p.get_device_count()):
                 device_info = p.get_device_info_by_index(i)
-                if device_info['maxOutputChannels'] > 0:
-                    name = device_info['name']
+                if int(device_info['maxOutputChannels']) > 0:
+                    name = str(device_info['name'])
                     # Filtrage très léger
                     name_lower = name.lower()
                     if not any(virtual in name_lower for virtual in ['voicemod', 'virtual audio']):
@@ -74,11 +74,13 @@ class AudioDeviceManager:
             
             for i in range(p.get_device_count()):
                 device_info = p.get_device_info_by_index(i)
-                name = device_info['name'].strip()
+                name = str(device_info['name']).strip()
+                max_input = int(device_info['maxInputChannels'])
+                max_output = int(device_info['maxOutputChannels'])
                 
-                if device_info['maxInputChannels'] > 0:
+                if max_input > 0:
                     inputs.append((i, name))
-                if device_info['maxOutputChannels'] > 0:
+                if max_output > 0:
                     outputs.append((i, name))
             
             p.terminate()

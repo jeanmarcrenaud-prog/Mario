@@ -1,6 +1,6 @@
 from functools import wraps
-from typing import Any, Callable
-from src.utils.logger import logger
+from typing import Any, Callable, List, Dict
+from ..utils.logger import logger
 import traceback
 
 class ErrorHandler:
@@ -9,7 +9,7 @@ class ErrorHandler:
     def __init__(self, module_name: str = "App"):
         self.module_name = module_name
         self.error_count = 0
-        self.errors = []
+        self.errors: List[Dict[str, Any]] = []
     
     def handle(self, error: Exception, context: str = "") -> None:
         """Capture et enregistre une erreur."""

@@ -17,4 +17,4 @@ class TestConversationService:
         """Test l'ajout d'un message."""
         service = ConversationService()
         service.add_message("user", "Hello")
-        assert len(service.messages) == 1
+        assert len(service.conversation_state.messages) == 1
