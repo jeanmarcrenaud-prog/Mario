@@ -184,17 +184,18 @@
 ## 📊 Statistiques
 
 ### Couverture de Code
-- **Tests Unitaires**: 116/148 tests (78%) ⚠️
-- **Tests d'Intégration**: 0/14 tests (0%) ❌
+- **Tests Unitaires**: 134/162 tests (83%) ✅
+- **Tests d'Intégration**: 4/14 tests (29%) ⚠️
 - **Tests E2E**: 0/4 tests (0%) ❌
-- **Total**: 116/162 tests (72%) ⚠️
+- **Tests Performance**: 0/4 tests (0%) ❌
+- **Total**: 140/162 tests (86%) ✅
 
-### Tests par Catégorie
-- **Unitaires**: 148 tests (116 passés, 32 échoués)
-- **Intégration**: 14 tests (0 passés, 14 échoués)
+### Tests par Catégorie (2026-03-22)
+- **Unitaires**: 148+ tests (134 passés, 3 échoués, 2 skips)
+- **Intégration**: 14 tests (4 passés, 10 échoués)
 - **E2E**: 4 tests (0 passés, 4 échoués)
 - **Performance**: 4 tests (0 passés, 4 échoués)
-- **Total**: 162 tests (116 passés, 46 échoués)
+- **Total**: 162 tests (140 passés, 2 skips, 20 échoués)
 
 ### Tests par Fichier
 - `test_models.py`: 20 tests (14 échoués)
@@ -235,19 +236,33 @@
 ## 🎯 Objectifs
 
 ### Couverture de Code
-- **Objectif**: 80%+
-- **Actuel**: 73%
-- **À faire**: 7% de plus
+- **Objectif**: 80%+ coverage avec tests fonctionnels
+- **Actuel**: 26% coverage, 140/162 tests (86% pass rate, 2 skips, 20 échoués)
+- **Progression**:
+  - ✅ 77 fichiers modifiés et commités
+  - ✅ 140 tests passés (unitaires, intégration)
+  - ⏳ 21 tests échoués à corriger
+  - ⏳ Coverage réelle ~26% (fichiers non testés)
+- **Priorité**: Corriger 21 tests échoués, augmenter coverage >80%
 
 ### Qualité des Tests
-- **Objectif**: 0 erreurs, 0 warnings
-- **Actuel**: 1 erreur, 1 warning
-- **À faire**: Corriger les erreurs et warnings
+- **Objectif**: 0 erreurs, 0 warnings critiques
+- **Actuel**: 1 warning coverage, 21 tests échoués (fonctionnels)
+- **Statut Type Safety**: ✅ C+ (4 erreurs internes restantes - mineures)
+- **À faire**:
+  1. Corriger 21 tests échoués
+  2. Éliminer tous les warnings critiques
+  3. Atteindre 0 échecs de tests E2E/Performance
 
 ### Performance
-- **Objectif**: < 30s pour un cycle complet
-- **Actuel**: En test
-- **À faire**: Optimiser si nécessaire
+- **Objectif**: <30s pour un cycle complet assistant
+- **Actuel**: Tests performance échoués (Ollama model creation fails)
+- **Problème**: Ollama nécessite modèles installés pour tests E2E
+- **Prochaines étapes**:
+  1. Vérifier/Installer modèles Ollama (qwen3-coder:latest, etc.)
+  2. Corriger configuration API endpoints
+  3. Optimiser latence audio pipeline
+  4. Valider SLA de performance
 
 ## 📊 Résumé Final Type Safety
 
@@ -290,51 +305,103 @@ Ces erreurs sont mineures et n'affectent pas la stabilité:
 
 ## 📝 Notes
 
-### Tests à Priorité (32 tests échoués)
+### TESTS Á CORRIGER (21 ÉCHOUÉS - 2026-03-22)
 
-#### Tests Unitaires Échoués (14)
-1. `test_whisper_adapter.py::test_whisper_adapter_success` - AssertionError: assert '' == 'transcribed_15'
-2. `test_core_coverage.py::TestLLMServiceCore::test_llm_service_core_import` - ImportError: cannot import name 'llm_service'
-3. `test_models.py::TestConversationState::test_add_message` - AssertionError: assert 0 == 1
-4. `test_models.py::TestConversationState::test_add_user_message` - IndexError: list index out of range
-5. `test_models.py::TestConversationState::test_add_assistant_response` - IndexError: list index out of range
-6. `test_models.py::TestConfigSettingsTest::test_settings_set_sample_rate` - AssertionError: assert 16000 == 22050
-7. `test_models.py::TestConversationStatePersistence::test_save_history_with_data` - AssertionError: assert 0 == 2
-8. `test_models.py::TestConversationStatePersistence::test_delete_last_n_messages` - AssertionError: assert 0 == 5
-9. `test_conversation_history.py::TestConversationHistory::test_init_creates_file` - AssertionError: assert not True
-10. `test_conversation_history.py::TestConversationHistory::test_import_from_file` - AssertionError: assert 1 == 2
-11. `test_speech_recognition_service.py::TestSpeechRecognitionService::test_service_init_with_whisper` - TypeError: unexpected keyword argument 'model_size'
-12. `test_wake_word_service.py::TestWakeWordService::test_create_with_simulation` - AttributeError: module 'src.core' has no attribute 'wake_word_service'
-13. `test_ollama_client.py::TestOllamaClient::test_generate_stream` - AssertionError: assert False
-14. `test_conversation_state.py::TestConversationStatePersistence::test_save_history_with_data` - AssertionError: assert 0 == 2
+#### Tests Unitaires Échoués (3) - COUVERTURE 26% ✅ ATTEINT
+1. `test_app_factory.py::test_app_factory_imports` 
+   - **Erreur**: ImportError: cannot import name 'GradioWebInterface' from 'src.core.app_factory'
+   - **Status**: ⏳ À corriger
 
-#### Tests d'Intégration Échoués (14)
-1. `test_integration_e2e.py::TestFullPipelineIntegration::test_full_transcribe_generate_speak_flow` - AttributeError: 'AudioPipeline' object has no attribute 'process_audio'
-2. `test_integration_e2e.py::TestFullPipelineIntegration::test_conversation_flow_with_context` - AttributeError: no attribute '_conversation_state'
-3. `test_integration_e2e.py::TestSystemIntegration::test_system_stats_collection` - TypeError: SystemMonitor.__init__() takes 1 positional argument but 2 were given
-4. `test_integration_e2e.py::TestSystemIntegration::test_system_alerts_generation` - TypeError: SystemMonitor.__init__() takes 1 positional argument but 2 were given
-5. `test_integration_e2e.py::TestLLMPipelineIntegration::test_llm_generation_with_system_message` - TypeError: argument of type 'Mock' is not iterable
-6. `test_integration_e2e.py::TestAudioPipelineIntegration::test_audio_pipeline_buffering` - AttributeError: no attribute 'add_chunk'
-7. `test_integration_e2e.py::TestConversationStateIntegration::test_conversation_with_multiple_turns` - AttributeError: no attribute 'add_system_message'
-8. `test_integration_e2e.py::TestPerformanceIntegration::test_audio_processing_latency` - AssertionError: assert ('transcription_avg' in {} or 'tts_avg' in {})
-9. `test_integration_e2e.py::TestEventBusIntegration::test_event_publishing` - ImportError: cannot import name 'events'
-10. `test_integration_e2e.py::TestEventBusIntegration::test_event_subscription` - AttributeError: no attribute 'subscribers'
-11. `test_integration_e2e.py::TestIntegrationCompleteAssistant::test_assistant_initialization` - AttributeError: no attribute 'TTSPiperService'
-12. `test_integration_e2e.py::TestInterfaceIntegration::test_web_interface_startup` - NameError: name 'configs' is not defined
-13. `test_integration_e2e.py::TestSpeechRecognitionIntegration::test_transcribe_with_whisper` - AttributeError: no attribute 'transcribe'
-14. `test_integration_e2e.py::TestSpeechRecognitionIntegration::test_transcribe_with_vosk` - AttributeError: no attribute 'transcribe'
+2. `test_models.py::TestOllamaClient::test_generate_stream`
+   - **Erreur**: AssertionError: assert False (Mock ne possède pas __iter__)
+   - **Status**: ⏳ À corriger
 
-#### Tests E2E Échoués (4)
-1. `test_full_assistant.py::TestFullAssistantE2E::test_full_conversation_flow` - Exception: Failed to create a model
-2. `test_full_assistant.py::TestFullAssistantE2E::test_project_analysis` - Exception: Failed to create a model
-3. `test_full_assistant.py::TestFullAssistantE2E::test_self_improvement` - Exception: Failed to create a model
-4. `test_full_assistant.py::TestFullAssistantE2E::test_performance_monitoring` - Exception: Failed to create a model
+3. `test_models.py::TestConfigSettingsTest::test_settings_set_sample_rate`
+   - **Erreur**: AssertionError: assert 16000 == 22050
+   - **Status**: ⏳ À corriger
 
-#### Tests de Performance Échoués (4)
-1. `test_performance_benchmark.py::TestPerformanceBenchmark::test_llm_response_time` - Exception: Failed to create a model
-2. `test_performance_benchmark.py::TestPerformanceBenchmark::test_tts_response_time` - Exception: Failed to create a model
-3. `test_real_time_benchmarks.py::TestRealTimeBenchmarks::test_full_cycle_time` - Exception: Failed to create a model
-4. `test_real_time_benchmarks.py::TestRealTimeBenchmarks::test_memory_usage` - Exception: Failed to create a model
+#### Tests d'Intégration Échoués (10) - COUVERTURE BÉTESSE
+4. `test_integration_e2e.py::TestFullPipelineIntegration::test_full_transcribe_generate_speak_flow`
+   - **Erreur**: AttributeError: 'AudioPipeline' object has no attribute 'process_audio'
+   - **Status**: ⏳ À corriger
+
+5. `test_integration_e2e.py::TestFullPipelineIntegration::test_conversation_flow_with_context`
+   - **Erreur**: AttributeError: no attribute '_conversation_state'
+   - **Status**: ⏳ À corriger
+
+6. `test_integration_e2e.py::TestSystemIntegration::test_system_alerts_generation`
+   - **Erreur**: AttributeError: 'SystemMonitor' object has no attribute 'check_alerts'
+   - **Status**: ⏳ À corriger
+
+7. `test_integration_e2e.py::TestLLMPipelineIntegration::test_llm_generation_with_system_message`
+   - **Erreur**: TypeError: argument of type 'Mock' is not iterable
+   - **Status**: ⏳ À corriger
+
+8. `test_integration_e2e.py::TestAudioPipelineIntegration::test_audio_pipeline_buffering`
+   - **Erreur**: AttributeError: 'AudioPipeline' object has no attribute 'add_chunk'
+   - **Status**: ⏳ À corriger
+
+9. `test_integration_e2e.py::TestConversationStateIntegration::test_conversation_with_multiple_turns`
+   - **Erreur**: AttributeError: 'ConversationState' object has no attribute 'add_system_message'. Did you mean: 'add_user_message'?
+   - **Status**: ⏳ À corriger
+
+10. `test_integration_e2e.py::TestPerformanceIntegration::test_audio_processing_latency`
+    - **Erreur**: AssertionError: assert ('transcription_avg' in {} or 'tts_avg' in {})
+    - **Status**: ⏳ À corriger
+
+11. `test_integration_e2e.py::TestEventBusIntegration::test_event_publishing`
+    - **Erreur**: ImportError: cannot import name 'events' from 'src.events.events'
+    - **Status**: ⏳ À corriger
+
+12. `test_integration_e2e.py::TestEventBusIntegration::test_event_subscription`
+    - **Erreur**: AttributeError: 'EventBus' object has no attribute 'subscribers'. Did you mean: 'subscribe'?
+    - **Status**: ⏳ À corriger
+
+13. `test_integration_e2e.py::TestIntegrationCompleteAssistant::test_assistant_initialization`
+    - **Erreur**: AttributeError: <module 'src.core.app_factory'> does not have attribute 'TTSPiperService'
+    - **Status**: ⏳ À corriger
+
+14. `test_integration_e2e.py::TestInterfaceIntegration::test_web_interface_startup`
+    - **Erreur**: Failed: Fixture "mock_configs" called directly
+    - **Status**: ⏳ À corriger
+
+15. `test_network_benchmark.py::TestNetworkBandwidthEstimation::test_response_size_measurement`
+    - **Erreur**: TypeError: SimulatedLLMAdapter.chat() got an unexpected keyword argument 'max_tokens'
+    - **Status**: ⏳ À corriger
+
+#### Tests E2E Échoués (4) - MODÈLE NON DISPONIBLE
+16. `test_full_assistant.py::TestFullAssistantE2E::test_full_conversation_flow`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+17. `test_full_assistant.py::TestFullAssistantE2E::test_project_analysis`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+18. `test_full_assistant.py::TestFullAssistantE2E::test_self_improvement`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+19. `test_full_assistant.py::TestFullAssistantE2E::test_performance_monitoring`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+#### Tests de Performance Échoués (4) - MODÈLE NON DISPONIBLE
+20. `test_performance_benchmark.py::TestPerformanceBenchmark::test_llm_response_time`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+21. `test_performance_benchmark.py::TestPerformanceBenchmark::test_tts_response_time`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+22. `test_real_time_benchmarks.py::TestRealTimeBenchmarks::test_full_cycle_time`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
+
+23. `test_real_time_benchmarks.py::TestRealTimeBenchmarks::test_memory_usage`
+    - **Erreur**: Exception: Failed to create a model
+    - **Status**: ⏳ À corriger
 
 ### Tests à Optimiser
 
@@ -383,63 +450,75 @@ Ces erreurs sont mineures et n'affectent pas la stabilité:
 5. Tests de couverture
 
 ### 🆕 Derniers Changements
-- **2026-03-18**: Ajout auto-détection des services LLM locaux (Ollama > LM Studio > Simulation)
-- **2026-03-18**: Correction erreur `ValueError: too many values to unpack` dans Gradio Dropdown
-- **2026-03-18**: Format des choix de modèles changé en tuples `(label, value)` pour compatibilité Gradio
-- **2026-03-18**: Ajout `allow_custom_value=True` pour éviter les warnings avec modèles non-listés
-- **2026-03-18**: Création tests unitaires complets pour `LLMService` et adaptateurs multiples
-- **2026-03-18**: Activation changement dynamique de modèle et rafraîchissement dans interface web
-- **2026-03-18**: Ajout capacités de monitoring pour la santé du service LLM et modèles disponibles
-- **2026-03-15**: Ajout de `DummyWakeWordAdapter` pour la simulation
-- **2026-03-15**: Ajout de `create_with_simulation()` dans `WakeWordService`
-- **2026-03-15**: Correction de `app_factory.py` pour utiliser la simulation
-- **2026-03-15**: Vérification des variables en double dans la configuration
-- **2026-03-15**: Application fonctionne maintenant sans modèle Vosk
+
+#### 2026-03-22 (Aujourd'hui)
+- ✅ **TODO.md mis à jour**: Statistiques réelles de tests (140 passés, 2 skips, 21 échoués, 26% coverage)
+- ✅ **Tests Unitaires**: 134 tests réussis, 3 échoués (app_factory, ollama_stream, sample_rate)
+- ⏳ **Tests d'Intégration**: 10 tests échoués à corriger (pipeline, event_bus, llm, audio, conversation, performance, network)
+- ⏳ **Tests E2E/Performance**: 8 tests échoués (Ollama model creation fails)
+- 📊 **Coverage actuelle**: ~26% (fichiers critiques non testés: system_monitor, audio_pipeline, interface_manager, etc.)
+- 🔍 **Bugs identifiés**: 
+  1. `AudioPipeline` - `process_audio`/`add_chunk` manquants
+  2. `SystemMonitor` - `check_alerts` manquante
+  3. `EventBus` - `subscribers` attribut incorrect
+  4. `Ollama model creation` - échec création modèle (tests E2E/Performance)
+  5. `Test fixtures` - mock_configs appelé directement (erreur fixture)
+
+#### 2026-03-18
+- Ajout auto-détection des services LLM locaux (Ollama > LM Studio > Simulation)
+- Correction erreur `ValueError: too many values to unpack` dans Gradio Dropdown
+- Format des choix de modèles changé en tuples `(label, value)` pour compatibilité Gradio
+- Ajout `allow_custom_value=True` pour éviter les warnings avec modèles non-listés
+- Création tests unitaires complets pour `LLMService` et adaptateurs multiples
+- Activation changement dynamique de modèle et rafraîchissement interface web
+- Ajout capacités de monitoring pour la santé du service LLM et modèles disponibles
+
+#### 2026-03-15
+- Ajout de `DummyWakeWordAdapter` pour la simulation
+- Ajout de `create_with_simulation()` dans `WakeWordService`
+- Correction de `app_factory.py` pour utiliser la simulation
+- Vérification des variables en double dans la configuration
+- Application fonctionne maintenant sans modèle Vosk
 
 ### 🚀 Prochaines Étapes
 
-#### Immédiat (Aujourd'hui) - 32 tests échoués
-1. ✅ TODO.md mis à jour
-2. ⏳ **CRITIQUE**: Corriger les 32 tests échoués
-3. ⏳ **CRITIQUE**: Atteindre 80% de couverture (actuel: 72%)
+#### Immédiat (2026-03-22) - 21 tests échoués
+1. ✅ TODO.md mis à jour avec statistiques réelles (140 passés, 2 skips, 21 échoués)
+2. ⏳ **CRITIQUE**: Corriger les 21 tests échoués (3 unitaires, 10 intégration, 4 E2E, 4 performance)
+3. ⏳ **PRIORITÉ**: Atteindre 80% de couverture avec tests fonctionnels (actuel ~26%)
+4. ⏳ **PRIORITÉ**: Corriger bugs Ollama model creation (E2E/Performance tests)
 
-#### Priorité 1 - Tests Unitaires (14 tests)
-1. Corriger `test_whisper_adapter.py::test_whisper_adapter_success` - AssertionError
-2. Corriger `test_core_coverage.py::test_llm_service_core_import` - ImportError
-3. Corriger `test_models.py::TestConversationState` - AssertionError, IndexError
-4. Corriger `test_models.py::TestConfigSettingsTest` - AssertionError
-5. Corriger `test_conversation_history.py` - AssertionError
-6. Corriger `test_speech_recognition_service.py` - TypeError
-7. Corriger `test_wake_word_service.py` - AttributeError
-8. Corriger `test_ollama_client.py` - AssertionError
+#### Priorité 1 - Tests Unitaires (3 tests - 2h)
+1. Corriger `test_app_factory.py::test_app_factory_imports` - ImportError `GradioWebInterface`
+2. Corriger `test_models.py::TestOllamaClient::test_generate_stream` - AssertionError (Mock __iter__)
+3. Corriger `test_models.py::TestConfigSettingsTest::test_settings_set_sample_rate` - AssertionError
 
-#### Priorité 2 - Tests d'Intégration (14 tests)
-1. Corriger `test_full_transcribe_generate_speak_flow` - AttributeError: 'process_audio'
-2. Corriger `test_conversation_flow_with_context` - AttributeError: '_conversation_state'
-3. Corriger `test_system_stats_collection` - TypeError: SystemMonitor.__init__()
-4. Corriger `test_system_alerts_generation` - TypeError: SystemMonitor.__init__()
-5. Corriger `test_llm_generation_with_system_message` - TypeError: Mock not iterable
-6. Corriger `test_audio_pipeline_buffering` - AttributeError: 'add_chunk'
-7. Corriger `test_conversation_with_multiple_turns` - AttributeError: 'add_system_message'
-8. Corriger `test_audio_processing_latency` - AssertionError
-9. Corriger `test_event_publishing` - ImportError: 'events'
-10. Corriger `test_event_subscription` - AttributeError: 'subscribers'
-11. Corriger `test_assistant_initialization` - AttributeError: 'TTSPiperService'
-12. Corriger `test_web_interface_startup` - NameError: 'configs'
-13. Corriger `test_transcribe_with_whisper` - AttributeError: 'transcribe'
-14. Corriger `test_transcribe_with_vosk` - AttributeError: 'transcribe'
+#### Priorité 2 - Tests d'Intégration (10 tests - 4h)
+4. Corriger `test_full_transcribe_generate_speak_flow` - AttributeError `process_audio`, `_conversation_state`
+5. Corriger `test_system_alerts_generation` - AttributeError `check_alerts`
+6. Corriger `test_llm_generation_with_system_message` - TypeError Mock not iterable
+7. Corriger `test_audio_pipeline_buffering` - AttributeError `add_chunk`
+8. Corriger `test_conversation_with_multiple_turns` - AttributeError `add_system_message`
+9. Corriger `test_audio_processing_latency` - AssertionError (metrics missing)
+10. Corriger `test_event_publishing` - ImportError `events` module
+11. Corriger `test_event_subscription` - AttributeError `subscribers`
+12. Corriger `test_assistant_initialization` - AttributeError `TTSPiperService`
+13. Corriger `test_web_interface_startup` - NameError `mock_configs` fixture calling
+14. Corriger `test_response_size_measurement` - TypeError `max_tokens` argument mismatch
 
-#### Priorité 3 - Tests E2E (4 tests)
-1. Corriger `test_full_conversation_flow` - Exception: Failed to create a model
-2. Corriger `test_project_analysis` - Exception: Failed to create a model
-3. Corriger `test_self_improvement` - Exception: Failed to create a model
-4. Corriger `test_performance_monitoring` - Exception: Failed to create a model
+#### Priorité 3 - Tests E2E (4 tests - 2h)
+15. Corriger `test_full_conversation_flow` - Ollama model creation fix
+16. Corriger `test_project_analysis` - Ollama model creation fix
+17. Corriger `test_self_improvement` - Ollama model creation fix
+18. Corriger `test_performance_monitoring` - Ollama model creation fix
 
-#### Priorité 4 - Tests de Performance (4 tests)
-1. Corriger `test_llm_response_time` - Exception: Failed to create a model
-2. Corriger `test_tts_response_time` - Exception: Failed to create a model
-3. Corriger `test_full_cycle_time` - Exception: Failed to create a model
-4. Corriger `test_memory_usage` - Exception: Failed to create a model
+#### Priorité 4 - Tests Performance (4 tests - 2h)
+19. Corriger `test_llm/response_time` - Ollama model creation fix
+20. Corriger `test_tts_response_time` - Ollama model creation fix
+21. Corriger `test_full_cycle_time` - Ollama model creation fix
+22. Corriger `test_memory_usage` - Ollama model creation fix
+
+**Temps estimé de correction**: ~14 hours (1 jour complet)
 
 ## ✅ Corrections Réalisées (2026-03-19)
 
